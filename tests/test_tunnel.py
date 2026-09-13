@@ -199,7 +199,7 @@ def test_start_tunnel_no_espera_a_un_cliente_que_ya_murio(proveedor_falso):
     """`ngrok` sin autenticar imprime el error y se va en menos de un segundo.
 
     Esperar el timeout entero ahi es tiempo regalado: el proceso esta muerto y
-    la URL no va a aparecer nunca. Con 15s por defecto, `portmaster share`
+    la URL no va a aparecer nunca. Con 15s por defecto, `stackhelx share`
     parecia colgado antes de dar un error que ya se sabia.
     """
     proveedor_falso("ngrok", ["ERR authentication failed"], vivo=False)
@@ -229,7 +229,7 @@ def test_tailscale_no_confunde_un_enlace_del_log_con_el_tunel():
 
 
 def test_el_mcp_cierra_sus_tuneles_al_terminar_la_sesion(tmp_path, proveedor_falso):
-    """`portmaster_share` abria el tunel y nadie lo cerraba nunca.
+    """`stackhelx_share` abria el tunel y nadie lo cerraba nunca.
 
     Es el mismo agujero que `server._ciclo_de_vida` ya documenta para la
     interfaz: la sesion terminaba y el cliente seguia vivo, con el puerto
@@ -242,7 +242,7 @@ def test_el_mcp_cierra_sus_tuneles_al_terminar_la_sesion(tmp_path, proveedor_fal
     proveedor_falso("cloudflared", lineas)
     mcp.cerrar_tuneles()  # arrancar de cero: el registro es de modulo
 
-    # `portmaster_share` solo publica puertos que el proyecto declara, asi que
+    # `stackhelx_share` solo publica puertos que el proyecto declara, asi que
     # el test necesita un proyecto. Antes corria contra el cwd, que es este
     # repo, que no tiene stack.yaml: la validacion nueva lo dejo en rojo y con
     # el se cayo la unica prueba de que la sesion no deja el cliente vivo.

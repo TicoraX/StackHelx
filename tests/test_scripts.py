@@ -174,7 +174,7 @@ def test_un_ciclo_entre_scripts_se_detecta(tmp_path):
 def test_un_argumento_extra_no_ejecuta_un_segundo_comando(tmp_path):
     """Los extra_args iban con un `" ".join` y esto corre con `shell=True`.
 
-    Desde el CLI el argumento lo escribe el usuario, pero `portmaster_run` los
+    Desde el CLI el argumento lo escribe el usuario, pero `stackhelx_run` (o `portmaster_run`) los
     recibe de un agente de IA: un separador adentro de un argumento ejecutaba lo
     que viniera despues.
 

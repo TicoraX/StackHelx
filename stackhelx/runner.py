@@ -348,7 +348,7 @@ class Runner:
         if estrenados:
             # Un solo respiro para todo el lote, no uno por proceso: sin esto,
             # la primera lectura de un servicio recien arrancado seria 0.0 y
-            # `portmaster stats`, que hace una sola consulta, nunca mediria nada.
+            # `stackhelx stats`, que hace una sola consulta, nunca mediria nada.
             time.sleep(CPU_MUESTRA)
 
         vivos = {proc.pid for arbol in arboles.values() for proc in arbol}

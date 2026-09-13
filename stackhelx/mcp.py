@@ -420,7 +420,7 @@ def _reservar_stdout():
     """Deja el descriptor 1 solo para el protocolo y manda lo demas a stderr.
 
     Sobre stdio el JSON-RPC comparte el descriptor 1 con todo lo que imprima el
-    proceso. `portmaster_run` lanza los comandos del usuario heredando ese
+    proceso. `stackhelx_run` (o `portmaster_run`) lanza los comandos del usuario heredando ese
     descriptor, asi que un `echo` adentro de un script se metia entre dos
     respuestas y el cliente perdia la sesion.
 

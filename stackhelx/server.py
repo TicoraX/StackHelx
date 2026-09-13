@@ -695,7 +695,7 @@ def _cerrar_tuneles() -> None:
 async def _ciclo_de_vida(app: FastAPI):
     """Al apagar, cierra los tuneles.
 
-    Sin esto `portmaster serve` terminaba y el cliente de tuneles seguia vivo,
+    Sin esto `stackhelx serve` terminaba y el cliente de tuneles seguia vivo,
     con el puerto expuesto a internet, sin nada en pantalla que lo dijera y sin
     forma de cerrarlo que no fuera matarlo a mano.
     """

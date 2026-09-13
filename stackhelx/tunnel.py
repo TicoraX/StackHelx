@@ -146,7 +146,7 @@ def start_tunnel(
 
     # Mirando tambien si el proceso se murio, y no solo el reloj. Un cliente que
     # falla al arrancar (`ngrok` sin autenticar) se va en menos de un segundo, y
-    # esperarle el plazo entero dejaba a `portmaster share` pareciendo colgado
+    # esperarle el plazo entero dejaba a `stackhelx share` pareciendo colgado
     # antes de dar un error que ya se sabia.
     limite = time.monotonic() + timeout
     while not ready_event.wait(0.1):
