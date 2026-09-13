@@ -328,7 +328,7 @@ def _env(where: str, value: object) -> dict[str, str]:
 def _default(value: object, services: dict[str, Service]) -> tuple[str, ...] | None:
     """Servicios que arrancan sin pedir perfil. Ausente significa todos.
 
-    Existe para que `portmaster init` pueda congelar un compose con `profiles:`
+    Existe para que `stackhelx init` pueda congelar un compose con `profiles:`
     sin cambiar lo que arranca: en compose esos contenedores quedan afuera hasta
     que los pedis, y sin esta clave el archivo congelado los prenderia a todos.
     """

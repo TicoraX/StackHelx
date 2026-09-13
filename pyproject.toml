@@ -1,7 +1,7 @@
 [project]
-name = "portmaster"
-# Una sola fuente: `portmaster/__init__.py`. Con el numero escrito en los dos
-# lados, un release publica el de aca y `portmaster --version` muestra el otro
+name = "stackhelx"
+# Una sola fuente: `stackhelx/__init__.py`. Con el numero escrito en los dos
+# lados, un release publica el de aca y `stackhelx --version` muestra el otro
 # en cuanto alguien se olvide de sincronizarlos.
 dynamic = ["version"]
 description = "Orquestador de entornos de desarrollo locales: puertos, Docker, backend y frontend con un solo comando"
@@ -9,7 +9,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 authors = [{ name = "TicoraX" }]
-keywords = ["cli", "devtools", "ports", "docker", "orchestration", "dx"]
+keywords = ["cli", "devtools", "ports", "docker", "orchestration", "dx", "stackhelx"]
 classifiers = [
     # PyPI arma su navegacion por categorias con estos campos: sin ellos el
     # paquete solo aparece por busqueda exacta del nombre.
@@ -37,7 +37,7 @@ dependencies = [
     "pyyaml>=6.0",
     "tomli>=2.0; python_version < '3.11'",
     # La interfaz web no es un extra. Con `pipx` o `uv tool`, que son los dos
-    # metodos que documenta el README, `pip install 'portmaster[web]'` instala
+    # metodos que documenta el README, `pip install 'stackhelx[web]'` instala
     # en el interprete del PATH y no en el venv aislado de la herramienta: el
     # usuario queda en un bucle donde el mensaje de error sugiere un comando
     # que no arregla nada. Son 15 MB en algo que ya trae psutil y rich.
@@ -53,11 +53,13 @@ dependencies = [
 dev = ["pytest>=8", "pytest-xdist>=3", "httpx>=0.27", "ruff>=0.6"]
 
 [project.urls]
-Homepage = "https://github.com/TicoraX/PortMaster"
-Issues = "https://github.com/TicoraX/PortMaster/issues"
+Homepage = "https://github.com/TicoraX/StackHelx"
+Repository = "https://github.com/TicoraX/StackHelx"
+Issues = "https://github.com/TicoraX/StackHelx/issues"
 
 [project.scripts]
-portmaster = "portmaster.cli:app"
+stackhelx = "stackhelx.cli:app"
+shx = "stackhelx.cli:app"
 
 [tool.ruff.lint]
 # El default de ruff (E4, E7, E9, F) mas orden de imports. Lo que interesa es F:
@@ -74,11 +76,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "portmaster/__init__.py"
+path = "stackhelx/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-# `packages` ya se lleva portmaster/web entero, HTML, CSS y JS incluidos. El
+# `packages` ya se lleva stackhelx/web entero, HTML, CSS y JS incluidos. El
 # force-include que habia aca los agregaba una segunda vez y el build moria con
 # "a second file is being added at the same path". Nunca se noto porque nadie
 # habia empacado la herramienta todavia: se instalaba con `pip install -e`.
-packages = ["portmaster"]
+packages = ["stackhelx"]

@@ -4,6 +4,19 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.0.0] - 2026-09-13
+
+### Rebrand y Nuevo Comienzo
+
+- **Renombrado del proyecto a StackHelx.** Se migra la identidad completa del proyecto desde `PortMaster` hacia `StackHelx` para erradicar las colisiones de búsqueda y descubrimiento en el ecosistema open source.
+- **Comandos y binarios CLI:** Se registra el comando principal `stackhelx` y el alias corto `shx` (`shx up`, `shx down`, `shx serve`, `shx doctor`, `shx ports`).
+- **Compatibilidad transparente hacia atrás:**
+  - `~/.stackhelx` es el nuevo directorio principal de estado, con detección automática y fallback de lectura de `~/.portmaster` si existía previamente.
+  - Soporte de variables `STACKHELX_*` (`STACKHELX_HOME`, `STACKHELX_TOKEN`, `STACKHELX_EDITOR`) con fallback a `PORTMASTER_*`.
+  - Servidor MCP: herramientas registradas bajo `stackhelx_*` (`stackhelx_status`, `stackhelx_up`, etc.) manteniendo compatibilidad de ejecución con llamadas heredadas a `portmaster_*`.
+  - Tokens de sesión en interfaz web: soporte de cookies `stackhelx_token` y fallback en `localStorage`.
+- **Suite consolidada:** 473 pruebas automatizadas pasando al 100% sobre Windows, macOS y Linux con soporte para Python 3.10+.
+
 ## [1.5.2] - 2026-09-09
 
 ### Corregido

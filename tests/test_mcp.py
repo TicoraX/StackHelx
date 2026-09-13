@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from portmaster import mcp, ports
+from stackhelx import mcp, ports
 
 
 @pytest.fixture(autouse=True)
@@ -24,7 +24,7 @@ def test_mcp_initialize():
     req = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}
     res = mcp.handle_request(req)
     assert res["id"] == 1
-    assert res["result"]["serverInfo"]["name"] == "portmaster"
+    assert res["result"]["serverInfo"]["name"] == "stackhelx"
     assert "tools" in res["result"]["capabilities"]
 
 
@@ -32,15 +32,15 @@ def test_mcp_tools_list():
     req = {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}
     res = mcp.handle_request(req)
     tool_names = [t["name"] for t in res["result"]["tools"]]
-    assert "portmaster_status" in tool_names
-    assert "portmaster_doctor" in tool_names
-    assert "portmaster_ports" in tool_names
-    assert "portmaster_free_port" in tool_names
-    assert "portmaster_share" in tool_names
-    assert "portmaster_run" in tool_names
-    assert "portmaster_clean" in tool_names
-    assert "portmaster_history" in tool_names
-    assert "portmaster_init" in tool_names
+    assert "stackhelx_status" in tool_names
+    assert "stackhelx_doctor" in tool_names
+    assert "stackhelx_ports" in tool_names
+    assert "stackhelx_free_port" in tool_names
+    assert "stackhelx_share" in tool_names
+    assert "stackhelx_run" in tool_names
+    assert "stackhelx_clean" in tool_names
+    assert "stackhelx_history" in tool_names
+    assert "stackhelx_init" in tool_names
 
 
 def _pedir_liberar(port):
@@ -49,7 +49,7 @@ def _pedir_liberar(port):
             "jsonrpc": "2.0",
             "id": 10,
             "method": "tools/call",
-            "params": {"name": "portmaster_free_port", "arguments": {"port": port}},
+            "params": {"name": "stackhelx_free_port", "arguments": {"port": port}},
         }
     )
 
@@ -121,7 +121,7 @@ def test_mcp_tool_call_share(tmp_path, monkeypatch):
         "id": 11,
         "method": "tools/call",
         "params": {
-            "name": "portmaster_share",
+            "name": "stackhelx_share",
             "arguments": {"port": 3000, "path": str(tmp_path)},
         },
     }
@@ -153,7 +153,7 @@ def test_mcp_tool_call_status(tmp_path):
         "id": 3,
         "method": "tools/call",
         "params": {
-            "name": "portmaster_status",
+            "name": "stackhelx_status",
             "arguments": {"path": str(tmp_path)},
         },
     }
@@ -184,7 +184,7 @@ def test_mcp_tool_call_run(tmp_path):
         "id": 4,
         "method": "tools/call",
         "params": {
-            "name": "portmaster_run",
+            "name": "stackhelx_run",
             "arguments": {"script": "touch", "path": str(tmp_path)},
         },
     }
@@ -218,7 +218,7 @@ def test_un_script_ruidoso_no_ensucia_el_protocolo(tmp_path):
                     "id": 2,
                     "method": "tools/call",
                     "params": {
-                        "name": "portmaster_run",
+                        "name": "stackhelx_run",
                         "arguments": {"script": "ruidoso", "path": str(tmp_path)},
                     },
                 },
@@ -228,7 +228,7 @@ def test_un_script_ruidoso_no_ensucia_el_protocolo(tmp_path):
     )
 
     done = subprocess.run(
-        [sys.executable, "-m", "portmaster.cli", "mcp"],
+        [sys.executable, "-m", "stackhelx.cli", "mcp"],
         input=peticiones,
         capture_output=True,
         text=True,
@@ -251,7 +251,7 @@ def _pedir_clean(argumentos):
             "jsonrpc": "2.0",
             "id": 20,
             "method": "tools/call",
-            "params": {"name": "portmaster_clean", "arguments": argumentos},
+            "params": {"name": "stackhelx_clean", "arguments": argumentos},
         }
     )
 
@@ -288,7 +288,7 @@ def test_mcp_clean_no_le_ofrece_volumes_al_agente():
     tools = mcp.handle_request(
         {"jsonrpc": "2.0", "id": 21, "method": "tools/list", "params": {}}
     )["result"]["tools"]
-    clean = next(t for t in tools if t["name"] == "portmaster_clean")
+    clean = next(t for t in tools if t["name"] == "stackhelx_clean")
     assert "volumes" not in clean["inputSchema"].get("properties", {})
 
 
@@ -323,7 +323,7 @@ def test_mcp_tool_call_doctor(tmp_path):
         "jsonrpc": "2.0",
         "id": 30,
         "method": "tools/call",
-        "params": {"name": "portmaster_doctor", "arguments": {"path": str(tmp_path)}},
+        "params": {"name": "stackhelx_doctor", "arguments": {"path": str(tmp_path)}},
     }
     res = mcp.handle_request(req)
     assert res["result"].get("isError") is not True, res["result"]
@@ -341,7 +341,7 @@ def test_mcp_tool_call_history(tmp_path, monkeypatch):
         "jsonrpc": "2.0",
         "id": 31,
         "method": "tools/call",
-        "params": {"name": "portmaster_history", "arguments": {"path": str(tmp_path)}},
+        "params": {"name": "stackhelx_history", "arguments": {"path": str(tmp_path)}},
     }
     res = mcp.handle_request(req)
     assert res["result"].get("isError") is not True, res["result"]
@@ -358,7 +358,7 @@ def test_mcp_tool_call_ports(free_ports):
         "jsonrpc": "2.0",
         "id": 32,
         "method": "tools/call",
-        "params": {"name": "portmaster_ports", "arguments": {"ports": [port]}},
+        "params": {"name": "stackhelx_ports", "arguments": {"ports": [port]}},
     }
     res = mcp.handle_request(req)
     assert res["result"].get("isError") is not True, res["result"]
@@ -374,7 +374,7 @@ def test_mcp_share_rechaza_puerto_ajeno(tmp_path):
         "jsonrpc": "2.0",
         "id": 33,
         "method": "tools/call",
-        "params": {"name": "portmaster_share", "arguments": {"port": 5432, "path": str(tmp_path)}},
+        "params": {"name": "stackhelx_share", "arguments": {"port": 5432, "path": str(tmp_path)}},
     }
     res = mcp.handle_request(req)
     assert res["result"].get("isError") is True
@@ -394,7 +394,7 @@ def test_mcp_action_budget_limit(monkeypatch):
         "jsonrpc": "2.0",
         "id": 34,
         "method": "tools/call",
-        "params": {"name": "portmaster_ports", "arguments": {"ports": [8080]}},
+        "params": {"name": "stackhelx_ports", "arguments": {"ports": [8080]}},
     }
     res = mcp.handle_request(req)
     assert res["result"].get("isError") is True
@@ -412,17 +412,17 @@ def test_mcp_telemetry_records_success(tmp_path):
         "jsonrpc": "2.0",
         "id": 101,
         "method": "tools/call",
-        "params": {"name": "portmaster_status", "arguments": {"path": str(tmp_path)}},
+        "params": {"name": "stackhelx_status", "arguments": {"path": str(tmp_path)}},
     }
     res = mcp.handle_request(req)
     assert res["result"].get("isError") is not True
 
     data = mcp.get_telemetry()
     assert data["total_calls"] == 1
-    assert data["by_tool"].get("portmaster_status") == 1
+    assert data["by_tool"].get("stackhelx_status") == 1
     assert len(data["recent_events"]) == 1
     event = data["recent_events"][0]
-    assert event["tool"] == "portmaster_status"
+    assert event["tool"] == "stackhelx_status"
     assert event["status"] == "ok"
     assert event["duration_ms"] >= 0
     assert "timestamp" in event
@@ -452,7 +452,7 @@ def test_mcp_telemetry_records_error_and_rate_limit():
         "jsonrpc": "2.0",
         "id": 103,
         "method": "tools/call",
-        "params": {"name": "portmaster_ports", "arguments": {"ports": [80]}},
+        "params": {"name": "stackhelx_ports", "arguments": {"ports": [80]}},
     }
     res_limit = mcp.handle_request(req_limit)
     assert res_limit["result"].get("isError") is True

@@ -1,4 +1,4 @@
-# PortMaster
+# StackHelx
 
 Herramienta de consola en Python que orquesta entornos de desarrollo locales:
 libera puertos, arranca Docker, backend y frontend en orden, y expone una
@@ -16,7 +16,7 @@ interfaz web local para gestionar varios proyectos.
 | `docker.py` | Arranque y reinicio de Docker Desktop. Diagnosticar si esta arriba es de `doctor.py` |
 | `server.py` | API local en FastAPI |
 | `web/` | Interfaz: HTML, CSS y JS sin build |
-| `cli.py` | Comandos Typer |
+| `cli.py` | Comandos Typer (`stackhelx` / `shx`) |
 
 El core no depende de la terminal. El CLI y el servidor son dos consumidores de
 las mismas funciones; cualquier logica nueva va en el modulo correspondiente, no
@@ -28,13 +28,13 @@ Cada una con su motivo. No revertirlas sin leerlo primero.
 
 ### El token no vive en un `.env`
 
-La regla pide secretos en `.env` con validacion al arrancar. PortMaster se
+La regla pide secretos en `.env` con validacion al arrancar. StackHelx se
 instala con `pipx` o `uv tool`: no hay repositorio donde poner un `.env`, y
 pedirle al usuario que genere y copie un token a mano garantiza que termine
 usando `token=1234`.
 
-En su lugar: `PORTMASTER_TOKEN` tiene prioridad si existe, y si no,
-`registry.token()` genera uno de 32 bytes en `~/.portmaster/token` con permisos
+En su lugar: `STACKHELX_TOKEN` (o `PORTMASTER_TOKEN` legacy) tiene prioridad si existe, y si no,
+`registry.token()` genera uno de 32 bytes en `~/.stackhelx/token` con permisos
 0600. Se valida largo minimo de 16 en ambos casos y el servidor no arranca sin
 token. El secreto queda fuera del repo, que es lo que la regla protege.
 
@@ -186,10 +186,10 @@ inyeccion hecha. Preguntar si aparecio **cualquier** archivo nuevo, no.
 
 ## Probar la interfaz: contra el repo, no contra lo instalado
 
-`portmaster serve` desde el PATH **no corre este repo**. Se instala con `pipx` o
+`stackhelx serve` desde el PATH **no corre este repo**. Se instala con `pipx` o
 `uv tool`, asi que el binario apunta a la copia de
-`~/.local/bin` (o `AppData/Roaming/uv/tools/portmaster` en Windows). Editas
-`portmaster/web/app.css`, recargas el navegador, y ves el build viejo.
+`~/.local/bin` (o `AppData/Roaming/uv/tools/stackhelx` en Windows). Editas
+`stackhelx/web/app.css`, recargas el navegador, y ves el build viejo.
 
 El sintoma es peor que un error: el arreglo **parece no hacer nada**. Costo dos
 correcciones dadas por invalidas y descartadas antes de mirar quien servia el
@@ -198,10 +198,10 @@ archivo. La segunda hipotesis ya iba camino a la tercera.
 Para probar cambios de interfaz:
 
 ```bash
-# Windows: .venv/Scripts/python -m portmaster serve --port 7667 --no-open
-# POSIX:   .venv/bin/python -m portmaster serve --port 7667 --no-open
+# Windows: .venv/Scripts/python -m stackhelx serve --port 7667 --no-open
+# POSIX:   .venv/bin/python -m stackhelx serve --port 7667 --no-open
 # O con el entorno activado:
-python -m portmaster serve --port 7667 --no-open
+python -m stackhelx serve --port 7667 --no-open
 curl -s http://127.0.0.1:7667/static/app.css | grep lo-que-acabas-de-escribir
 ```
 

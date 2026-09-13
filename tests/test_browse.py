@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from portmaster import browse
+from stackhelx import browse
 
 
 def escribir(raiz: Path, *nombres: str) -> Path:

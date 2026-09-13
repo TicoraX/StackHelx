@@ -14,7 +14,7 @@ cargar la página.
 
 ## Congelar a stack.yaml
 
-Un proyecto detectado trae `Congelar a stack.yaml`, que es `portmaster init`
+Un proyecto detectado trae `Congelar a stack.yaml`, que es `stackhelx init`
 sin salir de la interfaz: útil cuando ves en la tarjeta que detectó un puerto
 que no era. Pide confirmación sobre el mismo botón, escribe la ruta del
 registro y nunca una que venga del navegador, y no sobreescribe un archivo
@@ -31,7 +31,7 @@ no tienen por qué pagarlo.
 Los servicios que se pueden abrir en el navegador traen un botón `Abrir`, y la
 tarjeta del proyecto trae el suyo, que lleva al último de la lista que conteste,
 para no buscar cuál de los tres es el frontend. Cuál lo lleva no se adivina por
-el nombre: cuando el servicio queda listo, PortMaster le hace una petición al
+el nombre: cuando el servicio queda listo, StackHelx le hace una petición al
 puerto. Si contesta HTTP, es abrible. Un `404` cuenta,
 porque la mayoría de las APIs no sirven nada en la raíz; lo que descarta al
 servicio es que no conteste, que es el caso de una base de datos.
@@ -81,7 +81,7 @@ marcadores, nunca contenido.
 ## Seguridad
 
 El servidor escucha solo en loopback y exige un token que `serve` genera en
-`~/.portmaster/token` y pasa en la URL de arranque. Ejecuta los comandos de tus
+`~/.stackhelx/token` y pasa en la URL de arranque. Ejecuta los comandos de tus
 `stack.yaml`, así que se trata como superficie sensible: rate limit en todas las
 rutas, CSP estricta, y validación del header `Host` contra rebinding de DNS.
-Podés fijar el token vos mismo con `PORTMASTER_TOKEN`.
+Podés fijar el token vos mismo con `STACKHELX_TOKEN`.

@@ -6,8 +6,8 @@ import time
 import psutil
 import pytest
 
-from portmaster import tunnel
-from portmaster.tunnel import TunnelError
+from stackhelx import tunnel
+from stackhelx.tunnel import TunnelError
 
 
 def test_provider_regex_extraction():
@@ -236,7 +236,7 @@ def test_el_mcp_cierra_sus_tuneles_al_terminar_la_sesion(tmp_path, proveedor_fal
     expuesto a internet. Aca es peor, porque del otro lado hay un agente y no
     una persona mirando la pantalla.
     """
-    from portmaster import mcp
+    from stackhelx import mcp
 
     lineas, esperada = MUESTRAS["cloudflared"]
     proveedor_falso("cloudflared", lineas)
@@ -251,7 +251,7 @@ def test_el_mcp_cierra_sus_tuneles_al_terminar_la_sesion(tmp_path, proveedor_fal
     )
 
     salida = mcp._execute_tool(
-        "portmaster_share",
+        "stackhelx_share",
         {"port": 3000, "provider": "cloudflared", "path": str(tmp_path)},
     )
     assert esperada in salida
@@ -269,10 +269,10 @@ def test_el_mcp_cierra_sus_tuneles_al_terminar_la_sesion(tmp_path, proveedor_fal
 
 def test_el_mcp_rechaza_un_puerto_fuera_de_rango():
     """`int(args["port"])` aceptaba cualquier entero y llegaba al cliente."""
-    from portmaster import mcp
+    from stackhelx import mcp
 
     with pytest.raises(ValueError, match="rango"):
-        mcp._execute_tool("portmaster_share", {"port": 0})
+        mcp._execute_tool("stackhelx_share", {"port": 0})
 
 
 def test_no_se_publica_un_portmaster_serve(monkeypatch):
@@ -294,7 +294,7 @@ def test_no_se_publica_un_portmaster_serve(monkeypatch):
         ),
     )
 
-    with pytest.raises(tunnel.TunnelError, match="portmaster serve"):
+    with pytest.raises(tunnel.TunnelError, match="serve"):
         tunnel.start_tunnel(7666)
     assert lanzados == [], "se levanto un cliente de tuneles contra la propia API"
 
@@ -311,10 +311,10 @@ def test_un_puerto_ajeno_no_se_confunde_con_portmaster(monkeypatch):
             port=port, free=False, pid=456, cmdline="node /app/node_modules/.bin/vite serve"
         ),
     )
-    assert tunnel.sirve_portmaster(3000) is False
+    assert tunnel.sirve_stackhelx(3000) is False
 
 
-def test_sirve_portmaster_detecta_propio_pid(monkeypatch):
+def test_sirve_stackhelx_detecta_propio_pid(monkeypatch):
     monkeypatch.setattr(
         tunnel.ports,
         "scan",
@@ -322,4 +322,4 @@ def test_sirve_portmaster_detecta_propio_pid(monkeypatch):
             port=port, free=False, pid=os.getpid(), cmdline="custom_executable --flag"
         ),
     )
-    assert tunnel.sirve_portmaster(7666) is True
+    assert tunnel.sirve_stackhelx(7666) is True

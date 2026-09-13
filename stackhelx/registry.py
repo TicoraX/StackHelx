@@ -17,7 +17,19 @@ from pathlib import Path
 
 from . import config, detect, ports
 
-HOME = Path(os.environ.get("PORTMASTER_HOME") or Path.home() / ".portmaster")
+
+def _default_home() -> Path:
+    env = os.environ.get("STACKHELX_HOME") or os.environ.get("PORTMASTER_HOME")
+    if env:
+        return Path(env)
+    new_home = Path.home() / ".stackhelx"
+    old_home = Path.home() / ".portmaster"
+    if not new_home.exists() and old_home.exists():
+        return old_home
+    return new_home
+
+
+HOME = _default_home()
 PROJECTS = HOME / "projects.json"
 
 
@@ -246,10 +258,10 @@ def token() -> str:
     """
     from secrets import token_urlsafe
 
-    from_env = os.environ.get("PORTMASTER_TOKEN")
+    from_env = os.environ.get("STACKHELX_TOKEN") or os.environ.get("PORTMASTER_TOKEN")
     if from_env:
         if len(from_env) < 16:
-            raise RegistryError("PORTMASTER_TOKEN es demasiado corto (minimo 16)")
+            raise RegistryError("STACKHELX_TOKEN es demasiado corto (minimo 16)")
         return from_env
 
     path = HOME / "token"

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PortMaster</title>
+    <title>StackHelx</title>
     <link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%2364748b'/%3E%3C/svg%3E" />
     <!-- Sin `?v=`: el servidor manda Cache-Control: no-store en toda respuesta,
          mounts incluidos, asi que el navegador ya no cachea nada. Mantenerlo a
@@ -12,7 +12,7 @@
   </head>
   <body>
     <header class="masthead">
-      <h1 class="wordmark">PortMaster</h1>
+      <h1 class="wordmark">StackHelx</h1>
       <p class="masthead__status" id="connection" role="status">Conectando…</p>
       <p class="masthead__health" id="health" hidden></p>
       <button class="btn btn--quiet masthead__notify" type="button" id="btn-mcp-modal" title="Telemetría y llamadas de herramientas MCP">
@@ -75,7 +75,7 @@
       </nav>
 
       <p class="empty" id="empty" hidden>
-        Todavía no registraste ningún proyecto. Corré <code>portmaster add</code>
+        Todavía no registraste ningún proyecto. Corré <code>stackhelx add</code>
         dentro de una carpeta con <code>stack.yaml</code>, o pegá la ruta acá abajo.
       </p>
 
@@ -89,7 +89,7 @@
             <h2 class="orphans__heading" id="tunnels-heading">Túneles abiertos</h2>
             <p class="orphans__desc">
               Estos puertos están accesibles desde internet por una URL pública.
-              Se cierran solos al apagar PortMaster.
+              Se cierran solos al apagar StackHelx.
             </p>
           </div>
         </div>
@@ -100,7 +100,7 @@
         <div class="orphans__header">
           <div>
             <h2 class="orphans__heading" id="orphans-heading">Procesos intrusos</h2>
-            <p class="orphans__desc">Puertos de tus proyectos ocupados por procesos que no arrancó PortMaster. Podés cerrarlos desde acá.</p>
+            <p class="orphans__desc">Puertos de tus proyectos ocupados por procesos que no arrancó StackHelx. Podés cerrarlos desde acá.</p>
           </div>
           <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden>Liberar todos</button>
         </div>
@@ -126,7 +126,7 @@
           <button class="btn btn--primary" type="submit">Registrar</button>
         </div>
         <div class="enroll__tools">
-          <a class="btn btn--quiet" id="btn-export" href="/api/projects/export" download="portmaster-projects.json">Exportar proyectos</a>
+          <a class="btn btn--quiet" id="btn-export" href="/api/projects/export" download="stackhelx-projects.json">Exportar proyectos</a>
           <button class="btn btn--quiet" type="button" id="btn-import">Importar JSON</button>
           <!-- Los dos se ven siempre que algun proyecto use Docker. El boton
                abre o reinicia segun el estado; el texto lo pone updateDocker. -->
@@ -214,11 +214,11 @@
 
       <dialog class="picker" id="auth-modal" aria-label="Autenticación">
         <div class="picker__head">
-          <p class="picker__path">Token de PortMaster requerido</p>
+          <p class="picker__path">Token de StackHelx requerido</p>
         </div>
         <div class="auth">
           <p class="auth__hint">
-            Pegá tu token de acceso (lo encontrás en <code>~/.portmaster/token</code>).
+            Pegá tu token de acceso (lo encontrás en <code>~/.stackhelx/token</code>).
           </p>
           <input
             class="enroll__input auth__input"

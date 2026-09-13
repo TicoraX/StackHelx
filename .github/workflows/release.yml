@@ -22,7 +22,7 @@ jobs:
       - name: El tag tiene que coincidir con la version del paquete
         run: |
           tag="${GITHUB_REF_NAME#v}"
-          pkg=$(python -c "import re,pathlib; print(re.search(r'\"(.+)\"', pathlib.Path('portmaster/__init__.py').read_text()).group(1))")
+          pkg=$(python -c "import re,pathlib; print(re.search(r'\"(.+)\"', pathlib.Path('stackhelx/__init__.py').read_text()).group(1))")
           echo "tag=$tag paquete=$pkg"
           [ "$tag" = "$pkg" ]
 

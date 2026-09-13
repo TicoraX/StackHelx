@@ -16,7 +16,7 @@ import psutil
 import pytest
 from rich.console import Console
 
-from portmaster import config, detect, ports, runner
+from stackhelx import config, detect, ports, runner
 
 # Servidor minimo que anuncia su arranque y se queda escuchando.
 SERVER = (
@@ -643,7 +643,7 @@ def test_un_fallo_en_el_nivel_no_deja_hermanos_vivos(tmp_path, free_ports):
 
 
 def test_niveles_de_una_cadena_lineal():
-    from portmaster.config import Service
+    from stackhelx.config import Service
 
     def svc(name, needs=()):
         return Service(name, "echo", None, None, "none", tuple(needs), {}, False)

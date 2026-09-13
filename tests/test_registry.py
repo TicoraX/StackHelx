@@ -1,5 +1,5 @@
 
-from portmaster import registry
+from stackhelx import registry
 
 
 def test_find_collisions(tmp_path, monkeypatch):

@@ -570,7 +570,7 @@ def require_token(request: Request) -> None:
     header = request.headers.get("authorization", "")
     supplied = header[7:] if header.lower().startswith("bearer ") else ""
     if not supplied:
-        supplied = request.cookies.get("portmaster_token", "")
+        supplied = request.cookies.get("stackhelx_token") or request.cookies.get("portmaster_token", "")
     if not supplied:
         supplied = request.query_params.get("token", "")
     if not secrets.compare_digest(supplied, request.app.state.token):
@@ -746,10 +746,10 @@ def create_app(token: str | None = None) -> FastAPI:
         # aca hacia que un GET / pelado se contestara con el token de verdad en
         # un Set-Cookie: cualquier proceso local conseguia la llave con un curl,
         # y con ella corre comandos, porque stack.yaml es ejecutable por diseno.
-        tok = token or request.cookies.get("portmaster_token", "")
+        tok = token or request.cookies.get("stackhelx_token") or request.cookies.get("portmaster_token", "")
         if tok and secrets.compare_digest(tok, request.app.state.token):
             response.set_cookie(
-                "portmaster_token",
+                "stackhelx_token",
                 tok,
                 httponly=False,
                 samesite="lax",
@@ -844,7 +844,7 @@ def create_app(token: str | None = None) -> FastAPI:
         if shutil.which("cursor.cmd") or shutil.which("cursor"):
             available.append({"id": "cursor", "name": "Cursor"})
         # Custom
-        env_editor = os.environ.get("PORTMASTER_EDITOR") or os.environ.get("EDITOR")
+        env_editor = os.environ.get("STACKHELX_EDITOR") or os.environ.get("PORTMASTER_EDITOR") or os.environ.get("EDITOR")
         if env_editor and shutil.which(env_editor):
             available.append({"id": "env", "name": f"Sistema ({env_editor})"})
         return {"editors": available}
@@ -873,7 +873,7 @@ def create_app(token: str | None = None) -> FastAPI:
             found_editor = shutil.which("code.cmd") or shutil.which("code")
             editor_display = "VS Code"
         elif target == "env":
-            cand = os.environ.get("PORTMASTER_EDITOR") or os.environ.get("EDITOR")
+            cand = os.environ.get("STACKHELX_EDITOR") or os.environ.get("PORTMASTER_EDITOR") or os.environ.get("EDITOR")
             if cand and shutil.which(cand):
                 found_editor = cand
                 editor_display = cand
@@ -881,6 +881,7 @@ def create_app(token: str | None = None) -> FastAPI:
         if not found_editor:
             # Fallback a autodeteccion
             candidates = [
+                os.environ.get("STACKHELX_EDITOR"),
                 os.environ.get("PORTMASTER_EDITOR"),
                 os.environ.get("EDITOR"),
                 "cursor.cmd",

@@ -1,6 +1,6 @@
 import pytest
 
-from portmaster import guardrails
+from stackhelx import guardrails
 
 
 def test_validate_identifier_valid():

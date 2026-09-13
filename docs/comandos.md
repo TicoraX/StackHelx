@@ -6,11 +6,11 @@ Acá están los cuatro que quedan, con qué revisa cada uno y por qué.
 ## Bajar lo que sobrevive a la terminal
 
 ```bash
-portmaster down
-portmaster down --profile backend
+stackhelx down
+stackhelx down --profile backend
 ```
 
-`Ctrl-C` sobre un `portmaster up` apaga a sus hijos, pero un
+`Ctrl-C` sobre un `stackhelx up` apaga a sus hijos, pero un
 `docker compose up -d` termina enseguida y deja los contenedores corriendo.
 `down` ejecuta el `stop` de cada servicio que lo declara, en orden inverso al
 de arranque. Si ningún servicio declara `stop`, lo dice y no hace nada: esos
@@ -19,8 +19,8 @@ son hijos de la terminal y ya se fueron con `Ctrl-C`.
 ## Cambiar de proyecto
 
 ```bash
-portmaster switch fitness
-portmaster switch A:\Proyectos\Fitness    # o la ruta, si hay dos con el mismo nombre
+stackhelx switch fitness
+stackhelx switch A:\Proyectos\Fitness    # o la ruta, si hay dos con el mismo nombre
 ```
 
 Baja los proyectos registrados que declaran alguno de los puertos que este
@@ -28,14 +28,14 @@ necesita, y después lo levanta. Solo los que chocan: parar una base de datos qu
 nadie disputa no ayuda a arrancar y es lo que más cuesta volver a levantar.
 
 Baja lo que declara `stop`, o sea contenedores. Un `npm run dev` de otra
-terminal no es hijo de nadie que PortMaster controle, así que si sigue ocupando
+terminal no es hijo de nadie que StackHelx controle, así que si sigue ocupando
 el puerto lo agarra el paso de liberación de `up`, que pregunta antes de cerrar
 nada.
 
 ## Diagnóstico
 
 ```bash
-portmaster doctor
+stackhelx doctor
 ```
 
 Revisa, sin arrancar nada, lo que suele impedir un arranque: qué stack se lee o
@@ -44,13 +44,13 @@ contesta, y qué puertos declarados están ocupados y por quién. Cada chequeo e
 rojo trae la línea para arreglarlo.
 
 ```
-ok    token                  C:\Users\vos\.portmaster\token
+ok    token                  C:\Users\vos\.stackhelx\token
 ok    stack                  detectado (3 servicios)
 ok    comando docker         C:\Program Files\Docker\...\docker.EXE
 FALLA daemon de docker       no esta en ejecucion
                              -> abri Docker Desktop
 aviso puerto 3000            ocupado por node.exe (pid 24180), lo pide web
-                             -> portmaster free 3000
+                             -> stackhelx free 3000
 ```
 
 Si hay un `.env.example`, compara sus claves contra el `.env` y avisa cuáles
@@ -58,15 +58,15 @@ faltan o quedaron sin valor. Nombres de claves nada más: los valores no salen
 ni por la terminal ni por la API.
 
 Sale con 1 solo si algo impide arrancar. Un puerto ocupado es aviso, porque
-`portmaster up` ofrece liberarlo, y una clave que falta también, porque puede
+`stackhelx up` ofrece liberarlo, y una clave que falta también, porque puede
 ser opcional o venir del entorno. Fuera de un proyecto revisa nada más el
 entorno, que es lo que uno quiere recién instalado.
 
 ## Abrir el stack en el navegador
 
 ```bash
-portmaster open         # el ultimo servicio del stack que conteste HTTP
-portmaster open 3000    # o el puerto que le pases
+stackhelx open         # el ultimo servicio del stack que conteste HTTP
+stackhelx open 3000    # o el puerto que le pases
 ```
 
 Sirve cuando el stack ya está corriendo en otra terminal. Recorre los puertos
@@ -77,10 +77,10 @@ así que nunca es el elegido.
 ## Ejecutar scripts y pipelines de tareas
 
 ```bash
-portmaster run              # lista las tareas declaradas en stack.yaml
-portmaster run test         # ejecuta una tarea específica
-portmaster run test -k foo  # pasa argumentos adicionales al comando
-portmaster run check        # ejecuta un pipeline secuencial de scripts
+stackhelx run              # lista las tareas declaradas en stack.yaml
+stackhelx run test         # ejecuta una tarea específica
+stackhelx run test -k foo  # pasa argumentos adicionales al comando
+stackhelx run check        # ejecuta un pipeline secuencial de scripts
 ```
 
 Permite definir scripts del proyecto en `stack.yaml` (ej. tests, linters, migraciones, seeders)
@@ -90,34 +90,34 @@ Si un paso del pipeline falla, la ejecución se detiene inmediatamente con el c�
 ## Compartir servicios vía túneles públicos
 
 ```bash
-portmaster share               # expone el servicio web principal
-portmaster share 3000          # expone un puerto específico
-portmaster share api           # expone el servicio por nombre
-portmaster share --provider ngrok  # fuerza el proveedor (cloudflared, ngrok, lt, tailscale)
+stackhelx share               # expone el servicio web principal
+stackhelx share 3000          # expone un puerto específico
+stackhelx share api           # expone el servicio por nombre
+stackhelx share --provider ngrok  # fuerza el proveedor (cloudflared, ngrok, lt, tailscale)
 ```
 
 Genera un túnel HTTPS seguro y efímero hacia el puerto local, ideal para probar webhooks,
 compartir vistas previas con clientes o probar en dispositivos móviles. Presioná `Ctrl-C` para
 cerrar el túnel de inmediato.
 
-**No se puede compartir el puerto de `portmaster serve`.** Detrás de ese puerto está la API
+**No se puede compartir el puerto de `stackhelx serve`.** Detrás de ese puerto está la API
 que arranca los servicios de tu `stack.yaml`, o sea ejecución de comandos: publicarla dejaría
 al token como única puerta entre internet y tu consola. Vale para el CLI y para el botón de la
 interfaz por igual:
 
 ```console
-$ portmaster share 7667
+$ stackhelx share 7667
 Iniciando tunel hacia 127.0.0.1:7667...
-Error: el puerto 7667 es de un `portmaster serve`. Publicarlo expone la API que
+Error: el puerto 7667 es de un `stackhelx serve`. Publicarlo expone la API que
 ejecuta los comandos de tu stack.yaml, no tu proyecto.
 ```
 
 ## Limpieza de recursos Docker (Higiene)
 
 ```bash
-portmaster clean                        # contenedores parados, imagenes sin tag, redes sin usar y cache de build
-portmaster clean --solo cache --solo images   # solo esas dos categorias
-portmaster clean --volumes              # ademas, volumenes anonimos/huerfanos
+stackhelx clean                        # contenedores parados, imagenes sin tag, redes sin usar y cache de build
+stackhelx clean --solo cache --solo images   # solo esas dos categorias
+stackhelx clean --volumes              # ademas, volumenes anonimos/huerfanos
 ```
 
 Limpia **por categorías**, con un comando propio para cada una, no con un
@@ -138,8 +138,8 @@ peor que terminar y contarlo.
 ## Validar el stack sin arrancarlo
 
 ```bash
-portmaster test-stack
-portmaster test-stack ../otro-proyecto
+stackhelx test-stack
+stackhelx test-stack ../otro-proyecto
 ```
 
 Carga el `stack.yaml`, resuelve el orden topológico y mira si los puertos
@@ -168,8 +168,8 @@ ahí no es necesariamente un problema, y `up` los libera preguntando antes.
 ## Historial de arranques
 
 ```bash
-portmaster history
-portmaster history --limit 20
+stackhelx history
+stackhelx history --limit 20
 ```
 
 ```
@@ -182,23 +182,23 @@ portmaster history --limit 20
 ```
 
 **El historial lo escribe la interfaz web, no el CLI.** Cada arranque desde
-`portmaster serve` deja una línea con su duración y su resultado; `portmaster
+`stackhelx serve` deja una línea con su duración y su resultado; `stackhelx
 up` desde la terminal no registra nada. Si solo usaste el CLI, esto contesta
 `No hay historial para el proyecto <nombre>` y no está roto.
 
-Los archivos viven en `~/.portmaster/history/<id>.jsonl`, uno por proyecto, y se
+Los archivos viven en `~/.stackhelx/history/<id>.jsonl`, uno por proyecto, y se
 recortan solos a los últimos 250 arranques. `--limit` acepta de 1 a 50.
 
 ## Logs y métricas del stack que corre en la interfaz
 
 ```bash
-portmaster logs                    # lo que haya hasta ahora
-portmaster logs --follow           # y seguir
-portmaster logs --service api      # filtrar por nombre
-portmaster stats                   # CPU y memoria (alias: portmaster top)
+stackhelx logs                    # lo que haya hasta ahora
+stackhelx logs --follow           # y seguir
+stackhelx logs --service api      # filtrar por nombre
+stackhelx stats                   # CPU y memoria (alias: stackhelx top)
 ```
 
-Los dos le preguntan al `portmaster serve` que ya tengas abierto, así que
+Los dos le preguntan al `stackhelx serve` que ya tengas abierto, así que
 necesitan que esté corriendo. Con `--port` se apunta a otro:
 
 ```
@@ -218,14 +218,14 @@ así que sumar solo el padre daría una memoria de juguete. Por eso el CPU pasa 
 Sin el servidor levantado, los dos salen por código 1 diciéndolo:
 
 ```
-No se pudo conectar con PortMaster en http://127.0.0.1:7666.
-Asegúrate de que `portmaster serve` está corriendo.
+No se pudo conectar con StackHelx en http://127.0.0.1:7666.
+Asegúrate de que `stackhelx serve` está corriendo.
 ```
 
 ## Servidor MCP para Agentes de IA
 
 ```bash
-portmaster mcp
+stackhelx mcp
 ```
 
 Inicia un servidor estándar Model Context Protocol (MCP) sobre `stdio`. Permite que
@@ -237,15 +237,15 @@ Las nueve herramientas que expone:
 
 | Herramienta | Qué hace |
 |---|---|
-| `portmaster_status` | Estado de servicios, proyectos y puertos |
-| `portmaster_doctor` | Diagnóstico del entorno, con la solución sugerida de cada check |
-| `portmaster_ports` | Escanea puertos, los que le pases o los del stack |
-| `portmaster_free_port` | Cierra el proceso que ocupa un puerto |
-| `portmaster_share` | Abre un túnel público hacia un puerto local |
-| `portmaster_run` | Ejecuta un script o pipeline de `stack.yaml` |
-| `portmaster_clean` | Limpia recursos de Docker |
-| `portmaster_history` | Historial de arranques del proyecto |
-| `portmaster_init` | Congela lo detectado en un `stack.yaml` |
+| `stackhelx_status` | Estado de servicios, proyectos y puertos |
+| `stackhelx_doctor` | Diagnóstico del entorno, con la solución sugerida de cada check |
+| `stackhelx_ports` | Escanea puertos, los que le pases o los del stack |
+| `stackhelx_free_port` | Cierra el proceso que ocupa un puerto |
+| `stackhelx_share` | Abre un túnel público hacia un puerto local |
+| `stackhelx_run` | Ejecuta un script o pipeline de `stack.yaml` |
+| `stackhelx_clean` | Limpia recursos de Docker |
+| `stackhelx_history` | Historial de arranques del proyecto |
+| `stackhelx_init` | Congela lo detectado en un `stack.yaml` |
 
 Todas aceptan un `path` opcional; sin él trabajan sobre el directorio actual.
 
@@ -254,11 +254,11 @@ Todas aceptan un `path` opcional; sin él trabajan sobre el directorio actual.
 Del otro lado hay un agente y no una persona mirando la pantalla, así que tres
 cosas están cortadas a propósito y no son las mismas que en el CLI:
 
-- **`portmaster_share` solo publica puertos que el proyecto declara.** Pedir uno
+- **`stackhelx_share` solo publica puertos que el proyecto declara.** Pedir uno
   ajeno responde `El puerto 5432 no pertenece a los puertos declarados`, y el
   puerto de la propia interfaz está vetado aparte. El CLI no tiene esta
   restricción: ahí el puerto lo escribís vos.
-- **`portmaster_clean` no borra volúmenes.** El flag existe en el CLI y no en el
+- **`stackhelx_clean` no borra volúmenes.** El flag existe en el CLI y no en el
   esquema de la herramienta.
 - **Hay un tope de 30 llamadas por minuto.** Pasado eso contesta `Límite de
   acciones MCP excedido`. Es contra el bucle de un agente que se traba, no

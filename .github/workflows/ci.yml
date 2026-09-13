@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install ruff
-      - run: ruff check portmaster tests
+      - run: ruff check stackhelx tests
 
   test:
     # El modulo de puertos habla directo con el SO y los tres sistemas divergen:

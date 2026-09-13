@@ -82,3 +82,18 @@ def free_ports():
         return tuple(numeros)
 
     return reservar
+
+
+# Parche defensivo para entornos Windows con Python 3.14 donde el cleanup de symlinks/junctions lanza PermissionError
+if os.name == "nt":
+    import contextlib
+
+    import _pytest.pathlib
+
+    _orig_cleanup = _pytest.pathlib.cleanup_dead_symlinks
+
+    def _safe_cleanup(root):
+        with contextlib.suppress(PermissionError, OSError):
+            _orig_cleanup(root)
+
+    _pytest.pathlib.cleanup_dead_symlinks = _safe_cleanup

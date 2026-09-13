@@ -230,7 +230,7 @@ def detect(root: Path) -> Stack | None:
 def _profiles_for(
     services: dict[str, Service], opcionales: dict[str, tuple[str, ...]]
 ) -> dict[str, tuple[str, ...]]:
-    """Un perfil de PortMaster por cada perfil declarado en el compose.
+    """Un perfil de StackHelx por cada perfil declarado en el compose.
 
     Pedir un perfil arranca lo de siempre **mas** los contenedores de ese
     perfil, que es lo que hace `docker compose --profile X up`. Un perfil que
@@ -370,9 +370,9 @@ def _container(
 def _compose_profiles(root: Path) -> dict[str, tuple[str, ...]]:
     """Perfiles declarados por cada contenedor: nombre -> perfiles a los que pertenece.
 
-    Ojo con la semantica, que esta invertida respecto de la de PortMaster: en
+    Ojo con la semantica, que esta invertida respecto de la de StackHelx: en
     compose, un servicio con `profiles:` queda **excluido** por defecto y solo
-    entra cuando pedis uno de sus perfiles. En PortMaster un perfil es la lista
+    entra cuando pedis uno de sus perfiles. En StackHelx un perfil es la lista
     de servicios a arrancar. Traducir uno al otro es el trabajo de `detect`,
     aca abajo; mapearlos directo arrancaria lo que compose deja apagado a
     proposito.

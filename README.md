@@ -1,7 +1,7 @@
-# PortMaster
+# StackHelx
 
-[![pypi](https://img.shields.io/pypi/v/portmaster)](https://pypi.org/project/portmaster/)
-[![tests](https://github.com/TicoraX/PortMaster/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TicoraX/PortMaster/actions/workflows/ci.yml)
+[![pypi](https://img.shields.io/pypi/v/stackhelx)](https://pypi.org/project/stackhelx/)
+[![tests](https://github.com/TicoraX/StackHelx/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TicoraX/StackHelx/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
@@ -12,9 +12,9 @@ backend y frontend, sin cuatro terminales abiertas.
 ## Instalación
 
 ```bash
-uv tool install portmaster
+uv tool install stackhelx
 # o
-pipx install portmaster
+pipx install stackhelx
 ```
 
 Requiere Python 3.10 o superior. Funciona en Windows, macOS y Linux.
@@ -23,30 +23,30 @@ Requiere Python 3.10 o superior. Funciona en Windows, macOS y Linux.
 
 | Comando | Qué hace |
 |---|---|
-| `portmaster up` | Levanta el stack entero: libera puertos, arranca en orden y sigue los logs |
-| `portmaster down` | Baja lo que sobrevive a la terminal, o sea contenedores |
-| `portmaster serve` | Abre la interfaz web en `http://127.0.0.1:7666` |
-| `portmaster doctor` | Revisa qué puede impedir el arranque, sin arrancar nada |
-| `portmaster ports` | Estado de los puertos declarados |
-| `portmaster free 3000` | Cierra el proceso que ocupa un puerto, preguntando antes |
-| `portmaster free --all` | Lo mismo para todos los puertos de todos los proyectos registrados |
-| `portmaster switch fitness` | Baja los proyectos que le pisan los puertos a este, y lo levanta |
-| `portmaster open` | Abre en el navegador el primer servicio que conteste HTTP |
-| `portmaster init` | Congela lo detectado en un `stack.yaml` editable |
-| `portmaster add .` | Registra el proyecto para que aparezca en la interfaz |
-| `portmaster list` | Lista los proyectos registrados (alias: `ls`) |
-| `portmaster remove .` | Des-registra un proyecto (alias: `rm`) |
-| `portmaster run [tarea]` | Ejecuta scripts o pipelines de tareas del proyecto |
-| `portmaster share [target]` | Expone un servicio local a internet mediante un túnel seguro |
-| `portmaster clean` | Limpia Docker por categorías: contenedores parados, imágenes sin tag, redes sin usar y caché de build. Los volúmenes van aparte, con `--volumes`. Pregunta antes |
-| `portmaster mcp` | Inicia el servidor Model Context Protocol (MCP) sobre stdio para IA |
-| `portmaster test-stack` | Valida el `stack.yaml` sin arrancar nada: orden, dependencias y puertos |
-| `portmaster history` | Últimos arranques del proyecto, con duración y resultado |
-| `portmaster logs` | Logs del proyecto que corre en `serve`, con `--follow` para seguirlos |
-| `portmaster stats` | CPU y memoria de los servicios que corren en `serve` (alias: `top`) |
-| `portmaster version` | Versión instalada (también `--version`) |
+| `stackhelx up` | Levanta el stack entero: libera puertos, arranca en orden y sigue los logs |
+| `stackhelx down` | Baja lo que sobrevive a la terminal, o sea contenedores |
+| `stackhelx serve` | Abre la interfaz web en `http://127.0.0.1:7666` |
+| `stackhelx doctor` | Revisa qué puede impedir el arranque, sin arrancar nada |
+| `stackhelx ports` | Estado de los puertos declarados |
+| `stackhelx free 3000` | Cierra el proceso que ocupa un puerto, preguntando antes |
+| `stackhelx free --all` | Lo mismo para todos los puertos de todos los proyectos registrados |
+| `stackhelx switch fitness` | Baja los proyectos que le pisan los puertos a este, y lo levanta |
+| `stackhelx open` | Abre en el navegador el primer servicio que conteste HTTP |
+| `stackhelx init` | Congela lo detectado en un `stack.yaml` editable |
+| `stackhelx add .` | Registra el proyecto para que aparezca en la interfaz |
+| `stackhelx list` | Lista los proyectos registrados (alias: `ls`) |
+| `stackhelx remove .` | Des-registra un proyecto (alias: `rm`) |
+| `stackhelx run [tarea]` | Ejecuta scripts o pipelines de tareas del proyecto |
+| `stackhelx share [target]` | Expone un servicio local a internet mediante un túnel seguro |
+| `stackhelx clean` | Limpia Docker por categorías: contenedores parados, imágenes sin tag, redes sin usar y caché de build. Los volúmenes van aparte, con `--volumes`. Pregunta antes |
+| `stackhelx mcp` | Inicia el servidor Model Context Protocol (MCP) sobre stdio para IA |
+| `stackhelx test-stack` | Valida el `stack.yaml` sin arrancar nada: orden, dependencias y puertos |
+| `stackhelx history` | Últimos arranques del proyecto, con duración y resultado |
+| `stackhelx logs` | Logs del proyecto que corre en `serve`, con `--follow` para seguirlos |
+| `stackhelx stats` | CPU y memoria de los servicios que corren en `serve` (alias: `top`) |
+| `stackhelx version` | Versión instalada (también `--version`) |
 
-`logs` y `stats` consultan al `portmaster serve` que ya tengas abierto, así que
+`logs` y `stats` consultan al `stackhelx serve` que ya tengas abierto, así que
 necesitan que esté corriendo. `history` y `test-stack` leen del disco y no.
 
 Cada uno con `--help`.
@@ -54,10 +54,10 @@ Cada uno con `--help`.
 ## Arrancar un stack
 
 ```bash
-portmaster up
-portmaster up --profile backend    # solo un subconjunto
-portmaster up --no-free            # no tocar los puertos ocupados
-portmaster up --env-file .env.qa   # carga ese .env antes de arrancar
+stackhelx up
+stackhelx up --profile backend    # solo un subconjunto
+stackhelx up --no-free            # no tocar los puertos ocupados
+stackhelx up --env-file .env.qa   # carga ese .env antes de arrancar
 ```
 
 `--env-file` no reemplaza al `env_file:` de `stack.yaml`, se suma: carga el
@@ -91,7 +91,7 @@ apaga los servicios en orden inverso, árbol de procesos incluido.
 
 ## Sin stack.yaml
 
-`stack.yaml` es opcional. Si no hay uno, PortMaster mira la raíz del proyecto:
+`stack.yaml` es opcional. Si no hay uno, StackHelx mira la raíz del proyecto:
 
 | Encuentra | Arranca |
 |---|---|
@@ -105,14 +105,14 @@ mi-app  A:\Proyectos\mi-app
 Sin stack.yaml. Detectado:
   docker  docker compose up -d        5433
   web     pnpm run dev                al arrancar
-Para congelarlo en un archivo editable: portmaster init
+Para congelarlo en un archivo editable: stackhelx init
 Arrancar? [Y/n]
 ```
 
 Arranca en ese orden y encadena las dependencias: el frontend espera al
 backend, el backend a los contenedores.
 
-`portmaster init` escribe lo detectado como `stack.yaml` para editarlo a mano.
+`stackhelx init` escribe lo detectado como `stack.yaml` para editarlo a mano.
 No sobreescribe uno existente.
 
 Dónde busca cada lenguaje y por qué reconoce eso y no otra cosa, en
@@ -120,7 +120,7 @@ Dónde busca cada lenguaje y por qué reconoce eso y no otra cosa, en
 
 ## stack.yaml
 
-En la raíz del proyecto. PortMaster lo busca hacia arriba, así que podés correr
+En la raíz del proyecto. StackHelx lo busca hacia arriba, así que podés correr
 los comandos desde cualquier subdirectorio.
 
 ```yaml
@@ -160,12 +160,12 @@ Cuando tenés varios proyectos, el CLI se queda corto: trabaja sobre el
 directorio actual. La interfaz los muestra todos a la vez.
 
 ```bash
-portmaster serve        # abre http://127.0.0.1:7666
+stackhelx serve        # abre http://127.0.0.1:7666
 ```
 
 Viene con la instalación, no hace falta nada más. Registrar proyectos se puede
 desde la propia interfaz con `Explorar…`, o desde la terminal con
-`portmaster add .`.
+`stackhelx add .`.
 
 Estado de cada servicio, arrancar y apagar stacks, liberar puertos tomados por
 procesos ajenos, y logs en vivo por proyecto.
@@ -178,8 +178,8 @@ El detalle de cada control, y el modelo de seguridad del servidor local, en
 Revisar el estado de los puertos sin arrancar nada:
 
 ```bash
-portmaster ports              # los declarados en stack.yaml
-portmaster ports 3000 8080    # o los que le pases
+stackhelx ports              # los declarados en stack.yaml
+stackhelx ports 3000 8080    # o los que le pases
 ```
 
 ```
@@ -192,7 +192,7 @@ PUERTO  ESTADO   PID    PROCESO   COMANDO
 Liberar un puerto tomado por un proceso zombie:
 
 ```bash
-portmaster free 3000
+stackhelx free 3000
 ```
 
 Muestra qué proceso lo ocupa y pide confirmación antes de cerrarlo. Si decís
@@ -204,7 +204,7 @@ Opciones: `--yes` salta la confirmación (para scripts), `--force` aplica
 Después de un crash o un cambio de rama suele quedar más de uno colgado:
 
 ```bash
-portmaster free --all
+stackhelx free --all
 ```
 
 Recorre los puertos declarados por todos los proyectos registrados, lista lo
@@ -221,7 +221,7 @@ descarta lo que arrancó ella.
 
 Estas reglas están en el código, no en la documentación:
 
-- Nunca cierra PID 0, PID 4, el propio PortMaster ni un proceso padre suyo.
+- Nunca cierra PID 0, PID 4, el propio StackHelx ni un proceso padre suyo.
   Matar tu propia terminal no es una función.
 - Revalida la hora de creación del proceso entre el escaneo y el cierre. Los
   PID se reciclan; sin ese chequeo terminás matando algo al azar.
@@ -241,7 +241,7 @@ Estas reglas están en el código, no en la documentación:
 ## Modelo de confianza
 
 `stack.yaml` ejecuta comandos arbitrarios, igual que `package.json` o un
-`Makefile`. PortMaster no lo sandboxea: sería teatro. Tratá un `stack.yaml`
+`Makefile`. StackHelx no lo sandboxea: sería teatro. Tratá un `stack.yaml`
 de un repo ajeno con el mismo cuidado que sus scripts de build.
 
 Sin `stack.yaml`, los comandos salen de la detección, y `scripts.dev` de un

@@ -33,11 +33,11 @@ services:
 ```
 
 Ahí `seed` queda afuera del arranque por defecto y entra con
-`portmaster up --profile tools`, igual que con `docker compose --profile tools`.
+`stackhelx up --profile tools`, igual que con `docker compose --profile tools`.
 Ojo con la semántica, porque está invertida: en compose `profiles:` **excluye**
 un servicio hasta que lo pidas, mientras que en `stack.yaml` un perfil es la
 lista de lo que se arranca. `detect` traduce de una a la otra, y por eso
-`portmaster init` sobre ese proyecto escribe también un `default`: sin él, el
+`stackhelx init` sobre ese proyecto escribe también un `default`: sin él, el
 archivo congelado prendería lo que el compose deja apagado a propósito.
 
 ## ready
@@ -82,7 +82,7 @@ que `cwd`. Un `stack.yaml` ajeno no puede pedir el `.env` de otro proyecto tuyo.
 
 La precedencia de variables es:
 1. `os.environ` del sistema anfitrión.
-2. `~/.portmaster/env.global` (bóveda global de variables compartidas, si existe).
+2. `~/.stackhelx/env.global` (bóveda global de variables compartidas, si existe).
 3. Archivos listados en `env_file` (en orden de aparición).
 4. `env:` declarado explícitamente en el servicio.
 
@@ -93,7 +93,7 @@ la interfaz en vivo en lugar de quedarse en un buffer.
 
 ## url
 
-Adónde lleva el botón `Abrir`, en la interfaz y en `portmaster open`. Sin él es
+Adónde lleva el botón `Abrir`, en la interfaz y en `stackhelx open`. Sin él es
 `http://localhost:<port>`, que es lo correcto para la mayoría de los servicios y
 no alcanza para los que no viven en la raíz del puerto:
 
@@ -122,13 +122,13 @@ Reglas:
   **empeora** el botón: si el proceso arranca en 3001, sigue llevando al 3000.
 - Una variable sin valor y sin default deja el servicio **sin URL**. Con `port:`,
   el botón vuelve al `http://localhost:<port>` de siempre. **Sin `port:` no hay
-  a qué caer**: ese servicio se saltea y `portmaster open` sigue con el siguiente
+  a qué caer**: ese servicio se saltea y `stackhelx open` sigue con el siguiente
   candidato; si no queda ninguno, sale con código 1. Abrir una URL con un
   `${TOKEN}` literal adentro sería peor: la página carga, falla por dentro, y
   parece que funcionó.
 - En la interfaz, el botón sigue apareciendo solo cuando el puerto contestó
   HTTP. Un servicio sin `port:` nunca se puede saber si está arriba, así que ahí
-  no se dibuja; ese caso lo abre `portmaster open` desde la terminal, que no
+  no se dibuja; ese caso lo abre `stackhelx open` desde la terminal, que no
   sondea nada.
 
 ## pre_start y post_start
@@ -170,7 +170,7 @@ servicio declarado son la misma cosa, con varios no.
 
 Dos límites que conviene saber antes de apoyarse en esto. El primero es que el
 vigilante vive en el seguimiento de logs, o sea que `restart` actúa mientras
-`portmaster up` sigue corriendo o mientras la interfaz tiene la sesión viva, y
+`stackhelx up` sigue corriendo o mientras la interfaz tiene la sesión viva, y
 no después. El segundo es que la cuenta de reintentos no se reinicia cuando el
 servicio se estabiliza: un proceso que cae una vez por hora agota su
 `max_retries` a lo largo del día y deja de levantarse.
@@ -198,7 +198,7 @@ scripts:
   migrate: alembic upgrade head
 ```
 
-Se ejecutan con `portmaster run <nombre>` (ej. `portmaster run test`). Cada comando corre en la raíz del proyecto y recibe el contexto de variables de entorno inyectadas.
+Se ejecutan con `stackhelx run <nombre>` (ej. `stackhelx run test`). Cada comando corre en la raíz del proyecto y recibe el contexto de variables de entorno inyectadas.
 
 ## includes
 

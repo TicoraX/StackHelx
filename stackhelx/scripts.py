@@ -6,19 +6,18 @@ import os
 import re
 import shlex
 import subprocess
-from pathlib import Path
 from typing import Sequence
 
 from rich.console import Console
 
-from . import config
+from . import config, registry
 from .config import ConfigError, Stack
 
 
 def build_script_env(stack: Stack) -> dict[str, str]:
     """Entorno de ejecucion para scripts de proyecto."""
     env = dict(os.environ)
-    global_env = Path.home() / ".portmaster" / "env.global"
+    global_env = registry.HOME / "env.global"
     if global_env.is_file():
         env.update(config.parse_env_file(global_env))
     local_env = stack.root / ".env"

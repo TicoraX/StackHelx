@@ -2,7 +2,7 @@ import textwrap
 
 import pytest
 
-from portmaster import config
+from stackhelx import config
 
 VALID = """
 name: demo

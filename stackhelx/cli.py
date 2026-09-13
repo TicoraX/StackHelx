@@ -1,4 +1,4 @@
-"""CLI de PortMaster."""
+"""CLI de StackHelx."""
 
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def ports_cmd(
         try:
             stack = detect.stack_for(Path.cwd())
         except config.ConfigError as exc:
-            err.print(f"{exc}\nPasa los puertos como argumento: portmaster ports 3000 8080")
+            err.print(f"{exc}\nPasa los puertos como argumento: stackhelx ports 3000 8080")
             raise typer.Exit(1)
         port = stack.ports()
         if not port:
@@ -148,7 +148,7 @@ def free_cmd(
 ) -> None:
     """Libera un puerto ocupado o todos los puertos intrusos de proyectos registrados."""
     if not all_ports and port is None:
-        err.print("Especifica un puerto (ej: portmaster free 8080) o el flag --all")
+        err.print("Especifica un puerto (ej: stackhelx free 8080) o el flag --all")
         raise typer.Exit(1)
 
     if all_ports:
@@ -165,7 +165,7 @@ def _free_all(yes: bool, force: bool) -> None:
     """Cierra lo que ocupa los puertos declarados por los proyectos registrados.
 
     A diferencia de la interfaz, el CLI no tiene sesiones: no sabe cuales de
-    esos procesos los arranco PortMaster en otra terminal. Por eso lista todo
+    esos procesos los arranco StackHelx en otra terminal. Por eso lista todo
     antes de tocar nada, y el texto no promete que sean ajenos.
     """
     encontrados = registry.find_orphans()
@@ -215,7 +215,7 @@ def _confirm_detected(services: list[config.Service], yes: bool) -> bool:
         port = str(service.port) if service.port else "[dim]al arrancar[/]"
         table.add_row(f"  [bold]{service.name}[/]", service.command, port)
     console.print(table)
-    console.print("[dim]Para congelarlo en un archivo editable: portmaster init[/]")
+    console.print("[dim]Para congelarlo en un archivo editable: stackhelx init[/]")
     return yes or typer.confirm("Arrancar?", default=True)
 
 
@@ -297,7 +297,7 @@ def _levantar(
     if all(p.service.detached for p in engine.procs):
         console.print(
             "[green]Todo listo.[/] Servicios detached, nada que seguir. "
-            "Para bajarlos: [bold]portmaster down[/]"
+            "Para bajarlos: [bold]stackhelx down[/]"
         )
         return
 
@@ -370,7 +370,7 @@ def down_cmd(
     if not apagables:
         console.print(
             "Ningun servicio declara [bold]stop[/]. Los que arranca "
-            "[bold]portmaster up[/] son hijos de esa terminal y se apagan con Ctrl-C."
+            "[bold]stackhelx up[/] son hijos de esa terminal y se apagan con Ctrl-C."
         )
         return
 
@@ -411,7 +411,7 @@ def _resolver_proyecto(nombre: str) -> Path:
     """Un proyecto registrado, por nombre de carpeta o por ruta."""
     conocidos = registry.paths()
     if not conocidos:
-        err.print("No hay proyectos registrados. Registra uno con: portmaster add .")
+        err.print("No hay proyectos registrados. Registra uno con: stackhelx add .")
         raise typer.Exit(1)
 
     candidato = Path(nombre).expanduser()
@@ -482,7 +482,7 @@ def open_cmd(
         try:
             stack = detect.stack_for(Path.cwd())
         except config.ConfigError as exc:
-            err.print(f"{exc}\nPasa el puerto como argumento: portmaster open 3000")
+            err.print(f"{exc}\nPasa el puerto como argumento: stackhelx open 3000")
             raise typer.Exit(1)
         # En orden de arranque: los contenedores primero, el frontend al final.
         # Se recorre al reves porque lo que uno quiere abrir suele ser lo ultimo.
@@ -517,7 +517,7 @@ def open_cmd(
 
     err.print(
         "Ningun puerto del stack contesta HTTP. "
-        "Arrancalo con 'portmaster up' o pasa el puerto como argumento."
+        "Arrancalo con 'stackhelx up' o pasa el puerto como argumento."
     )
     raise typer.Exit(1)
 
@@ -541,7 +541,7 @@ def list_cmd() -> None:
     """Lista los proyectos registrados para la interfaz web."""
     items = registry.paths()
     if not items:
-        console.print("[dim]No hay proyectos registrados. Registra uno con: portmaster add <ruta>[/]")
+        console.print("[dim]No hay proyectos registrados. Registra uno con: stackhelx add <ruta>[/]")
         return
 
     declared = registry.declared_ports()
@@ -652,7 +652,7 @@ def serve_cmd(
 
         from . import server
     except ImportError:
-        err.print("Falta fastapi o uvicorn. Reinstala portmaster: pipx reinstall portmaster")
+        err.print("Falta fastapi o uvicorn. Reinstala stackhelx: pipx reinstall stackhelx")
         raise typer.Exit(1)
 
     # Antes de imprimir la URL: uvicorn atrapa el error de bind y sale por su
@@ -665,15 +665,15 @@ def serve_cmd(
         err.print(f"El puerto {port} ya esta ocupado por {quien} (pid {ocupante.pid}).")
         try:
             suggested = ports.suggest_alternative(port)
-            err.print(f"Cerralo con: portmaster free {port}   o arranca con: --port {suggested}")
+            err.print(f"Cerralo con: stackhelx free {port}   o arranca con: --port {suggested}")
         except Exception:
-            err.print(f"Cerralo con: portmaster free {port}   o arranca con: --port <otro>")
+            err.print(f"Cerralo con: stackhelx free {port}   o arranca con: --port <otro>")
         raise typer.Exit(1)
 
     token = registry.token()
     url = f"http://127.0.0.1:{port}/?token={token}"
 
-    console.print(f"PortMaster en [bold]http://127.0.0.1:{port}[/]")
+    console.print(f"StackHelx en [bold]http://127.0.0.1:{port}[/]")
     console.print("[dim]Solo loopback. El token va en la URL de abajo.[/]")
     console.print(url)
 
@@ -696,7 +696,7 @@ def serve_cmd(
         )
     except OSError as exc:
         err.print(f"No se pudo iniciar el servidor en 127.0.0.1:{port}: {exc}")
-        err.print(f"El puerto {port} esta ocupado. Podes usar 'portmaster free {port}' o '--port <otro>'.")
+        err.print(f"El puerto {port} esta ocupado. Podes usar 'stackhelx free {port}' o '--port <otro>'.")
         raise typer.Exit(1)
 
 
@@ -707,7 +707,7 @@ def _version(pedido: bool) -> None:
 
 
 # El flag ademas del subcomando: `--version` es lo que prueba cualquiera que
-# acaba de instalar la herramienta, y `no_args_is_help` hace que un `portmaster`
+# acaba de instalar la herramienta, y `no_args_is_help` hace que un `stackhelx`
 # pelado muestre la ayuda antes de llegar aca. Eager para que conteste sin pedir
 # un comando.
 @app.callback()
@@ -777,7 +777,7 @@ def share_cmd(
     if target and target.isdigit():
         # `target` es texto porque tambien acepta el nombre de un servicio, asi
         # que se pierde el `min`/`max` que traen los demas comandos. Sin esto,
-        # `portmaster share 0` levantaba el cliente de tuneles contra 127.0.0.1:0.
+        # `stackhelx share 0` levantaba el cliente de tuneles contra 127.0.0.1:0.
         try:
             port = ports.check_port(int(target))
         except ValueError as exc:
@@ -787,7 +787,7 @@ def share_cmd(
         try:
             stack = detect.stack_for(Path.cwd())
         except config.ConfigError as exc:
-            err.print(f"{exc}\nEspecifica el puerto a compartir: portmaster share 3000")
+            err.print(f"{exc}\nEspecifica el puerto a compartir: stackhelx share 3000")
             raise typer.Exit(1)
 
         if target and target in stack.services:
@@ -897,8 +897,8 @@ def mcp_cmd(
     if show_config:
         cfg = {
             "mcpServers": {
-                "portmaster": {
-                    "command": "portmaster",
+                "stackhelx": {
+                    "command": "stackhelx",
                     "args": ["mcp"],
                 }
             }
@@ -1000,9 +1000,9 @@ def logs_cmd(
     target: str = typer.Argument(None, help="Ruta al proyecto"),
     service: str = typer.Option(None, "--service", "-s", help="Filtrar por nombre de servicio"),
     follow: bool = typer.Option(False, "--follow", "-f", help="Seguir logs en tiempo real"),
-    server_port: int = typer.Option(7666, "--port", "-p", help="Puerto del servidor de PortMaster"),
+    server_port: int = typer.Option(7666, "--port", "-p", help="Puerto del servidor de StackHelx"),
 ) -> None:
-    """Muestra o sigue los logs del proyecto en ejecución en PortMaster."""
+    """Muestra o sigue los logs del proyecto en ejecución en StackHelx."""
     import time
     import urllib.request
 
@@ -1034,7 +1034,7 @@ def logs_cmd(
                 time.sleep(1.0)
                 continue
             err.print(
-                f"[yellow]No se pudo conectar con PortMaster en {base_url}. Asegúrate de que `portmaster serve` está corriendo.[/]"
+                f"[yellow]No se pudo conectar con StackHelx en {base_url}. Asegúrate de que `stackhelx serve` está corriendo.[/]"
             )
             raise typer.Exit(1)
 
@@ -1057,7 +1057,7 @@ def logs_cmd(
 @app.command("top")
 def stats_cmd(
     target: str = typer.Argument(None, help="Ruta al proyecto"),
-    server_port: int = typer.Option(7666, "--port", "-p", help="Puerto del servidor de PortMaster"),
+    server_port: int = typer.Option(7666, "--port", "-p", help="Puerto del servidor de StackHelx"),
 ) -> None:
     """Muestra el uso de CPU y memoria de los servicios en ejecución."""
     import urllib.request
@@ -1081,7 +1081,7 @@ def stats_cmd(
             data = json.loads(resp.read().decode("utf-8"))
     except Exception:
         err.print(
-            f"[yellow]No se pudo conectar con PortMaster en {base_url}. Asegúrate de que `portmaster serve` está corriendo.[/]"
+            f"[yellow]No se pudo conectar con StackHelx en {base_url}. Asegúrate de que `stackhelx serve` está corriendo.[/]"
         )
         raise typer.Exit(1)
 
@@ -1106,7 +1106,7 @@ def stats_cmd(
 
 @app.command("mcp-status")
 def mcp_status_cmd(
-    server_port: int = typer.Option(7666, "--port", "-p", help="Puerto del servidor de PortMaster"),
+    server_port: int = typer.Option(7666, "--port", "-p", help="Puerto del servidor de StackHelx"),
 ) -> None:
     """Muestra la telemetría y estado de llamadas MCP para agentes IA."""
     import urllib.request
@@ -1127,7 +1127,7 @@ def mcp_status_cmd(
     rate = data.get("active_rate_per_min", 0)
     max_rate = data.get("rate_limit_max", 30)
     console.print(
-        f"[bold]Servidor MCP PortMaster[/] · Llamadas: [cyan]{total}[/] · Cuota: [green]{rate}/{max_rate}[/] req/min"
+        f"[bold]Servidor MCP StackHelx[/] · Llamadas: [cyan]{total}[/] · Cuota: [green]{rate}/{max_rate}[/] req/min"
     )
 
     by_tool = data.get("by_tool", {})

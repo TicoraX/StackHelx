@@ -15,8 +15,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import pytest
 from typer.testing import CliRunner
 
-import portmaster
-from portmaster import cli, registry
+import stackhelx
+from stackhelx import cli, registry
 
 runner = CliRunner()
 
@@ -125,7 +125,7 @@ def test_doctor_delata_el_puerto_ocupado_y_dice_como_liberarlo(
     monkeypatch.chdir(tmp_path)
 
     resultado = runner.invoke(cli.app, ["doctor"])
-    assert f"portmaster free {servidor_http}" in resultado.output
+    assert f"stackhelx free {servidor_http}" in resultado.output
     # Un puerto ocupado es aviso, no falla: `up` ofrece liberarlo.
     assert resultado.exit_code == 0
 
@@ -499,7 +499,7 @@ def test_open_sin_nada_arriba_no_abre_nada(tmp_path, monkeypatch, free_ports, ab
 
 
 def test_free_all_libera_el_puerto(tmp_path, free_ports):
-    from portmaster import ports
+    from stackhelx import ports
 
     (port,) = free_ports(1)
     root = tmp_path / "cli_free_all"
@@ -540,7 +540,7 @@ def test_free_all_saltea_el_puerto_que_cambio_de_dueno(free_ports):
     matar a alguien que el usuario nunca vio en pantalla. `_release` compara
     contra la identidad capturada y se saltea el puerto en vez de liberarlo.
     """
-    from portmaster import ports
+    from stackhelx import ports
 
     (port,) = free_ports(1)
     sock = socket.socket()
@@ -577,7 +577,7 @@ def test_version_por_flag_y_por_subcomando():
         res = runner.invoke(cli.app, args)
         assert res.exit_code == 0, args
         # Rich pinta los numeros: sin sacar los codigos, el 1.0.0 llega partido.
-        assert portmaster.__version__ in re.sub(r"\x1b\[[0-9;]*m", "", res.output), args
+        assert stackhelx.__version__ in re.sub(r"\x1b\[[0-9;]*m", "", res.output), args
 
 
 def test_cli_run_listar_y_ejecutar(tmp_path, monkeypatch):
@@ -950,7 +950,7 @@ def test_test_stack_no_revienta_en_una_consola_cp1252(tmp_path, monkeypatch):
     )
     entorno = dict(os.environ, PYTHONIOENCODING="cp1252")
     res = subprocess.run(
-        [sys.executable, "-m", "portmaster", "test-stack"],
+        [sys.executable, "-m", "stackhelx", "test-stack"],
         cwd=tmp_path,
         env=entorno,
         capture_output=True,
@@ -974,7 +974,7 @@ def test_serve_port_occupied_suggests_alternative(free_ports):
         salida = sin_color(resultado.output)
         assert resultado.exit_code == 1
         assert f"El puerto {port} ya esta ocupado" in salida
-        assert f"portmaster free {port}" in salida
+        assert f"stackhelx free {port}" in salida
         assert "arranca con: --port" in salida
     finally:
         sock.close()
@@ -982,13 +982,13 @@ def test_serve_port_occupied_suggests_alternative(free_ports):
 
 def test_mcp_status_cli():
     """El comando mcp-status muestra estadísticas de llamadas MCP sin reventar."""
-    from portmaster import mcp
+    from stackhelx import mcp
 
     mcp.clear_telemetry()
-    mcp.record_tool_call("portmaster_status", 15.0, "ok")
+    mcp.record_tool_call("stackhelx_status", 15.0, "ok")
     resultado = runner.invoke(cli.app, ["mcp-status"])
     assert resultado.exit_code == 0
-    assert "Servidor MCP PortMaster" in resultado.output
-    assert "portmaster_status" in resultado.output
+    assert "Servidor MCP StackHelx" in resultado.output
+    assert "stackhelx_status" in resultado.output
 
 

@@ -58,8 +58,8 @@ def detect_providers() -> list[str]:
     return [p for p in PROVIDERS if shutil.which(p) is not None]
 
 
-def sirve_portmaster(port: int) -> bool:
-    """Si detras del puerto hay un `portmaster serve`.
+def sirve_stackhelx(port: int) -> bool:
+    """Si detras del puerto hay un `stackhelx serve` (o legacy `portmaster serve`).
 
     ponytail: es la linea de comando del dueno del puerto, o sea una heuristica.
     Lo exacto seria que `serve` dejara su puerto en un archivo, y eso es estado
@@ -75,7 +75,10 @@ def sirve_portmaster(port: int) -> bool:
     if estado.pid == os.getpid():
         return True
     linea = (estado.cmdline or "").lower()
-    return "portmaster" in linea and "serve" in linea
+    return ("stackhelx" in linea or "portmaster" in linea) and "serve" in linea
+
+
+sirve_portmaster = sirve_stackhelx
 
 
 def start_tunnel(
@@ -84,14 +87,14 @@ def start_tunnel(
     timeout: float = 15.0,
 ) -> Tunnel:
     """Inicia un tunel efimero hacia el puerto especificado y extrae la URL publica."""
-    # PortMaster no se publica a si mismo. Detras de ese puerto esta la API que
+    # StackHelx no se publica a si mismo. Detras de ese puerto esta la API que
     # arranca stack.yaml, o sea ejecucion de comandos, y el token pasaria a ser
     # lo unico entre internet y la consola del usuario. Va aca y no en cada
     # comando porque este es el unico lugar por donde pasan todos los tuneles:
-    # el boton de la interfaz, `portmaster share` y lo que venga despues.
-    if sirve_portmaster(port):
+    # el boton de la interfaz, `stackhelx share` y lo que venga despues.
+    if sirve_stackhelx(port):
         raise TunnelError(
-            f"el puerto {port} es de un `portmaster serve`. Publicarlo expone la "
+            f"el puerto {port} es de un `stackhelx serve`. Publicarlo expone la "
             "API que ejecuta los comandos de tu stack.yaml, no tu proyecto."
         )
 

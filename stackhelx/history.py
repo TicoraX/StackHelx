@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from portmaster import guardrails, registry
+from . import guardrails, registry
 
 MAX_LIMIT = 50
 MAX_ENTRIES = 500

@@ -61,7 +61,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
             "result": {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "portmaster", "version": __version__},
+                "serverInfo": {"name": "stackhelx", "version": __version__},
             },
         }
 
@@ -75,8 +75,8 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
             "result": {
                 "tools": [
                     {
-                        "name": "portmaster_status",
-                        "description": "Obtiene el estado de los servicios, proyectos y puertos de PortMaster.",
+                        "name": "stackhelx_status",
+                        "description": "Obtiene el estado de los servicios, proyectos y puertos de StackHelx.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
@@ -85,7 +85,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_doctor",
+                        "name": "stackhelx_doctor",
                         "description": "Ejecuta un diagnóstico completo del entorno de desarrollo.",
                         "inputSchema": {
                             "type": "object",
@@ -95,7 +95,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_ports",
+                        "name": "stackhelx_ports",
                         "description": "Escanea el estado de los puertos especificados o del stack actual.",
                         "inputSchema": {
                             "type": "object",
@@ -109,7 +109,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_free_port",
+                        "name": "stackhelx_free_port",
                         "description": "Cierra el proceso que ocupa un puerto específico.",
                         "inputSchema": {
                             "type": "object",
@@ -120,7 +120,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_share",
+                        "name": "stackhelx_share",
                         "description": "Inicia un túnel público seguro hacia un puerto local.",
                         "inputSchema": {
                             "type": "object",
@@ -135,7 +135,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_run",
+                        "name": "stackhelx_run",
                         "description": "Ejecuta un script o pipeline de tareas definido en el stack.yaml del proyecto.",
                         "inputSchema": {
                             "type": "object",
@@ -151,11 +151,11 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_clean",
+                        "name": "stackhelx_clean",
                         "description": (
                             "Limpia recursos huérfanos de Docker: contenedores parados, redes, "
                             "imágenes sin tag y caché de build. No borra volúmenes: eso tiene "
-                            "datos adentro y lo hace el usuario con `portmaster clean --volumes`."
+                            "datos adentro y lo hace el usuario con `stackhelx clean --volumes`."
                         ),
                         # Sin `volumes`: lo que no se puede deshacer no se le ofrece a un
                         # agente. El chequeo de verdad esta en _execute_tool, porque el
@@ -163,7 +163,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         "inputSchema": {"type": "object", "properties": {}},
                     },
                     {
-                        "name": "portmaster_history",
+                        "name": "stackhelx_history",
                         "description": "Obtiene el historial de arranques y telemetría de un proyecto.",
                         "inputSchema": {
                             "type": "object",
@@ -174,7 +174,7 @@ def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
                         },
                     },
                     {
-                        "name": "portmaster_init",
+                        "name": "stackhelx_init",
                         "description": "Genera o congela la configuración de stack.yaml detectada para el proyecto.",
                         "inputSchema": {
                             "type": "object",
@@ -296,7 +296,7 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
     _check_action_budget()
     cwd = Path(args.get("path") or Path.cwd())
 
-    if name == "portmaster_status":
+    if name in ("stackhelx_status", "portmaster_status"):
         stack = detect.stack_for(cwd)
         registered_paths = registry.paths()
         data = {
@@ -317,7 +317,7 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
         }
         return json.dumps(data, indent=2)
 
-    if name == "portmaster_doctor":
+    if name in ("stackhelx_doctor", "portmaster_doctor"):
         results = doctor.run(cwd)
         lines = [
             f"[{r.level.upper()}] {r.name}: {r.detail or 'ok'}"
@@ -326,7 +326,7 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
         ]
         return "\n".join(lines)
 
-    if name == "portmaster_ports":
+    if name in ("stackhelx_ports", "portmaster_ports"):
         port_list = args.get("ports")
         if not port_list:
             stack = detect.stack_for(cwd)
@@ -344,7 +344,7 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
         ]
         return json.dumps(data, indent=2)
 
-    if name == "portmaster_free_port":
+    if name in ("stackhelx_free_port", "portmaster_free_port"):
         port = ports.check_port(int(args["port"]))
         status = ports.scan(port)
         if status.free:
@@ -362,10 +362,10 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
         ports.kill(status.pid, status.create_time, port=port)
         return f"Proceso en puerto {port} (pid {status.pid}) liberado."
 
-    if name == "portmaster_share":
+    if name in ("stackhelx_share", "portmaster_share"):
         port = ports.check_port(int(args["port"]))
         if port == doctor.UI_PORT:
-            raise ValueError(f"No se permite compartir el puerto de gestión de PortMaster ({port}).")
+            raise ValueError(f"No se permite compartir el puerto de gestión de StackHelx ({port}).")
         try:
             stack = detect.stack_for(cwd)
             allowed = set(stack.ports())
@@ -381,14 +381,14 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
         _tuneles.append(tun)
         return f"Tunel activo via {tun.provider}: {tun.url}"
 
-    if name == "portmaster_run":
+    if name in ("stackhelx_run", "portmaster_run"):
         script_name = args["script"]
         extra = args.get("args") or []
         stack = detect.stack_for(cwd)
         code = scripts.run_script(stack, script_name, extra_args=extra)
         return f"Script '{script_name}' finalizado con código de salida {code}."
 
-    if name == "portmaster_clean":
+    if name in ("stackhelx_clean", "portmaster_clean"):
         # Los volumenes no, y no por el esquema sino aca: un agente puede mandar
         # el campo igual. El resto del prune (cache y capas sin tag) se regenera
         # solo; un volumen tiene la base de datos del proyecto adentro y no
@@ -397,19 +397,19 @@ def _execute_tool(name: str, args: dict[str, Any]) -> str:
         if bool(args.get("volumes", False)):
             raise ValueError(
                 "borrar volumenes de Docker no se hace desde un agente: tienen datos "
-                "adentro y no se puede deshacer. Corre `portmaster clean --volumes` "
+                "adentro y no se puede deshacer. Corre `stackhelx clean --volumes` "
                 "vos mismo, que pregunta antes."
             )
         ok, msg = docker.prune(docker.DEFAULT_TARGETS)
         return f"Docker prune: {'éxito' if ok else 'fallo'} - {msg}"
 
-    if name == "portmaster_history":
+    if name in ("stackhelx_history", "portmaster_history"):
         pid = registry.project_id(cwd)
         limit = int(args.get("limit", 5))
         entries = history.read(pid, limit=limit)
         return json.dumps({"project_id": pid, "entries": entries}, indent=2)
 
-    if name == "portmaster_init":
+    if name in ("stackhelx_init", "portmaster_init"):
         target = detect.freeze(cwd)
         return f"Stack congelado exitosamente en: {target}"
 

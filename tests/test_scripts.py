@@ -4,8 +4,8 @@ import textwrap
 
 import pytest
 
-from portmaster import config, scripts
-from portmaster.config import ConfigError
+from stackhelx import config, scripts
+from stackhelx.config import ConfigError
 
 
 def test_scripts_parsing_simple_and_pipeline(tmp_path):

@@ -59,7 +59,7 @@ def _token() -> Check:
             "token",
             "fail",
             f"no se pudo leer ni generar {registry.HOME / 'token'}: {exc}",
-            "revisa los permisos de la carpeta, o defini PORTMASTER_TOKEN",
+            "revisa los permisos de la carpeta, o defini STACKHELX_TOKEN",
         )
     return Check("token", "ok", str(registry.HOME / "token"))
 
@@ -73,7 +73,7 @@ def _ui_port() -> Check:
         "puerto de la interfaz",
         "warn",
         f"{UI_PORT} ocupado por {quien} (pid {status.pid})",
-        f"si no es PortMaster: portmaster free {UI_PORT}",
+        f"si no es StackHelx: stackhelx free {UI_PORT}",
     )
 
 
@@ -81,7 +81,7 @@ def _registered() -> list[Check]:
     known = registry.paths()
     if not known:
         return [
-            Check("proyectos registrados", "ok", "ninguno", "para registrar: portmaster add .")
+            Check("proyectos registrados", "ok", "ninguno", "para registrar: stackhelx add .")
         ]
     perdidos = [p for p in known if not p.is_dir()]
     checks = [Check("proyectos registrados", "ok", f"{len(known)}")]
@@ -91,7 +91,7 @@ def _registered() -> list[Check]:
                 "proyecto sin carpeta",
                 "warn",
                 str(path),
-                f'portmaster remove "{path}"',
+                f'stackhelx remove "{path}"',
             )
         )
     return checks
@@ -337,7 +337,7 @@ def _ports(services: list[config.Service]) -> list[Check]:
                 f"puerto {service.port}",
                 "warn",
                 f"ocupado por {quien} (pid {status.pid}), lo pide {service.name}",
-                f"portmaster free {service.port}",
+                f"stackhelx free {service.port}",
             )
         )
     return checks

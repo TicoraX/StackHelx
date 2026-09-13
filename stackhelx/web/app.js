@@ -1,4 +1,4 @@
-/* Interfaz de PortMaster. Sin framework, sin build: la pagina la sirve el
+/* Interfaz de StackHelx. Sin framework, sin build: la pagina la sirve el
  * propio CLI y la CSP es default-src 'self'. Nada de estilos inline, todo por
  * clases y atributos. */
 
@@ -83,7 +83,7 @@ async function loadAvailableEditors() {
 /* token ------------------------------------------------------------------- */
 
 function getCookieToken() {
-  const match = document.cookie.match(/(?:^|; )portmaster_token=([^;]*)/);
+  const match = document.cookie.match(/(?:^|; )stackhelx_token=([^;]*)/);
   return match ? decodeURIComponent(match[1]) : "";
 }
 
@@ -91,14 +91,16 @@ function readToken() {
   const url = new URL(window.location.href);
   const fromUrl = url.searchParams.get("token");
   if (fromUrl) {
-    localStorage.setItem("portmaster.token", fromUrl);
-    sessionStorage.setItem("portmaster.token", fromUrl);
+    localStorage.setItem("stackhelx.token", fromUrl);
+    sessionStorage.setItem("stackhelx.token", fromUrl);
     url.searchParams.delete("token");
     // Sacarlo de la barra: no tiene por que quedar en el historial.
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     return fromUrl;
   }
   return (
+    localStorage.getItem("stackhelx.token") ||
+    sessionStorage.getItem("stackhelx.token") ||
     localStorage.getItem("portmaster.token") ||
     sessionStorage.getItem("portmaster.token") ||
     getCookieToken() ||
@@ -118,8 +120,8 @@ async function api(path, options = {}) {
   });
 
   if (response.status === 401) {
-    localStorage.removeItem("portmaster.token");
-    sessionStorage.removeItem("portmaster.token");
+    localStorage.removeItem("stackhelx.token");
+    sessionStorage.removeItem("stackhelx.token");
     token = "";
     promptAuthModal();
   }
@@ -146,8 +148,8 @@ function promptAuthModal() {
   saveBtn.onclick = () => {
     const val = input.value.trim();
     if (!val) return;
-    localStorage.setItem("portmaster.token", val);
-    sessionStorage.setItem("portmaster.token", val);
+    localStorage.setItem("stackhelx.token", val);
+    sessionStorage.setItem("stackhelx.token", val);
     token = val;
     modal.close();
     refresh();
@@ -1752,7 +1754,7 @@ async function refreshHealth() {
     for (const caido of nuevos) {
       const que = caido.service ? `${caido.stack}: ${caido.service}` : caido.stack;
       new Notification(`${que} se cayó`, {
-        body: "PortMaster no lo apagó, se murió solo.",
+        body: "StackHelx no lo apagó, se murió solo.",
         tag: clave(caido), // el navegador tambien deduplica
       });
     }

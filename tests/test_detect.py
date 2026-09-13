@@ -11,7 +11,7 @@ import textwrap
 import pytest
 from rich.console import Console
 
-from portmaster import config, detect, ports, runner
+from stackhelx import config, detect, ports, runner
 
 
 def write(root, name, body=""):
@@ -42,7 +42,7 @@ def test_importa_tomli_si_falta_tomllib(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", fake_import)
 
     source = open(detect.__file__, encoding="utf-8").read()
-    namespace = {"__name__": "portmaster._detect_import_probe", "__package__": "portmaster", "__file__": detect.__file__}
+    namespace = {"__name__": "stackhelx._detect_import_probe", "__package__": "stackhelx", "__file__": detect.__file__}
     exec(compile(source, detect.__file__, "exec"), namespace)
 
     assert namespace["tomllib"] is FakeTomli

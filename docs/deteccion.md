@@ -1,6 +1,6 @@
 # Detección sin stack.yaml
 
-Cuando un proyecto no tiene `stack.yaml`, PortMaster infiere los servicios de
+Cuando un proyecto no tiene `stack.yaml`, StackHelx infiere los servicios de
 lo que encuentra en el disco. La tabla de qué reconoce está en el
 [README](../README.md#sin-stackyaml). Acá está por qué reconoce eso y no otra
 cosa, que es lo que hay que leer antes de agregar un detector.
@@ -58,7 +58,7 @@ batch o un consumidor de colas, y no abre ningún puerto.
 
 El comando prefiere `mvn` o `gradle` del PATH, y sólo cae al wrapper del repo
 cuando no están. No es una preferencia de estilo. El comando detectado termina
-en el `stack.yaml` que escribe `portmaster freeze`, ese archivo se commitea, y
+en el `stack.yaml` que escribe `stackhelx freeze`, ese archivo se commitea, y
 lo abre alguien en otro sistema operativo: `mvn spring-boot:run` es igual en los
 tres, mientras que `./mvnw` no corre en `cmd.exe` y `mvnw.cmd` no corre en bash.
 Un repo que commiteó sólo el wrapper de POSIX, visto desde Windows, cae al
@@ -115,5 +115,5 @@ se le pregunta cuál quedó escuchando. Es más confiable que parsear
 antes de arrancar, porque no se saben hasta después. Los de compose sí, que
 están declarados en el archivo.
 
-`portmaster init` escribe lo detectado como `stack.yaml` para editarlo a mano.
+`stackhelx init` escribe lo detectado como `stack.yaml` para editarlo a mano.
 No sobreescribe uno existente.

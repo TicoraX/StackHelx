@@ -11,7 +11,7 @@ import time
 import psutil
 import pytest
 
-from portmaster import ports
+from stackhelx import ports
 
 
 @pytest.fixture

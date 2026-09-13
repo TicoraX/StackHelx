@@ -1,6 +1,6 @@
 import threading
 
-from portmaster import history, registry
+from stackhelx import history, registry
 
 
 def test_history_append_and_read(tmp_path, monkeypatch):

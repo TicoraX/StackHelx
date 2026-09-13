@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from portmaster import config, detect, docker, ports, registry, server
+from stackhelx import config, detect, docker, ports, registry, server
 
 TOKEN = "token-de-prueba-suficientemente-largo"
 SERVER = (
@@ -164,7 +164,7 @@ def test_la_pagina_no_pide_token(client):
     """El HTML es publico; los datos no. El token viaja en la URL de arranque."""
     respuesta = client.get("/", headers={"Authorization": ""})
     assert respuesta.status_code == 200
-    assert "PortMaster" in respuesta.text
+    assert "StackHelx" in respuesta.text
 
 
 # proyectos ----------------------------------------------------------------
@@ -433,7 +433,7 @@ def test_arranque_y_apagado(client, proyecto):
     assert any("arriba" in linea["text"] for linea in logs["lines"])
 
     assert client.post(f"/api/projects/{pid}/down").status_code == 200
-    from portmaster import ports
+    from stackhelx import ports
 
     assert esperar(lambda: ports.is_free(port)), "el puerto quedo tomado"
 
@@ -441,7 +441,7 @@ def test_arranque_y_apagado(client, proyecto):
 def test_apagar_mientras_arranca_no_deja_huerfanos(client, proyecto):
     """El apagado llega con el proceso arriba pero todavia no listo. Sin cortar
     el arranque, el hilo sigue detras del apagado y el servicio queda vivo."""
-    from portmaster import ports
+    from stackhelx import ports
 
     path, port = proyecto
     pid = registry.project_id(path)
@@ -972,7 +972,7 @@ def test_la_pagina_no_regala_el_token(client):
     curl, y con ella corre comandos."""
     respuesta = client.get("/", headers={"Authorization": ""})
     assert respuesta.status_code == 200
-    assert "portmaster_token" not in respuesta.headers.get("set-cookie", "")
+    assert "stackhelx_token" not in respuesta.headers.get("set-cookie", "")
     assert TOKEN not in respuesta.headers.get("set-cookie", "")
 
 
@@ -983,7 +983,7 @@ def test_la_cookie_se_entrega_a_quien_ya_tiene_el_token(client):
 
 def test_un_token_inventado_no_consigue_cookie(client):
     respuesta = client.get("/?token=no-es-el-token-pero-es-largo", headers={"Authorization": ""})
-    assert "portmaster_token" not in respuesta.headers.get("set-cookie", "")
+    assert "stackhelx_token" not in respuesta.headers.get("set-cookie", "")
 
 
 def test_la_cookie_autentica_la_api(client):
@@ -1615,7 +1615,7 @@ def test_share_rechaza_un_puerto_fuera_de_rango(client):
 def test_get_history_endpoint(client, tmp_path, monkeypatch):
     monkeypatch.setattr(registry, "HOME", tmp_path)
     pid = "serverhistorytest"
-    from portmaster import history
+    from stackhelx import history
     history.append(pid, {"duration_s": 2.5, "result": "running", "profile": "prod"})
 
     res = client.get(f"/api/projects/{pid}/history")
@@ -1826,7 +1826,7 @@ def test_switch_profile_endpoint(client, tmp_path, free_ports):
     # 3. Arrancar con perfil "front"
     assert client.post(f"/api/projects/{pid}/up", json={"profile": "front"}).status_code == 200
     esperar_listo(client)
-    from portmaster import ports as ports_mod
+    from stackhelx import ports as ports_mod
 
     assert not ports_mod.is_free(p1), "web debio arrancar"
     assert ports_mod.is_free(p2), "api no debio arrancar"
@@ -1934,19 +1934,19 @@ def test_project_conflicts_endpoint(client, tmp_path, free_ports):
 
 
 def test_mcp_activity_endpoint(client):
-    from portmaster import mcp
+    from stackhelx import mcp
 
     mcp.clear_telemetry()
-    mcp.record_tool_call("portmaster_doctor", 45.2, "ok", "ok (512 bytes)")
+    mcp.record_tool_call("stackhelx_doctor", 45.2, "ok", "ok (512 bytes)")
     res = client.get("/api/mcp/activity")
     assert res.status_code == 200
     data = res.json()
     assert data["total_calls"] == 1
-    assert data["by_tool"].get("portmaster_doctor") == 1
+    assert data["by_tool"].get("stackhelx_doctor") == 1
     assert data["rate_limit_max"] == 30
     assert len(data["recent_events"]) == 1
     ev = data["recent_events"][0]
-    assert ev["tool"] == "portmaster_doctor"
+    assert ev["tool"] == "stackhelx_doctor"
     assert ev["duration_ms"] == 45.2
     assert ev["status"] == "ok"
 
@@ -1954,7 +1954,7 @@ def test_mcp_activity_endpoint(client):
 def test_sink_concurrencia_escribe_sin_perder_seq():
     import threading
 
-    from portmaster.server import _Sink
+    from stackhelx.server import _Sink
 
     sink = _Sink()
     hilos = 5
@@ -2005,7 +2005,7 @@ def test_open_editor_con_editor_detectado(client, tmp_path, monkeypatch):
     carpeta = tmp_path / "proyecto_editor"
     carpeta.mkdir()
 
-    monkeypatch.setenv("PORTMASTER_EDITOR", "dummy_editor")
+    monkeypatch.setenv("STACKHELX_EDITOR", "dummy_editor")
     monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/dummy_editor" if cmd == "dummy_editor" else None)
 
     lanzado = []
@@ -2021,7 +2021,7 @@ def test_open_editor_sin_editor_en_sistema(client, tmp_path, monkeypatch):
     carpeta = tmp_path / "proyecto_sin_editor"
     carpeta.mkdir()
 
-    monkeypatch.delenv("PORTMASTER_EDITOR", raising=False)
+    monkeypatch.delenv("STACKHELX_EDITOR", raising=False)
     monkeypatch.delenv("EDITOR", raising=False)
     monkeypatch.setattr(shutil, "which", lambda cmd: None)
 
