@@ -33,7 +33,7 @@ def _entrecomillar(args: Sequence[str]) -> str:
 
     Iban con un `" ".join`, y estos comandos corren con `shell=True`: un
     argumento con un separador ejecutaba lo que viniera despues. Desde el CLI lo
-    escribe el usuario, pero `portmaster_run` los recibe de un agente de IA.
+    escribe el usuario, pero `stackhelx_run` (o `portmaster_run`) los recibe de un agente de IA.
 
     Por plataforma, porque el shell no es el mismo. `shlex.join` entrecomilla al
     estilo POSIX y `cmd.exe` no entiende las comillas simples: un `&` adentro le

@@ -1,7 +1,7 @@
-# Esquema de configuracion de PortMaster.
+# Esquema de configuracion de StackHelx.
 #
-# El archivo es opcional: sin uno, PortMaster detecta los servicios del proyecto.
-# `portmaster init` escribe lo detectado aca para editarlo a mano.
+# El archivo es opcional: sin uno, StackHelx detecta los servicios del proyecto.
+# `stackhelx init` (o `shx init`) escribe lo detectado aca para editarlo a mano.
 
 name: mi-proyecto
 

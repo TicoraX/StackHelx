@@ -54,7 +54,7 @@ from . import (
 # `browse_module` porque el endpoint de /api/browse ya se llama browse.
 from . import browse as browse_module
 
-log = logging.getLogger("portmaster.server")
+log = logging.getLogger("stackhelx.server")
 
 WEB = Path(__file__).parent / "web"
 LOG_LINES = 500
@@ -265,7 +265,7 @@ class Session:
         self.stopped_by_user = False
         self.state = "starting"
         self.sink.write(
-            f"\n[portmaster] Conmutando al perfil '{new_profile or 'default'}'...\n"
+            f"\n[stackhelx] Conmutando al perfil '{new_profile or 'default'}'...\n"
         )
         console = Console(
             file=self.sink, force_terminal=False, no_color=True, width=160, soft_wrap=True
@@ -707,7 +707,7 @@ def create_app(token: str | None = None) -> FastAPI:
     _load_sessions_state()
     token = token or registry.token()
     app = FastAPI(
-        title="PortMaster",
+        title="StackHelx",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
@@ -1520,7 +1520,7 @@ def create_app(token: str | None = None) -> FastAPI:
             log.info("puerto rechazado: %s", exc)
             raise HTTPException(400, str(exc))
 
-        # PortMaster no se publica a si mismo. Detras de este puerto esta la API
+        # StackHelx no se publica a si mismo. Detras de este puerto esta la API
         # que arranca stack.yaml, o sea ejecucion de comandos: exponerla deja al
         # token como unica puerta contra internet entero. La validacion de Host
         # del middleware ya rechaza al cliente de tuneles, asi que hoy el efecto
@@ -1534,7 +1534,7 @@ def create_app(token: str | None = None) -> FastAPI:
         if propio is not None and port == propio:
             raise HTTPException(
                 400,
-                f"el puerto {port} es el de PortMaster. Publicarlo expone la API "
+                f"el puerto {port} es el de StackHelx. Publicarlo expone la API "
                 "que ejecuta los comandos de tu stack.yaml, no tu proyecto.",
             )
 

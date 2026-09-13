@@ -275,12 +275,12 @@ def test_el_mcp_rechaza_un_puerto_fuera_de_rango():
         mcp._execute_tool("stackhelx_share", {"port": 0})
 
 
-def test_no_se_publica_un_portmaster_serve(monkeypatch):
+def test_no_se_publica_un_stackhelx_serve(monkeypatch):
     """El unico choke point de los tuneles se niega a exponer la propia API.
 
     Detras de ese puerto esta lo que corre los comandos de stack.yaml. Va aca y
     no en el comando porque por `start_tunnel` pasan los tres caminos: el boton
-    de la interfaz, `portmaster share` y el CLI.
+    de la interfaz, `stackhelx share` y el CLI.
 
     Se afirma el efecto: que no se lance ningun cliente de tuneles.
     """
@@ -290,7 +290,7 @@ def test_no_se_publica_un_portmaster_serve(monkeypatch):
         tunnel.ports,
         "scan",
         lambda port: tunnel.ports.PortStatus(
-            port=port, free=False, pid=123, cmdline="python -m portmaster serve --port 7666"
+            port=port, free=False, pid=123, cmdline="python -m stackhelx serve --port 7666"
         ),
     )
 
@@ -299,7 +299,7 @@ def test_no_se_publica_un_portmaster_serve(monkeypatch):
     assert lanzados == [], "se levanto un cliente de tuneles contra la propia API"
 
 
-def test_un_puerto_ajeno_no_se_confunde_con_portmaster(monkeypatch):
+def test_un_puerto_ajeno_no_se_confunde_con_stackhelx(monkeypatch):
     """La otra mitad: la guarda no puede frenar un tunel legitimo.
 
     Sin esto, un `return True` constante pasaria el test de arriba.

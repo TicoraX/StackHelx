@@ -116,7 +116,7 @@ _docker_cache: tuple[float, bool] | None = None
 def declared_ports(max_age: float = 0.0) -> dict[int, list[Path]]:
     """Puerto declarado -> proyectos registrados que lo piden.
 
-    Es el unico dato que PortMaster tiene y las herramientas de un proyecto solo
+    Es el unico dato que StackHelx tiene y las herramientas de un proyecto solo
     no pueden tener: cada compose se conoce a si mismo y ninguno sabe del de al
     lado. Sin esto, que dos proyectos peleen por el 3000 se descubre cuando el
     segundo no arranca.
@@ -251,7 +251,7 @@ def _save(items: list[Path]) -> None:
 def token() -> str:
     """Token de la API local.
 
-    Prioriza PORTMASTER_TOKEN. Si no esta, usa uno generado en el directorio del
+    Prioriza STACKHELX_TOKEN (con fallback a PORTMASTER_TOKEN). Si no esta, usa uno generado en el directorio del
     usuario. Ver la desviacion documentada en CLAUDE.md: una herramienta que se
     instala con pipx no puede traer un .env, y un token generado con permisos
     0600 fuera del repo es mas seguro que uno que el usuario copia a mano.

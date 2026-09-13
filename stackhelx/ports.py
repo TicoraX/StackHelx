@@ -39,7 +39,7 @@ TERMINATE_TIMEOUT = 5
 
 
 class KillRefused(Exception):
-    """El proceso existe pero PortMaster se niega a matarlo."""
+    """El proceso existe pero StackHelx se niega a matarlo."""
 
 
 @dataclass(frozen=True)
@@ -356,7 +356,7 @@ def kill(
     no existe, y psutil.AccessDenied si faltan permisos.
     """
     # psutil.Process(None) es el proceso actual: sin esto, un scan que no vio al
-    # dueno del puerto termina en PortMaster matandose a si mismo.
+    # dueno del puerto termina en StackHelx matandose a si mismo.
     if pid is None:
         raise KillRefused("no hay PID que cerrar")
     if pid in PROTECTED_PIDS:
@@ -364,9 +364,9 @@ def kill(
 
     me = psutil.Process()
     if pid == me.pid:
-        raise KillRefused("ese PID es PortMaster")
+        raise KillRefused("ese PID es StackHelx")
     if pid in {ancestor.pid for ancestor in me.parents()}:
-        raise KillRefused(f"PID {pid} es un proceso padre de PortMaster (tu terminal)")
+        raise KillRefused(f"PID {pid} es un proceso padre de StackHelx (tu terminal)")
 
     proc = psutil.Process(pid)
     if create_time is not None and proc.create_time() != create_time:

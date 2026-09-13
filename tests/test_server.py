@@ -1024,7 +1024,7 @@ def test_el_chequeo_de_docker_no_corre_en_cada_request(client, tmp_path, monkeyp
 
 
 def _sesion_recuperada(tmp_path, port):
-    """Simula un reinicio de `portmaster serve` con el proceso todavia vivo."""
+    """Simula un reinicio de `stackhelx serve` con el proceso todavia vivo."""
     import json
 
     root = tmp_path / "sobreviviente"
@@ -1279,7 +1279,7 @@ def _tunel_falso(monkeypatch, proc):
 
 
 def test_los_tuneles_se_cierran_al_apagar_el_servidor(monkeypatch, free_ports):
-    """`portmaster serve` terminaba y el cliente de tuneles seguia vivo.
+    """`stackhelx serve` terminaba y el cliente de tuneles seguia vivo.
 
     El puerto quedaba expuesto a internet, sin nada en pantalla que lo dijera y
     sin forma de cerrarlo salvo matar el proceso a mano.
@@ -2088,7 +2088,7 @@ def test_browse_frecuentes(client, tmp_path, monkeypatch):
 
 
 def test_share_rechaza_el_puerto_propio(client, monkeypatch):
-    """PortMaster no se publica a si mismo.
+    """StackHelx no se publica a si mismo.
 
     Detras de ese puerto esta la API que corre los comandos de stack.yaml, o
     sea ejecucion arbitraria: el token pasa a ser lo unico entre internet y tu
@@ -2107,7 +2107,7 @@ def test_share_rechaza_el_puerto_propio(client, monkeypatch):
 
     res = client.post("/api/share?port=80")
     assert res.status_code == 400
-    assert llamadas == [], "se abrio un tunel hacia el puerto de PortMaster"
+    assert llamadas == [], "se abrio un tunel hacia el puerto de StackHelx"
 
 
 def test_share_no_confia_en_el_header_host(client, monkeypatch):

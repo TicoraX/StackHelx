@@ -32,13 +32,15 @@ from .config import Service, Stack
 def build_env(service: Service, extra_env: dict[str, str] | None = None) -> dict[str, str]:
     """Construye el entorno de ejecucion con precedencia clara:
     1. os.environ
-    2. ~/.portmaster/env.global (si existe)
+    2. ~/.stackhelx/env.global (o legacy ~/.portmaster/env.global si existe)
     3. service.env_file (en orden)
     4. service.env (declarado explicito)
     5. extra_env (e.g. desde --env-file en CLI)
     """
     env = dict(os.environ)
-    global_env = Path.home() / ".portmaster" / "env.global"
+    global_env = Path.home() / ".stackhelx" / "env.global"
+    if not global_env.is_file():
+        global_env = Path.home() / ".portmaster" / "env.global"
     if global_env.is_file():
         env.update(config.parse_env_file(global_env))
     for env_path in service.env_file:
@@ -692,7 +694,7 @@ def dependency_graph(stack: Stack, profile: str | None = None) -> dict:
 def run_stop(service: Service, extra_env: dict[str, str] | None = None) -> subprocess.CompletedProcess | None:
     """Corre el `stop:` de un servicio. None si no termino a tiempo.
 
-    Vive afuera del `Runner` porque `portmaster down` tiene que poder apagar un
+    Vive afuera del `Runner` porque `stackhelx down` tiene que poder apagar un
     stack que arranco otro proceso: los contenedores de un `docker compose up -d`
     sobreviven a la terminal que los levanto, y ahi no hay ningun `Proc` vivo del
     que colgarse.
@@ -755,7 +757,7 @@ def _port_hint(proc: Proc) -> str:
         quien = dueno.name or f"pid {dueno.pid}"
         return (
             f"; el puerto {declarado} ya lo tenia {quien} (pid {dueno.pid}):"
-            f" liberalo con `portmaster free {declarado}` y reintenta"
+            f" liberalo con `stackhelx free {declarado}` y reintenta"
         )
     return ""
 

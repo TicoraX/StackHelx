@@ -471,7 +471,7 @@ COMPOSE_CON_PERFILES = """
 
 
 def test_un_contenedor_con_perfil_no_arranca_por_defecto(tmp_path):
-    """En compose, `profiles:` excluye. En PortMaster un perfil es una lista de
+    """En compose, `profiles:` excluye. En StackHelx un perfil es una lista de
     lo que se arranca. Traducirlos al reves arranca lo que compose apaga."""
     write(tmp_path, "compose.yaml", COMPOSE_CON_PERFILES)
     stack = detect.detect(tmp_path)
@@ -541,7 +541,7 @@ def test_un_compose_sin_perfiles_arranca_todo(tmp_path):
 
 
 def test_congelar_un_compose_con_perfiles_no_cambia_lo_que_arranca(tmp_path):
-    """`portmaster init` tiene que ser fiel: el archivo congelado arranca lo
+    """`stackhelx init` tiene que ser fiel: el archivo congelado arranca lo
     mismo que la deteccion, ni un contenedor mas."""
     write(tmp_path, "compose.yaml", COMPOSE_CON_PERFILES)
     detectado = detect.detect(tmp_path)

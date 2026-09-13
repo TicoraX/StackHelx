@@ -318,7 +318,7 @@ def test_mcp_una_peticion_con_id_si_se_contesta():
 
 
 def test_mcp_tool_call_doctor(tmp_path):
-    """Prueba que portmaster_doctor ejecuta los checks sin crash."""
+    """Prueba que stackhelx_doctor ejecuta los checks sin crash."""
     req = {
         "jsonrpc": "2.0",
         "id": 30,
@@ -332,7 +332,7 @@ def test_mcp_tool_call_doctor(tmp_path):
 
 
 def test_mcp_tool_call_history(tmp_path, monkeypatch):
-    """Prueba que portmaster_history lee la telemetria."""
+    """Prueba que stackhelx_history lee la telemetria."""
     monkeypatch.setattr(mcp.registry, "HOME", tmp_path)
     pid = mcp.registry.project_id(tmp_path)
     mcp.history.append(pid, {"event": "test", "duration_s": 1.5})
@@ -352,7 +352,7 @@ def test_mcp_tool_call_history(tmp_path, monkeypatch):
 
 
 def test_mcp_tool_call_ports(free_ports):
-    """Prueba que portmaster_ports retorna lista de puertos formateada."""
+    """Prueba que stackhelx_ports retorna lista de puertos formateada."""
     (port,) = free_ports(1)
     req = {
         "jsonrpc": "2.0",

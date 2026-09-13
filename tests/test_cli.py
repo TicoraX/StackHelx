@@ -29,7 +29,7 @@ def sin_color(texto: str) -> str:
     Rich pinta los numeros, asi que `f"El puerto {port} ya esta ocupado"` llega
     partido por un `\x1b[1;36m` en el medio y un `in` plano no lo encuentra. Solo
     aparece cuando el entorno trae `FORCE_COLOR` (la terminal del desarrollador,
-    o un `portmaster up` que se lo pone a sus hijos): sin eso Rich ve que no hay
+    o un `stackhelx up` que se lo pone a sus hijos): sin eso Rich ve que no hay
     tty y no pinta nada, que es por lo que en CI el test daba verde.
 
     Afirmar sobre el texto pelado, y no sobre como se ve, es lo correcto igual:
@@ -245,7 +245,7 @@ def _proyecto_con_puerto(tmp_path, nombre, port):
 
 
 def test_doctor_avisa_si_otro_proyecto_declara_el_mismo_puerto(tmp_path, monkeypatch, free_ports):
-    """El dato que solo PortMaster tiene: ningun compose sabe del de al lado."""
+    """El dato que solo StackHelx tiene: ningun compose sabe del de al lado."""
     (port,) = free_ports(1)
     _proyecto_con_puerto(tmp_path, "blog", port)
     fitness = _proyecto_con_puerto(tmp_path, "fitness", port)
@@ -819,7 +819,7 @@ def test_open_sin_puerto_no_tapa_al_servicio_que_si_contesta(
 def test_share_rechaza_un_puerto_fuera_de_rango(tmp_path, monkeypatch):
     """`target` es texto porque tambien acepta el nombre de un servicio, asi que
     se pierde el min/max que traen los demas comandos. Sin la validacion a mano,
-    `portmaster share 0` levantaba el cliente de tuneles contra 127.0.0.1:0.
+    `stackhelx share 0` levantaba el cliente de tuneles contra 127.0.0.1:0.
     """
     monkeypatch.chdir(tmp_path)
     for target in ("0", "70000", "99999"):

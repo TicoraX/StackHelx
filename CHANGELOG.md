@@ -4,6 +4,16 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.0.1] - 2026-09-13
+
+### Seguridad y Limpieza
+
+- **Purga de mensajes de seguridad y excepciones (`ports.py`):** Los mensajes de `KillRefused` ante intento de cerrar el PID propio o el de la terminal padre ahora identifican explícitamente a `StackHelx`.
+- **Precedencia de entorno global (`runner.py`):** `build_env()` lee `~/.stackhelx/env.global` y mantiene fallback transparente a `~/.portmaster/env.global` si existe, con pruebas de precedencia añadidas a la suite.
+- **Títulos y logs de servidor (`server.py`):** Título de FastAPI fijado a `StackHelx`, logger migrado a `stackhelx.server`, y mensajes de guarda en `/api/share` actualizados para rechazar túneles contra la consola de `StackHelx`.
+- **Plantilla de configuración (`stack.example.yaml`):** Actualizada para documentar `stackhelx init` y la nueva identidad de StackHelx.
+- **Suite de pruebas:** 474 pruebas en verde (+1 test de precedencia de entorno global).
+
 ## [1.0.0] - 2026-09-13
 
 ### Rebrand y Nuevo Comienzo

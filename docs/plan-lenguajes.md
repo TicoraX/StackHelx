@@ -15,7 +15,7 @@
 
 Fecha: 7 de septiembre de 2026. Rama `main`, 432 tests en verde.
 
-PortMaster detecta hoy compose, Python, Node, Deno, Go, Rust, Ruby, PHP y .NET.
+StackHelx detecta hoy compose, Python, Node, Deno, Go, Rust, Ruby, PHP y .NET.
 Una carpeta con un proyecto de otro lenguaje no devuelve nada y obliga a escribir
 el `stack.yaml` a mano. Este plan cierra los tres huecos que tienen usuarios
 reales de desarrollo local multi-servicio: la JVM (Java y Kotlin), Elixir y Bun
@@ -298,8 +298,8 @@ primero). Y se verifica revirtiendo, como todo lo demás acá.
 
 Cada PR toca:
 
-- `portmaster/detect.py`: las dos funciones, sus constantes, y el nombre en la tupla de `detect()`.
-- `portmaster/browse.py`: el marcador nuevo en `MARKERS` (`pom.xml`, `build.gradle`, `mix.exs`, `bunfig.toml`), que es lo que pinta el badge en el explorador de carpetas.
+- `stackhelx/detect.py`: las dos funciones, sus constantes, y el nombre en la tupla de `detect()`.
+- `stackhelx/browse.py`: el marcador nuevo en `MARKERS` (`pom.xml`, `build.gradle`, `mix.exs`, `bunfig.toml`), que es lo que pinta el badge en el explorador de carpetas.
 - `tests/test_detect.py`: los casos de arriba, negativo incluido.
 - `docs/deteccion.md`, `README.md` y `CHANGELOG.md`. De `CLAUDE.md`: lo que se escribe en la doc se comprueba corriendo el comando, no recordándolo.
 

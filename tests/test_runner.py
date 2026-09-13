@@ -657,7 +657,7 @@ def test_niveles_de_una_cadena_lineal():
 
 def test_env_file_inyecta_variables(tmp_path, free_ports):
     (port,) = free_ports(1)
-    (tmp_path / ".env").write_text("CUSTOM_VAR=portmaster_rocks\n", encoding="utf-8")
+    (tmp_path / ".env").write_text("CUSTOM_VAR=stackhelx_rocks\n", encoding="utf-8")
     flag = tmp_path / "env_result.txt"
 
     stack = stack_from(
@@ -674,7 +674,7 @@ def test_env_file_inyecta_variables(tmp_path, free_ports):
     try:
         engine.up()
         assert flag.exists()
-        assert flag.read_text(encoding="utf-8") == "portmaster_rocks"
+        assert flag.read_text(encoding="utf-8") == "stackhelx_rocks"
     finally:
         engine.down()
 
@@ -726,7 +726,7 @@ def test_pre_start_fallo_aborta_arranque(tmp_path, free_ports):
 
 @pytest.fixture
 def sin_env_global(tmp_path, monkeypatch):
-    """`build_env` lee `~/.portmaster/env.global`, o sea el disco de quien corre.
+    """`build_env` lee `~/.stackhelx/env.global` (o `~/.portmaster/env.global`), o sea el disco de quien corre.
 
     Las reglas de precedencia dejan las aserciones de abajo a salvo hoy, pero un
     env.global que defina una de las variables que estos tests dan por ausentes
@@ -1271,3 +1271,41 @@ def test_bun_detectado_arranca_y_abre_el_puerto(tmp_path, free_ports):
     while time.time() < deadline and not ports.is_free(port):
         time.sleep(0.1)
     assert ports.is_free(port), "el puerto quedo tomado despues de down()"
+
+
+def test_build_env_compatibilidad_stackhelx_y_portmaster(tmp_path, monkeypatch):
+    """build_env lee ~/.stackhelx/env.global y usa ~/.portmaster/env.global como fallback."""
+    hogar = tmp_path / "home"
+    hogar.mkdir()
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: hogar))
+
+    srv = config.Service(
+        name="srv",
+        command="echo ok",
+        cwd=tmp_path,
+        port=8080,
+        ready="port",
+        needs=(),
+        env={},
+        detached=False,
+    )
+
+    # 1. Sin archivo
+    env = runner.build_env(srv)
+    assert "MI_GLOBAL" not in env
+
+    # 2. Solo portmaster legacy
+    dir_portmaster = hogar / ".portmaster"
+    dir_portmaster.mkdir()
+    (dir_portmaster / "env.global").write_text("MI_GLOBAL=desde_portmaster\nOTRA_VAR=1\n", encoding="utf-8")
+    env = runner.build_env(srv)
+    assert env.get("MI_GLOBAL") == "desde_portmaster"
+    assert env.get("OTRA_VAR") == "1"
+
+    # 3. StackHelx sobrescribe portmaster legacy
+    dir_stackhelx = hogar / ".stackhelx"
+    dir_stackhelx.mkdir()
+    (dir_stackhelx / "env.global").write_text("MI_GLOBAL=desde_stackhelx\n", encoding="utf-8")
+    env = runner.build_env(srv)
+    assert env.get("MI_GLOBAL") == "desde_stackhelx"
+
