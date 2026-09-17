@@ -17,11 +17,15 @@ uv tool install stackhelx
 pipx install stackhelx
 ```
 
+La instalación registra dos ejecutables idénticos en el sistema: el comando principal **`stackhelx`** y su versión abreviada **`shx`**.
+
 Requiere Python 3.10 o superior. Funciona en Windows, macOS y Linux.
 
 ## Comandos
 
-| Comando | Qué hace |
+Todos los comandos pueden ejecutarse como `stackhelx <comando>` o de forma abreviada con su alias oficial **`shx <comando>`** (ej. `shx up`, `shx down`, `shx doctor`, `shx ports`):
+
+| Comando (`stackhelx` / `shx`) | Qué hace |
 |---|---|
 | `stackhelx up` | Levanta el stack entero: libera puertos, arranca en orden y sigue los logs |
 | `stackhelx down` | Baja lo que sobrevive a la terminal, o sea contenedores |
@@ -54,10 +58,13 @@ Cada uno con `--help`.
 ## Arrancar un stack
 
 ```bash
+shx up
+# o
 stackhelx up
-stackhelx up --profile backend    # solo un subconjunto
-stackhelx up --no-free            # no tocar los puertos ocupados
-stackhelx up --env-file .env.qa   # carga ese .env antes de arrancar
+
+shx up --profile backend    # solo un subconjunto
+shx up --no-free            # no tocar los puertos ocupados
+shx up --env-file .env.qa   # carga ese .env antes de arrancar
 ```
 
 `--env-file` no reemplaza al `env_file:` de `stack.yaml`, se suma: carga el

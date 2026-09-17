@@ -1,13 +1,16 @@
 # Otros comandos
 
+> **Nota:** Todos los comandos del sistema pueden ejecutarse indistintamente con `stackhelx <cmd>` o mediante el alias corto oficial **`shx <cmd>`** (por ejemplo: `shx down`, `shx doctor`, `shx switch`, `shx run`, `shx share`).
+
 `up`, `serve`, `ports` y `free` están en el [README](../README.md#comandos).
 Acá están los cuatro que quedan, con qué revisa cada uno y por qué.
 
 ## Bajar lo que sobrevive a la terminal
 
 ```bash
-stackhelx down
-stackhelx down --profile backend
+shx down
+# o stackhelx down
+shx down --profile backend
 ```
 
 `Ctrl-C` sobre un `stackhelx up` apaga a sus hijos, pero un

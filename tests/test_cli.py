@@ -992,3 +992,23 @@ def test_mcp_status_cli():
     assert "stackhelx_status" in resultado.output
 
 
+def test_project_scripts_register_stackhelx_and_shx():
+    """pyproject.toml debe registrar tanto 'stackhelx' como el alias corto 'shx'."""
+    from pathlib import Path
+
+    pyproject_path = Path(__file__).resolve().parent.parent / "pyproject.toml"
+    try:
+        import tomllib
+
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        scripts = data["project"]["scripts"]
+        assert scripts.get("stackhelx") == "stackhelx.cli:app"
+        assert scripts.get("shx") == "stackhelx.cli:app"
+    except ImportError:
+        texto = pyproject_path.read_text(encoding="utf-8")
+        assert 'stackhelx = "stackhelx.cli:app"' in texto
+        assert 'shx = "stackhelx.cli:app"' in texto
+
+
+
