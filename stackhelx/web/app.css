@@ -635,6 +635,7 @@ body {
   border-radius: var(--radius-sm);
   white-space: nowrap;
   align-self: center;
+  cursor: help;
 }
 
 .service__act {

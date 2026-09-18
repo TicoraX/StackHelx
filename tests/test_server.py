@@ -2278,3 +2278,16 @@ def test_cache_invalidation_race_no_reinyecta_viejo(tmp_path):
 
     with server._stack_lock:
         assert clave not in server._stack_seen
+
+
+def test_metrics_badge_has_tooltip_and_cursor_help():
+    """El badge de consumo debe proveer tooltip explicativo (title) y cursor help."""
+    js = (server.WEB / "app.js").read_text(encoding="utf-8")
+    assert "badge.title = `${cpuInfo}\\n${memInfo}`" in js
+    assert "núcleos en paralelo" in js
+    assert "memoria física residente RSS" in js
+
+    css = (server.WEB / "app.css").read_text(encoding="utf-8")
+    assert ".service__metrics" in css
+    assert "cursor: help" in css
+

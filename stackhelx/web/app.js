@@ -993,8 +993,15 @@ function updateCard(entry, project) {
     if (badge && metrics[s.name]) {
       const m = metrics[s.name];
       if (m.memory_mb > 0 || m.cpu_percent > 0) {
+        const coresEquiv = (m.cpu_percent / 100).toFixed(1);
+        const cpuInfo = m.cpu_percent > 100
+          ? `CPU: ${m.cpu_percent}% (~${coresEquiv} núcleos en paralelo)`
+          : `CPU: ${m.cpu_percent}% de 1 núcleo`;
+        const memInfo = `RAM: ${m.memory_mb} MB (memoria física residente RSS)`;
+
         badge.textContent = `${m.cpu_percent}% · ${m.memory_mb} MB`;
-        badge.setAttribute("aria-label", `CPU: ${m.cpu_percent}%, Memoria: ${m.memory_mb} MB`);
+        badge.title = `${cpuInfo}\n${memInfo}`;
+        badge.setAttribute("aria-label", `${cpuInfo}, ${memInfo}`);
         badge.hidden = false;
       } else {
         badge.hidden = true;
