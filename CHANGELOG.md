@@ -4,6 +4,16 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.1.0] - 2026-09-18
+
+### Añadido y Mejorado
+
+- **Onboarding de Agentes MCP:** Modal web interactivo con panel desplegable colapsable para configurar clientes de IA (Claude Desktop, Cursor, Antigravity, VS Code), con generación de snippets JSON (`shx` / `uvx`), descarga directa de `stackhelx-mcp.json` y copia de System Prompt para agentes.
+- **Banderas CLI para MCP:** Se incorporan las opciones `shx mcp --config` (imprime bloque JSON de configuración) y `shx mcp --prompt` (imprime instrucciones recomendadas para agentes).
+- **Telemetría y Métricas en Tiempo Real:** Tooltip explicativo (`title` y `aria-label`) con cursor `help` sobre el badge de métricas de servicio (`.service__metrics`). Desglosa el uso de CPU multi-core (equivalencia de núcleos activos) y aclara que la memoria es física residente (RSS).
+- **Documentación del alias `shx`:** `README.md` y `docs/comandos.md` documentan formalmente la instalación y uso del comando abreviado `shx` 1:1 junto con `stackhelx`.
+- **Diseño sin emojis:** Estilo visual puro y tipográfico, conforme a los principios de diseño sobrio y accesible.
+
 ## [1.0.1] - 2026-09-13
 
 ### Seguridad y Limpieza
@@ -558,8 +568,7 @@ Primera versión publicada. Lo que sigue es el alcance completo, no un diff.
 [1.3.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.3.0
 [1.2.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.2.0
 [1.1.1]: https://github.com/TicoraX/PortMaster/releases/tag/v1.1.1
-[1.1.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.1.0
-[1.0.3]: https://github.com/TicoraX/PortMaster/releases/tag/v1.0.3
-[1.0.2]: https://github.com/TicoraX/PortMaster/releases/tag/v1.0.2
-[1.0.1]: https://github.com/TicoraX/PortMaster/releases/tag/v1.0.1
-[1.0.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.0.0
+[1.1.0]: https://github.com/TicoraX/StackHelx/releases/tag/v1.1.0
+[1.0.1]: https://github.com/TicoraX/StackHelx/releases/tag/v1.0.1
+[1.0.0]: https://github.com/TicoraX/StackHelx/releases/tag/v1.0.0
+

@@ -2370,7 +2370,7 @@ if (ui.btnMcpModal && ui.mcpModal) {
       if (navigator.clipboard && text) {
         navigator.clipboard.writeText(text).then(() => {
           const orig = ui.btnMcpCopyJson.textContent;
-          ui.btnMcpCopyJson.textContent = "✓ ¡Copiado!";
+          ui.btnMcpCopyJson.textContent = "Copiado";
           setTimeout(() => {
             ui.btnMcpCopyJson.textContent = orig;
           }, 1600);
@@ -2400,7 +2400,7 @@ if (ui.btnMcpModal && ui.mcpModal) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(MCP_AGENT_PROMPT).then(() => {
           const orig = ui.btnMcpCopyPrompt.textContent;
-          ui.btnMcpCopyPrompt.textContent = "✓ ¡Copiado!";
+          ui.btnMcpCopyPrompt.textContent = "Copiado";
           setTimeout(() => {
             ui.btnMcpCopyPrompt.textContent = orig;
           }, 1600);
