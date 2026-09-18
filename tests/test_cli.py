@@ -1011,4 +1011,18 @@ def test_project_scripts_register_stackhelx_and_shx():
         assert 'shx = "stackhelx.cli:app"' in texto
 
 
+def test_mcp_config_and_prompt_cli():
+    """El comando mcp --config y --prompt imprimen el JSON y las instrucciones del agente."""
+    res_cfg = runner.invoke(cli.app, ["mcp", "--config"])
+    assert res_cfg.exit_code == 0
+    assert "mcpServers" in res_cfg.output
+    assert "stackhelx" in res_cfg.output
+
+    res_prompt = runner.invoke(cli.app, ["mcp", "--prompt"])
+    assert res_prompt.exit_code == 0
+    assert "stackhelx_*" in res_prompt.output
+    assert "stackhelx_ports" in res_prompt.output
+
+
+
 

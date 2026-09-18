@@ -166,10 +166,39 @@
 
       <dialog class="picker mcp-modal" id="mcp-modal" aria-label="Telemetría de Agentes MCP">
         <div class="picker__head">
-          <p class="picker__path">Telemetría de Agentes MCP</p>
+          <p class="picker__path">Servidor MCP para Agentes</p>
           <button class="btn btn--quiet" type="button" data-mcp-modal="close">Cerrar</button>
         </div>
         <div class="mcp__content">
+          <details class="mcp__setup" id="mcp-setup">
+            <summary class="mcp__setup-summary">
+              <span>Configuración y Prompt para Agentes</span>
+              <span class="mcp__setup-icon" aria-hidden="true">▾</span>
+            </summary>
+            <div class="mcp__setup-body">
+              <div class="mcp__setup-tabs">
+                <label class="mcp__setup-radio">
+                  <input type="radio" name="mcp-cmd-type" value="shx" checked>
+                  <span>shx (recomendado)</span>
+                </label>
+                <label class="mcp__setup-radio">
+                  <input type="radio" name="mcp-cmd-type" value="uvx">
+                  <span>uvx (sin instalación)</span>
+                </label>
+              </div>
+              <pre class="mcp__code" id="mcp-json-snippet"></pre>
+              <div class="mcp__setup-actions">
+                <button class="btn btn--quiet" type="button" id="btn-mcp-copy-json">📋 Copiar JSON</button>
+                <button class="btn btn--quiet" type="button" id="btn-mcp-download-json">💾 Descargar .json</button>
+                <button class="btn btn--quiet" type="button" id="btn-mcp-copy-prompt">🤖 Copiar Prompt Agente</button>
+              </div>
+              <p class="mcp__setup-hint">
+                <strong>Claude Desktop (Windows):</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code><br>
+                <strong>Cursor:</strong> <code>.cursor/mcp.json</code>
+              </p>
+            </div>
+          </details>
+
           <div class="mcp__stats">
             <span class="mcp__stat">Llamadas totales: <strong id="mcp-total-calls">0</strong></span>
             <span class="mcp__stat">Cuota activa: <strong id="mcp-quota-used">0/30</strong> req/min</span>

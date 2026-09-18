@@ -52,6 +52,11 @@ const ui = {
   mcpQuotaUsed: document.getElementById("mcp-quota-used"),
   mcpBreakdown: document.getElementById("mcp-breakdown"),
   mcpTbody: document.getElementById("mcp-tbody"),
+  mcpSetup: document.getElementById("mcp-setup"),
+  mcpJsonSnippet: document.getElementById("mcp-json-snippet"),
+  btnMcpCopyJson: document.getElementById("btn-mcp-copy-json"),
+  btnMcpDownloadJson: document.getElementById("btn-mcp-download-json"),
+  btnMcpCopyPrompt: document.getElementById("btn-mcp-copy-prompt"),
 };
 
 const TITLE = document.title;
@@ -2305,9 +2310,47 @@ async function refreshPortsModal() {
 
 /* mcp modal ----------------------------------------------------------------- */
 
+const MCP_CONFIGS = {
+  shx: JSON.stringify(
+    {
+      mcpServers: {
+        stackhelx: {
+          command: "shx",
+          args: ["mcp"],
+        },
+      },
+    },
+    null,
+    2,
+  ),
+  uvx: JSON.stringify(
+    {
+      mcpServers: {
+        stackhelx: {
+          command: "uvx",
+          args: ["stackhelx", "mcp"],
+        },
+      },
+    },
+    null,
+    2,
+  ),
+};
+
+const MCP_AGENT_PROMPT =
+  "Tienes a tu disposición las herramientas MCP de StackHelx (`stackhelx_*`). Úsalas para inspeccionar el estado de puertos (`stackhelx_ports`), diagnosticar problemas de entorno (`stackhelx_doctor`), liberar puertos tomados (`stackhelx_free`), levantar el stack del proyecto (`stackhelx_up`), apagarlo (`stackhelx_down`), ejecutar scripts declarados (`stackhelx_run`) y compartir servicios vía túneles HTTPS (`stackhelx_share`).";
+
+function updateMcpSnippet() {
+  if (!ui.mcpJsonSnippet) return;
+  const checked = document.querySelector('input[name="mcp-cmd-type"]:checked');
+  const mode = checked ? checked.value : "shx";
+  ui.mcpJsonSnippet.textContent = MCP_CONFIGS[mode] || MCP_CONFIGS.shx;
+}
+
 if (ui.btnMcpModal && ui.mcpModal) {
   ui.btnMcpModal.addEventListener("click", () => {
     ui.mcpModal.showModal();
+    updateMcpSnippet();
     refreshMcpModal();
   });
   const closeBtn = ui.mcpModal.querySelector('[data-mcp-modal="close"]');
@@ -2316,7 +2359,57 @@ if (ui.btnMcpModal && ui.mcpModal) {
       ui.mcpModal.close();
     });
   }
+
+  document.querySelectorAll('input[name="mcp-cmd-type"]').forEach((radio) => {
+    radio.addEventListener("change", updateMcpSnippet);
+  });
+
+  if (ui.btnMcpCopyJson) {
+    ui.btnMcpCopyJson.addEventListener("click", () => {
+      const text = ui.mcpJsonSnippet ? ui.mcpJsonSnippet.textContent : "";
+      if (navigator.clipboard && text) {
+        navigator.clipboard.writeText(text).then(() => {
+          const orig = ui.btnMcpCopyJson.textContent;
+          ui.btnMcpCopyJson.textContent = "✓ ¡Copiado!";
+          setTimeout(() => {
+            ui.btnMcpCopyJson.textContent = orig;
+          }, 1600);
+        });
+      }
+    });
+  }
+
+  if (ui.btnMcpDownloadJson) {
+    ui.btnMcpDownloadJson.addEventListener("click", () => {
+      const text = ui.mcpJsonSnippet ? ui.mcpJsonSnippet.textContent : "";
+      if (!text) return;
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "stackhelx-mcp.json";
+      document.body.append(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  if (ui.btnMcpCopyPrompt) {
+    ui.btnMcpCopyPrompt.addEventListener("click", () => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(MCP_AGENT_PROMPT).then(() => {
+          const orig = ui.btnMcpCopyPrompt.textContent;
+          ui.btnMcpCopyPrompt.textContent = "✓ ¡Copiado!";
+          setTimeout(() => {
+            ui.btnMcpCopyPrompt.textContent = orig;
+          }, 1600);
+        });
+      }
+    });
+  }
 }
+updateMcpSnippet();
 
 async function refreshMcpModal() {
   if (!ui.mcpModal) return;

@@ -1654,6 +1654,107 @@ body {
   margin-top: var(--space-sm);
 }
 
+.mcp__setup {
+  border: var(--rule) solid var(--color-rule);
+  border-radius: var(--radius);
+  background: var(--color-paper-2);
+  overflow: hidden;
+}
+
+.mcp__setup-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-ink-2);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.mcp__setup-summary::-webkit-details-marker {
+  display: none;
+}
+
+.mcp__setup-summary:hover {
+  color: var(--color-ink);
+  background: var(--color-paper-3);
+}
+
+.mcp__setup-summary:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.mcp__setup-icon {
+  font-size: var(--text-xs);
+  transition: transform 0.15s ease;
+}
+
+.mcp__setup[open] .mcp__setup-icon {
+  transform: rotate(180deg);
+}
+
+.mcp__setup-body {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  border-top: var(--rule) solid var(--color-rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.mcp__setup-tabs {
+  display: flex;
+  gap: var(--space-md);
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+}
+
+.mcp__setup-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.mcp__code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background: var(--color-paper);
+  border: var(--rule) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--color-ink);
+}
+
+.mcp__setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: 0.25rem;
+}
+
+.mcp__setup-hint {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+  margin: 0.25rem 0 0;
+  line-height: 1.4;
+}
+
+.mcp__setup-hint code {
+  font-family: var(--font-mono);
+  color: var(--color-ink-2);
+  background: var(--color-paper);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  border: var(--rule) solid var(--color-rule);
+}
+
 .mcp__stats {
   display: flex;
   flex-wrap: wrap;

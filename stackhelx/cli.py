@@ -892,18 +892,32 @@ def mcp_cmd(
         "-c",
         help="Muestra el bloque de configuracion JSON para Claude Desktop, Cursor o Antigravity.",
     ),
+    show_prompt: bool = typer.Option(
+        False,
+        "--prompt",
+        "-p",
+        help="Muestra las instrucciones recomendadas para el agente de IA.",
+    ),
 ) -> None:
     """Inicia el servidor Model Context Protocol (MCP) sobre stdio para agentes de IA."""
     if show_config:
         cfg = {
             "mcpServers": {
                 "stackhelx": {
-                    "command": "stackhelx",
+                    "command": "shx",
                     "args": ["mcp"],
                 }
             }
         }
         console.print(json.dumps(cfg, indent=2))
+        return
+    if show_prompt:
+        console.print(
+            "Tienes a tu disposición las herramientas MCP de StackHelx (`stackhelx_*`). "
+            "Úsalas para inspeccionar el estado de puertos (`stackhelx_ports`), diagnosticar problemas de entorno (`stackhelx_doctor`), "
+            "liberar puertos en conflicto (`stackhelx_free`), levantar el stack del proyecto (`stackhelx_up`), "
+            "apagarlo (`stackhelx_down`), ejecutar scripts declarados (`stackhelx_run`) y compartir servicios vía túneles HTTPS (`stackhelx_share`)."
+        )
         return
     mcp.serve_stdio()
 

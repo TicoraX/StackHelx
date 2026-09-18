@@ -2291,3 +2291,23 @@ def test_metrics_badge_has_tooltip_and_cursor_help():
     assert ".service__metrics" in css
     assert "cursor: help" in css
 
+
+def test_mcp_setup_collapsible_details():
+    """El modal de MCP debe tener una sección desplegable para configuración y prompt."""
+    html = (server.WEB / "index.html").read_text(encoding="utf-8")
+    assert '<details class="mcp__setup" id="mcp-setup">' in html
+    assert 'id="btn-mcp-copy-json"' in html
+    assert 'id="btn-mcp-download-json"' in html
+    assert 'id="btn-mcp-copy-prompt"' in html
+
+    js = (server.WEB / "app.js").read_text(encoding="utf-8")
+    assert "btnMcpCopyJson" in js
+    assert "btnMcpDownloadJson" in js
+    assert "btnMcpCopyPrompt" in js
+    assert "stackhelx-mcp.json" in js
+
+    css = (server.WEB / "app.css").read_text(encoding="utf-8")
+    assert ".mcp__setup" in css
+    assert ".mcp__setup-summary" in css
+
+
