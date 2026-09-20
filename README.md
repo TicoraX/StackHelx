@@ -1,7 +1,7 @@
 # StackHelx
 
 [![pypi](https://img.shields.io/pypi/v/stackhelx?logo=pypi&logoColor=white)](https://pypi.org/project/stackhelx/)
-[![tests](https://github.com/TicoraX/StackHelx/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TicoraX/StackHelx/actions/workflows/ci.yml)
+[![tests](https://github.com/TicoraX/StackHelx/actions/workflows/ci.yml/badge.svg?branch=main&cache=none)](https://github.com/TicoraX/StackHelx/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 

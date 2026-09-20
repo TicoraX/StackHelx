@@ -65,7 +65,7 @@ def test_mcp_free_port_cierra_al_dueno_del_puerto(free_ports):
     """
     (port,) = free_ports(1)
     code = (
-        "import socket, time; s = socket.socket(); "
+        "import socket, time; s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1); "
         f"s.bind(('127.0.0.1', {port})); s.listen(); time.sleep(60)"
     )
     proc = subprocess.Popen([sys.executable, "-c", code])

@@ -17,7 +17,7 @@ from stackhelx import config, detect, docker, ports, registry, server
 TOKEN = "token-de-prueba-suficientemente-largo"
 SERVER = (
     "import socket, time; "
-    "s = socket.socket(); s.bind(('127.0.0.1', {port})); s.listen(); "
+    "s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1); s.bind(('127.0.0.1', {port})); s.listen(); "
     "print('arriba', flush=True); time.sleep(60)"
 )
 
@@ -873,7 +873,7 @@ def test_health_delata_al_servicio_que_se_murio_solo(client, tmp_path, free_port
     root = tmp_path / "efimero"
     root.mkdir()
     corto = (
-        "import socket, time; s = socket.socket(); "
+        "import socket, time; s = socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1); "
         f"s.bind(('127.0.0.1', {port})); s.listen(); "
         "print('arriba', flush=True); time.sleep(2)"
     )
