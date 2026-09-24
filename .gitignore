@@ -11,3 +11,4 @@ venv/
 # Grafo de codigo, 4 MB generados. Se rehace con `graphify update .`
 graphify-out/
 scratch/
+.archive/
