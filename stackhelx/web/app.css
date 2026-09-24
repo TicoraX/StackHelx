@@ -1157,6 +1157,34 @@ body {
   overflow-wrap: anywhere;
 }
 
+.ports-modal__tabs {
+  display: flex;
+  gap: var(--space-xs);
+  flex: none;
+}
+
+.ports-modal__tabs .btn--quiet {
+  font-size: var(--text-xs);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-3);
+  border: var(--rule) solid transparent;
+  cursor: pointer;
+}
+
+.ports-modal__tabs .btn--quiet:hover {
+  color: var(--color-ink);
+  background: var(--color-paper-2);
+}
+
+.ports-modal__tabs .btn--quiet.is-active {
+  color: var(--color-ink);
+  background: var(--color-paper-2);
+  border-color: var(--color-rule-subtle);
+  font-weight: 500;
+}
+
 .picker__frequent {
   display: flex;
   align-items: flex-start;

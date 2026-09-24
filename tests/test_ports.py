@@ -249,3 +249,27 @@ def test_suggest_alternative_excludes_ports(free_ports):
     suggested = ports.suggest_alternative(p0, exclude={p0, p1})
     assert suggested not in {p0, p1}
     assert ports.is_free(suggested)
+
+
+def test_system_listeners_incluye_listener_propio(listener):
+    _, port = listener
+    active = ports.system_listeners()
+    assert isinstance(active, list)
+    puertos = {item.port: item for item in active}
+    assert port in puertos
+    assert puertos[port].pid == os.getpid()
+    assert puertos[port].free is False
+
+
+def test_bind_free_detecta_ipv6_wildcard():
+    if not getattr(socket, "has_ipv6", False):
+        pytest.skip("Sin soporte IPv6")
+    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    try:
+        sock.bind(("::1", 0))
+        sock.listen(1)
+        port = sock.getsockname()[1]
+        assert ports._bind_free(port) is False
+        assert ports.is_free(port) is False
+    finally:
+        sock.close()

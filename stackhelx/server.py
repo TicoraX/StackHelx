@@ -1404,6 +1404,34 @@ def create_app(token: str | None = None) -> FastAPI:
         """Puertos de proyectos registrados ocupados por procesos que no lanzamos."""
         return {"orphans": registry.find_orphans(_active_service_ports())}
 
+    @app.get("/api/ports/system", dependencies=[quota("state", QUOTA_READ), Depends(require_token)])
+    def system_ports() -> dict:
+        """Todos los puertos TCP en escucha en el sistema operativo."""
+        declared = registry.declared_ports()
+        active = _active_service_ports()
+        my_pid = os.getpid()
+
+        raw = ports.system_listeners()
+        items = []
+        for s in raw:
+            is_self = s.pid == my_pid
+            projects = [p.name for p in declared.get(s.port, [])]
+            items.append(
+                {
+                    "port": s.port,
+                    "pid": s.pid,
+                    "name": s.name or "desconocido",
+                    "cmd": (s.cmdline or "")[:120] or None,
+                    "is_self": is_self,
+                    "projects": projects,
+                    "is_active_service": s.port in active,
+                    "can_kill": s.pid is not None
+                    and s.pid not in ports.PROTECTED_PIDS
+                    and not is_self,
+                }
+            )
+        return {"ports": items}
+
     @app.post(
         "/api/ports/kill-all",
         dependencies=[quota("kill", QUOTA_KILL), Depends(require_token)],

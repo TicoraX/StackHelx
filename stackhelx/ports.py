@@ -72,12 +72,12 @@ def _bind_free(port: int) -> bool:
     exclusive = getattr(socket, "SO_EXCLUSIVEADDRUSE", None)
     hosts = [("0.0.0.0", socket.AF_INET), ("127.0.0.1", socket.AF_INET)]
     if getattr(socket, "has_ipv6", False):
-        hosts.append(("::1", socket.AF_INET6))
+        hosts.extend([("::", socket.AF_INET6), ("::1", socket.AF_INET6)])
 
     for host, family in hosts:
         try:
             with socket.socket(family, socket.SOCK_STREAM) as sock:
-                if exclusive is not None and family == socket.AF_INET:
+                if exclusive is not None:
                     sock.setsockopt(socket.SOL_SOCKET, exclusive, 1)
                 sock.bind((host, port))
         except OSError:
@@ -235,6 +235,45 @@ def _listeners(wanted: set[int]) -> dict[int, int | None]:
     except (psutil.AccessDenied, PermissionError):
         pass  # macOS sin root: queda todo en manos de la sonda de bind
     return found
+
+
+def system_listeners() -> list[PortStatus]:
+    """Puertos TCP actualmente en LISTEN en el sistema operativo.
+
+    Devuelve la lista ordenada por puerto con el estado y proceso dueno.
+    """
+    listeners: dict[int, int | None] = {}
+    try:
+        for conn in psutil.net_connections(kind="tcp"):
+            if conn.laddr and conn.status == psutil.CONN_LISTEN:
+                port = conn.laddr.port
+                if port not in listeners or conn.pid:
+                    listeners[port] = conn.pid
+    except (psutil.AccessDenied, PermissionError):
+        listeners = _process_listeners_cache()
+
+    proc_cache: dict[int, tuple[str | None, str | None, float | None]] = {}
+    for pid in set(listeners.values()):
+        if pid is None:
+            continue
+        try:
+            proc = psutil.Process(pid)
+            with proc.oneshot():
+                name = _quiet(proc.name)
+                cmdline = _quiet(lambda: " ".join(proc.cmdline()))
+                created = _quiet(proc.create_time)
+                proc_cache[pid] = (name, cmdline, created)
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+            proc_cache[pid] = (None, None, None)
+
+    statuses: list[PortStatus] = []
+    for port, pid in sorted(listeners.items()):
+        if pid is not None and pid in proc_cache:
+            name, cmdline, created = proc_cache[pid]
+            statuses.append(PortStatus(port, False, pid, name, cmdline or None, created))
+        else:
+            statuses.append(PortStatus(port=port, free=False, pid=pid))
+    return statuses
 
 
 def opened_by(pid: int) -> list[int]:

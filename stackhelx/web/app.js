@@ -2173,6 +2173,8 @@ ui.enroll.addEventListener("submit", (event) => {
 
 /* mapa de puertos modal --------------------------------------------------- */
 
+let currentPortsTab = "projects";
+
 if (ui.btnPortsModal && ui.portsModal) {
   ui.btnPortsModal.addEventListener("click", () => {
     ui.portsModal.showModal();
@@ -2184,11 +2186,89 @@ if (ui.btnPortsModal && ui.portsModal) {
       ui.portsModal.close();
     });
   }
+
+  const tabBtns = ui.portsModal.querySelectorAll("[data-ports-tab]");
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach((b) => {
+        b.classList.toggle("is-active", b === btn);
+        b.setAttribute("aria-selected", b === btn ? "true" : "false");
+      });
+      currentPortsTab = btn.dataset.portsTab || "projects";
+      refreshPortsModal();
+    });
+  });
 }
 
 async function refreshPortsModal() {
   if (!ui.portsModalList) return;
   try {
+    if (currentPortsTab === "system") {
+      const data = await api("/api/ports/system");
+      const list = data.ports || [];
+      if (list.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "orphan orphan--empty";
+        empty.textContent = "No hay puertos TCP en escucha en el sistema";
+        ui.portsModalList.replaceChildren(empty);
+        return;
+      }
+
+      ui.portsModalList.replaceChildren(
+        ...list.map((item) => {
+          const li = document.createElement("li");
+          li.className = "orphan";
+
+          const portTag = document.createElement("span");
+          portTag.className = "orphan__port";
+          portTag.textContent = `:${item.port}`;
+
+          const info = document.createElement("div");
+          info.className = "orphan__info";
+
+          const name = document.createElement("div");
+          name.className = "orphan__name";
+          if (item.is_self) {
+            name.textContent = `StackHelx (este panel · pid ${item.pid})`;
+          } else if (item.projects && item.projects.length) {
+            name.textContent = `${item.name} · ${item.projects.join(" y ")} (pid ${item.pid})`;
+          } else if (
+            (item.name || "").toLowerCase().includes("python") &&
+            (item.cmd || "").toLowerCase().includes("stackhelx")
+          ) {
+            name.textContent = `StackHelx (otra instancia · pid ${item.pid})`;
+          } else {
+            name.textContent = `${item.name} (pid ${item.pid || "desconocido"})`;
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "orphan__meta";
+          meta.textContent = item.cmd ? item.cmd : "Proceso del sistema";
+
+          info.append(name, meta);
+
+          if (item.can_kill) {
+            const killBtn = document.createElement("button");
+            killBtn.className = "orphan__kill";
+            killBtn.textContent = "Cerrar";
+            killBtn.type = "button";
+            killBtn.addEventListener("click", () => {
+              act(killBtn, async () => {
+                await api(`/api/ports/${item.port}/kill`, { method: "POST" });
+                await refreshPortsModal();
+              });
+            });
+            li.append(portTag, info, killBtn);
+          } else {
+            li.append(portTag, info);
+          }
+
+          return li;
+        }),
+      );
+      return;
+    }
+
     const [stateData, orphansData] = await Promise.all([
       api("/api/state?size=50"),
       api("/api/ports/orphans"),

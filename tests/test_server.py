@@ -1503,6 +1503,18 @@ def test_un_puerto_que_dos_proyectos_declaran_es_una_sola_fila(client, tmp_path,
             proc.wait()
 
 
+def test_endpoint_system_ports_lista_puertos(client, intruso):
+    port = intruso
+    res = client.get("/api/ports/system")
+    assert res.status_code == 200
+    data = res.json()
+    assert "ports" in data
+    found = [p for p in data["ports"] if p["port"] == port]
+    assert len(found) == 1
+    assert found[0]["pid"] is not None
+    assert found[0]["projects"] == ["conintruso"]
+
+
 def test_el_endpoint_de_contenedores_lista_los_que_corren(client, monkeypatch):
     """Reiniciar el motor los baja a todos, incluidos los de proyectos que no
     estas mirando. No se puede a medias, asi que lo unico que queda es nombrarlos

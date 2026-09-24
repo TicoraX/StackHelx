@@ -163,8 +163,12 @@
 
       <dialog class="picker ports-modal" id="ports-modal" aria-label="Mapa de puertos">
         <div class="picker__head">
-          <p class="picker__path">Mapa de puertos del sistema</p>
-          <button class="btn btn--quiet" type="button" data-ports-modal="close">Cerrar</button>
+          <p class="picker__path">Mapa de puertos</p>
+          <div class="ports-modal__tabs" role="tablist">
+            <button class="btn btn--quiet is-active" type="button" data-ports-tab="projects" role="tab" aria-selected="true">De proyectos</button>
+            <button class="btn btn--quiet" type="button" data-ports-tab="system" role="tab" aria-selected="false">Todo el sistema</button>
+          </div>
+          <button class="btn btn--quiet" type="button" data-ports-modal="close" aria-label="Cerrar">✕</button>
         </div>
         <ul class="orphans__list" id="ports-modal-list"></ul>
       </dialog>
