@@ -285,6 +285,13 @@ body {
   gap: var(--space-md);
 }
 
+.index__loading {
+  font-size: var(--text-sm);
+  color: var(--color-ink-3);
+  padding: var(--space-md) 0;
+  font-style: italic;
+}
+
 .project {
   border: var(--rule) solid var(--color-rule-strong);
   border-radius: var(--radius);
@@ -1044,6 +1051,12 @@ body {
   margin-bottom: var(--space-sm);
 }
 
+.enroll__hint {
+  font-weight: normal;
+  color: var(--color-ink-3);
+  margin-inline-start: var(--space-xs);
+}
+
 .enroll__row {
   display: flex;
   flex-wrap: wrap;
@@ -1146,24 +1159,32 @@ body {
 
 .picker__frequent {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-xs);
   padding: 0.35rem var(--space-md);
   background: var(--color-paper-2);
   border-bottom: var(--rule) solid var(--color-rule);
-  overflow-x: auto;
 }
 
 .picker__frequent-label {
   font-size: var(--text-xs);
   color: var(--color-ink-3);
   white-space: nowrap;
+  padding-top: 0.15rem;
+  flex: none;
 }
 
 .picker__frequent-chips {
   display: flex;
   gap: var(--space-xs);
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  max-block-size: 3.5rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.picker__frequent-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .picker__chip {

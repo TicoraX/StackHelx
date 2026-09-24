@@ -66,7 +66,9 @@
         </div>
       </div>
 
-      <div id="projects" class="index" aria-busy="true"></div>
+      <div id="projects" class="index" aria-busy="true">
+        <p class="index__loading">Cargando proyectos…</p>
+      </div>
 
       <nav class="pager" id="pager" aria-label="Paginas de proyectos" hidden>
         <button class="btn" type="button" data-page="prev">Anterior</button>
@@ -108,7 +110,10 @@
       </section>
 
       <form class="enroll" id="enroll">
-        <label class="enroll__label" for="path">Registrar un proyecto</label>
+        <label class="enroll__label" for="path">
+          Registrar un proyecto
+          <span class="enroll__hint">· o arrastrá una carpeta acá</span>
+        </label>
         <div class="enroll__row">
           <input
             class="enroll__input"
@@ -118,7 +123,7 @@
             list="path-suggestions"
             autocomplete="off"
             spellcheck="false"
-            placeholder="A:\Proyectos\mi-app"
+            placeholder="A:\Proyectos\mi-app (o arrastrá la carpeta acá)"
             required
           />
           <datalist id="path-suggestions"></datalist>
@@ -235,7 +240,6 @@
           <div class="picker__nav">
             <button class="btn" type="button" data-picker="back" disabled>Volver</button>
             <button class="btn" type="button" data-picker="up">Arriba</button>
-            <button class="btn btn--quiet" type="button" data-picker="os-folder" title="Abrir esta carpeta en el explorador de archivos del sistema">Abrir en Explorador</button>
           </div>
           <button class="btn btn--primary" type="button" data-picker="pick">Usar esta carpeta</button>
         </div>

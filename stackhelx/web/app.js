@@ -1995,28 +1995,6 @@ ui.picker.querySelector('[data-picker="close"]').addEventListener("click", () =>
   ui.picker.close();
 });
 
-const osFolderBtn = ui.picker.querySelector('[data-picker="os-folder"]');
-if (osFolderBtn) {
-  osFolderBtn.addEventListener("click", (event) => {
-    const targetPath = here.path || ui.path.value.trim();
-    if (!targetPath) {
-      flash("No hay una carpeta seleccionada para abrir", "neutral");
-      return;
-    }
-    act(event.currentTarget, async () => {
-      try {
-        await api("/api/open-folder", {
-          method: "POST",
-          body: JSON.stringify({ path: targetPath }),
-        });
-        flash(`Explorador abierto en ${targetPath}`, "neutral");
-      } catch (err) {
-        flash(`Error al abrir explorador: ${err.message}`, "bad");
-      }
-    });
-  });
-}
-
 const backBtn = ui.picker.querySelector('[data-picker="back"]');
 if (backBtn) {
   backBtn.addEventListener("click", () => {

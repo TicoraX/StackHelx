@@ -4,6 +4,15 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.1.1] - 2026-09-24
+
+### Corregido y Mejorado
+
+- **Corrección de Rutas Frecuentes en el Explorador (`app.css`):** Se adaptó el contenedor `.picker__frequent-chips` con `flex-wrap: wrap` y supresión nativa de barras de scroll (`scrollbar-width: none; ::-webkit-scrollbar { display: none }`), eliminando la barra gris horizontal que se superponía sobre el texto de las rutas en Windows.
+- **Limpieza del Modal de Selección (`index.html`, `app.js`):** Se purgó el botón superfluo "Abrir en Explorador" (`data-picker="os-folder"`) y su listener, dejando el pie enfocado exclusivamente en navegación interna y selección con "Usar esta carpeta".
+- **Soporte y Descubrimiento de Drag & Drop (`index.html`, `app.css`):** Se añadió pista visual accesible (`.enroll__hint`) en la etiqueta del formulario de registro y se actualizó el placeholder del input para comunicar explícitamente que se pueden soltar carpetas de proyectos directamente.
+- **Feedback Inicial de Carga (`index.html`, `app.css`):** Se incorporó el mensaje `<p class="index__loading">Cargando proyectos…</p>` dentro de `#projects` mientras `aria-busy="true"` para dar retroalimentación honesta antes de la primera respuesta del servidor.
+
 ## [1.1.0] - 2026-09-18
 
 ### Añadido y Mejorado
@@ -567,7 +576,7 @@ Primera versión publicada. Lo que sigue es el alcance completo, no un diff.
 [1.4.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.4.0
 [1.3.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.3.0
 [1.2.0]: https://github.com/TicoraX/PortMaster/releases/tag/v1.2.0
-[1.1.1]: https://github.com/TicoraX/PortMaster/releases/tag/v1.1.1
+[1.1.1]: https://github.com/TicoraX/StackHelx/releases/tag/v1.1.1
 [1.1.0]: https://github.com/TicoraX/StackHelx/releases/tag/v1.1.0
 [1.0.1]: https://github.com/TicoraX/StackHelx/releases/tag/v1.0.1
 [1.0.0]: https://github.com/TicoraX/StackHelx/releases/tag/v1.0.0
