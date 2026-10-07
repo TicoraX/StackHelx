@@ -1,11 +1,11 @@
-# Esquema de configuracion de StackHelx.
+# StackHelx configuration schema.
 #
-# El archivo es opcional: sin uno, StackHelx detecta los servicios del proyecto.
-# `stackhelx init` (o `shx init`) escribe lo detectado aca para editarlo a mano.
+# This file is optional: without one, StackHelx auto-detects project services.
+# `stackhelx init` (or `shx init`) writes the detected config here for manual editing.
 
-name: mi-proyecto
+name: my-project
 
-# includes:              # importa servicios de otros proyectos o sub-carpetas
+# includes:              # import services from other projects or subdirectories
 #   - ../shared-backend
 #   - ./services/auth
 
@@ -13,29 +13,29 @@ services:
   db:
     command: docker compose up -d postgres
     port: 5432
-    ready: port        # port | listen | log:<texto> | http://... | none
-    detached: true     # el comando termina, el servicio sigue vivo
+    ready: port        # port | listen | log:<text> | http://... | none
+    detached: true     # command exits while the container stays alive
     stop: docker compose stop postgres
 
   api:
     command: npm run dev
-    cwd: backend       # relativo a la raiz, no puede escapar de ella
+    cwd: backend       # relative to project root, cannot escape outside it
     port: 8080
     needs: [db]
-    env_file: [.env, .env.local]  # archivo o lista de archivos .env a cargar, dentro de la raiz
-    pre_start: npm run build      # comando síncrono previo al arranque
-    post_start: npm run seed      # comando síncrono posterior a la confirmación de salud
-    url: http://localhost:8080/docs   # adonde lleva "Abrir". Admite ${VAR}
-    restart: on-failure  # no | on-failure | always. Solo mientras se siguen los logs
-    max_retries: 3       # tope de reintentos. La cuenta no se reinicia sola
+    env_file: [.env, .env.local]  # .env file or list of files to load (inside root)
+    pre_start: npm run build      # synchronous command before starting the service
+    post_start: npm run seed      # synchronous command after passing healthcheck
+    url: http://localhost:8080/docs   # target for "Open" button. Supports ${VAR}
+    restart: on-failure  # no | on-failure | always. Active while logs are followed
+    max_retries: 3       # maximum restart attempts. Counter does not reset on its own
     env:
       DATABASE_URL: postgres://localhost:5432/app
 
   web:
     command: npm run dev
     cwd: frontend
-    ready: listen      # el puerto lo elige el, se descubre al arrancar
-    needs: [api]       # sin `url:` a proposito: ver la nota de abajo
+    ready: listen      # process picks its own port, discovered at startup
+    needs: [api]       # no `url:` on purpose: see rules below
 
 profiles:
   fullstack: [db, api, web]
@@ -45,32 +45,34 @@ profiles:
 scripts:
   test: pytest tests/ -v
   lint: ruff check .
-  check: [lint, test]           # pipeline secuencial de tareas
+  check: [lint, test]           # sequential task pipeline
   migrate: npm run db:migrate
 
-# Reglas:
+# Rules:
 #
-# - Solo `command` es obligatorio.
-# - `needs` define el orden. Los servicios que no dependen entre si arrancan
-#   juntos, y cada tanda espera a estar lista antes de la siguiente: el stack
-#   tarda el healthcheck mas lento de cada nivel, no la suma de todos. Los
-#   ciclos son error al cargar el archivo, no en tiempo de ejecucion.
-# - `ready: port` espera a que el TCP acepte conexion. Es el default cuando hay
-#   `port`; sin `port`, el default es `none`.
-# - `ready: listen` espera a que el proceso abra cualquier puerto, y reporta cual.
-#   Es incompatible con `port`.
-# - `stop` es el apagado del servicio. Sin el, se mata el arbol de procesos, que
-#   no alcanza para un contenedor: vive fuera de ese arbol.
-# - `url` es adonde lleva el boton "Abrir", para cuando la raiz del puerto no es
-#   la entrada: una app montada en /admin, o una que pide un token en la query.
-#   Sin `url`, es `http://localhost:<port>`. Solo http y https. Admite `${VAR}` y
-#   `${VAR:-default}`, resueltos con el mismo entorno con el que corre el
-#   servicio (`env`, `env_file`, y el del shell). Una variable sin valor deja el
-#   servicio sin URL en vez de abrir una con el `${VAR}` literal adentro.
-# - `url` y `ready: listen` no se combinan. El puerto de un servicio `listen` lo
-#   elige el proceso, asi que cualquier puerto escrito en la URL es una apuesta,
-#   y `url` le gana al puerto descubierto: escribirla empeora el boton en vez de
-#   mejorarlo. Por eso `web` de arriba no la declara.
-# - `env_file` van relativos a la raiz del proyecto y no pueden salir de ella:
-#   `../../.env` es error al cargar el archivo.
-# - Sin `--profile`, arrancan todos los servicios.
+# - Only `command` is required.
+# - `needs` defines startup order. Independent services start in parallel within
+#   the same wave, and each wave waits until all its services are ready before
+#   the next wave starts: total startup time equals the slowest healthcheck per
+#   wave, not the sum of all services. Dependency cycles fail immediately when
+#   loading the file.
+# - `ready: port` waits until the TCP port accepts connections. Default when
+#   `port` is set; without `port`, the default is `none`.
+# - `ready: listen` waits until the process tree opens any TCP port and reports
+#   which port it bound. Incompatible with `port`.
+# - `stop` is the custom shutdown command. Without it, StackHelx terminates the
+#   process tree, which is not enough for detached containers that live outside
+#   that tree.
+# - `url` sets the target for the "Open" button and `stackhelx open` when the
+#   port root is not the entry point (e.g. mounted under /admin or requiring a
+#   query token). Defaults to `http://localhost:<port>`. Only http and https are
+#   allowed. Supports `${VAR}` and `${VAR:-default}` resolved against the
+#   service environment (`env`, `env_file`, `env.global`, and shell env). An
+#   unset variable without a default leaves the service with no URL rather than
+#   opening a broken literal `${VAR}` string.
+# - `url` and `ready: listen` cannot be combined. A `listen` service picks its
+#   port dynamically, so any hardcoded port in `url` is a guess that overrides
+#   the discovered port. That is why `web` above omits `url`.
+# - `env_file` paths are relative to the project root and cannot escape it:
+#   `../../.env` raises an error when loading the file.
+# - Without `--profile`, all services start (unless `default` is defined).

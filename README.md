@@ -5,78 +5,82 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-Orquestador de entornos de desarrollo locales. Un archivo en la raíz del
-proyecto, un comando, y el stack entero arriba: puertos libres, Docker,
-backend y frontend, sin cuatro terminales abiertas.
+**English** · [Español](README.es.md)
 
-## Instalación
+Local development environment orchestrator. One file at the project root, one
+command, and your entire stack is up: free ports, Docker, backend, and frontend,
+without juggling four open terminals.
+
+## Installation
 
 ```bash
 uv tool install stackhelx
-# o
+# or
 pipx install stackhelx
 ```
 
-La instalación registra dos ejecutables idénticos en el sistema: el comando principal **`stackhelx`** y su versión abreviada **`shx`**.
+Installing registers two identical executables on your system: the full command
+**`stackhelx`** and its short alias **`shx`**.
 
-Requiere Python 3.10 o superior. Funciona en Windows, macOS y Linux.
+Requires Python 3.10 or later. Runs on Windows, macOS, and Linux.
 
-## Comandos
+## Commands
 
-Todos los comandos pueden ejecutarse como `stackhelx <comando>` o de forma abreviada con su alias oficial **`shx <comando>`** (ej. `shx up`, `shx down`, `shx doctor`, `shx ports`):
+Every command runs as `stackhelx <command>` or via its official short alias
+**`shx <command>`** (e.g. `shx up`, `shx down`, `shx doctor`, `shx ports`):
 
-| Comando (`stackhelx` / `shx`) | Qué hace |
+| Command (`stackhelx` / `shx`) | What it does |
 |---|---|
-| `stackhelx up` | Levanta el stack entero: libera puertos, arranca en orden y sigue los logs |
-| `stackhelx down` | Baja lo que sobrevive a la terminal, o sea contenedores |
-| `stackhelx serve` | Abre la interfaz web en `http://127.0.0.1:7666` |
-| `stackhelx doctor` | Revisa qué puede impedir el arranque, sin arrancar nada |
-| `stackhelx ports` | Estado de los puertos declarados |
-| `stackhelx free 3000` | Cierra el proceso que ocupa un puerto, preguntando antes |
-| `stackhelx free --all` | Lo mismo para todos los puertos de todos los proyectos registrados |
-| `stackhelx switch fitness` | Baja los proyectos que le pisan los puertos a este, y lo levanta |
-| `stackhelx open` | Abre en el navegador el primer servicio que conteste HTTP |
-| `stackhelx init` | Congela lo detectado en un `stack.yaml` editable |
-| `stackhelx add .` | Registra el proyecto para que aparezca en la interfaz |
-| `stackhelx list` | Lista los proyectos registrados (alias: `ls`) |
-| `stackhelx remove .` | Des-registra un proyecto (alias: `rm`) |
-| `stackhelx run [tarea]` | Ejecuta scripts o pipelines de tareas del proyecto |
-| `stackhelx share [target]` | Expone un servicio local a internet mediante un túnel seguro |
-| `stackhelx clean` | Limpia Docker por categorías: contenedores parados, imágenes sin tag, redes sin usar y caché de build. Los volúmenes van aparte, con `--volumes`. Pregunta antes |
-| `stackhelx mcp` | Inicia el servidor Model Context Protocol (MCP) sobre stdio para IA |
-| `stackhelx test-stack` | Valida el `stack.yaml` sin arrancar nada: orden, dependencias y puertos |
-| `stackhelx history` | Últimos arranques del proyecto, con duración y resultado |
-| `stackhelx logs` | Logs del proyecto que corre en `serve`, con `--follow` para seguirlos |
-| `stackhelx stats` | CPU y memoria de los servicios que corren en `serve` (alias: `top`) |
-| `stackhelx version` | Versión instalada (también `--version`) |
+| `stackhelx up` | Boots the entire stack: frees ports, starts services in topological order, and tails logs |
+| `stackhelx down` | Stops services that outlive the terminal, such as containers |
+| `stackhelx serve` | Opens the web dashboard at `http://127.0.0.1:7666` |
+| `stackhelx doctor` | Checks what could block startup without starting anything |
+| `stackhelx ports` | Shows the status of declared ports |
+| `stackhelx free 3000` | Terminates the process holding a port, asking first |
+| `stackhelx free --all` | Frees all occupied ports across all registered projects |
+| `stackhelx switch fitness` | Stops registered projects that collide on ports with the target, then boots it |
+| `stackhelx open` | Opens the first service that answers HTTP in your browser |
+| `stackhelx init` | Freezes auto-detected services into an editable `stack.yaml` |
+| `stackhelx add .` | Registers the project so it appears in the web dashboard |
+| `stackhelx list` | Lists registered projects (alias: `ls`) |
+| `stackhelx remove .` | Unregisters a project (alias: `rm`) |
+| `stackhelx run [task]` | Runs project scripts or sequential task pipelines |
+| `stackhelx share [target]` | Exposes a local service to the internet over an ephemeral tunnel |
+| `stackhelx clean` | Cleans Docker resources by category: stopped containers, untagged images, unused networks, and build cache. Volumes are separate via `--volumes`. Prompts before deleting |
+| `stackhelx mcp` | Starts the Model Context Protocol (MCP) server over stdio for AI agents |
+| `stackhelx test-stack` | Validates `stack.yaml` without starting anything: topological order, dependencies, and ports |
+| `stackhelx history` | Shows recent stack runs with duration and final state |
+| `stackhelx logs` | Reads logs from a project running in `serve` (`--follow` to stream) |
+| `stackhelx stats` | Displays real-time CPU and memory usage for services running in `serve` (alias: `top`) |
+| `stackhelx version` | Prints the installed version (also `--version`) |
 
-`logs` y `stats` consultan al `stackhelx serve` que ya tengas abierto, así que
-necesitan que esté corriendo. `history` y `test-stack` leen del disco y no.
+`logs` and `stats` query a running `stackhelx serve` instance, so `serve` must
+be active. `history` and `test-stack` read directly from disk.
 
-Cada uno con `--help`.
+Pass `--help` to any command for full flag details.
 
-## Arrancar un stack
+## Starting a stack
 
 ```bash
 shx up
-# o
+# or
 stackhelx up
 
-shx up --profile backend    # solo un subconjunto
-shx up --no-free            # no tocar los puertos ocupados
-shx up --env-file .env.qa   # carga ese .env antes de arrancar
+shx up --profile backend    # start only a subset
+shx up --no-free            # leave occupied ports untouched
+shx up --env-file .env.qa   # load this .env file before booting
 ```
 
-`--env-file` no reemplaza al `env_file:` de `stack.yaml`, se suma: carga el
-archivo en el entorno del proceso antes de resolver el stack, así que lo ven
-todos los servicios. Es para la corrida puntual contra otro entorno, sin editar
-el archivo. A diferencia de `env_file:`, acepta rutas fuera de la raíz del
-proyecto, porque acá la ruta la escribiste vos en la terminal y no viene de un
-archivo de un repo ajeno.
+`--env-file` adds to `env_file:` in `stack.yaml` rather than replacing it: it
+loads the file into the process environment before resolving the stack, making
+variables visible to all services. Use it for one-off runs against another
+environment without editing `stack.yaml`. Unlike `env_file:`, it accepts paths
+outside the project root because you type the path yourself at the terminal
+instead of inheriting it from an untrusted repository.
 
-Antes de arrancar libera los puertos declarados que tenga otro proceso, y
-pregunta antes de cerrar cada uno. Los que ya publica Docker los saltea: ahí
-no hay nada que liberar, el contenedor ya está arriba.
+Before starting, StackHelx checks every declared port and prompts before
+terminating any stray process holding one. Ports already published by Docker are
+skipped automatically because the container is already up.
 
 ```
 demo  stack.yaml
@@ -92,20 +96,20 @@ api | GET /health 200
 web | ready in 412 ms
 ```
 
-Antes de arrancar nada revisa los puertos declarados. Si alguno está tomado
-por un proceso huérfano, muestra cuál es y pregunta si cerrarlo. `Ctrl-C`
-apaga los servicios en orden inverso, árbol de procesos incluido.
+Pressing `Ctrl-C` shuts down services in reverse topological order, killing the
+entire process tree of each service.
 
-## Sin stack.yaml
+## Without stack.yaml
 
-`stack.yaml` es opcional. Si no hay uno, StackHelx mira la raíz del proyecto:
+`stack.yaml` is optional. When none is present, StackHelx inspects the project
+root:
 
-| Encuentra | Arranca |
+| Finds | Starts |
 |---|---|
-| `compose.yaml`, `compose.yml`, `docker-compose.yml`, `docker-compose.yaml` | un servicio por contenedor: `docker compose up -d <nombre>` |
+| `compose.yaml`, `compose.yml`, `docker-compose.yml`, `docker-compose.yaml` | One service per container: `docker compose up -d <name>` |
 | `manage.py` | `python manage.py runserver` |
-| `fastapi` o `uvicorn` declarados, con un módulo que defina `app` | `uvicorn <módulo>:app --reload` |
-| `package.json` con un script que sirva (`dev`, `start:dev`, `serve`, `start`) | `npm run dev`, con `pnpm`/`yarn`/`bun` según el lockfile o el campo `packageManager` |
+| `fastapi` or `uvicorn` declared, with a module defining `app` | `uvicorn <module>:app --reload` |
+| `package.json` with a server script (`dev`, `start:dev`, `serve`, `start`) | `npm run dev`, switching to `pnpm`/`yarn`/`bun` based on lockfile or `packageManager` |
 
 ```
 mi-app  A:\Proyectos\mi-app
@@ -116,28 +120,28 @@ Para congelarlo en un archivo editable: stackhelx init
 Arrancar? [Y/n]
 ```
 
-Arranca en ese orden y encadena las dependencias: el frontend espera al
-backend, el backend a los contenedores.
+Services start in that order and chain dependencies automatically: frontend
+waits for backend, and backend waits for containers.
 
-`stackhelx init` escribe lo detectado como `stack.yaml` para editarlo a mano.
-No sobreescribe uno existente.
+`stackhelx init` writes the detected configuration to `stack.yaml` so you can
+edit it by hand. It never overwrites an existing file.
 
-Dónde busca cada lenguaje y por qué reconoce eso y no otra cosa, en
-[`docs/deteccion.md`](docs/deteccion.md).
+Where StackHelx searches for each language and why it matches specific signals
+is documented in [`docs/deteccion.md`](docs/deteccion.md).
 
 ## stack.yaml
 
-En la raíz del proyecto. StackHelx lo busca hacia arriba, así que podés correr
-los comandos desde cualquier subdirectorio.
+Place `stack.yaml` at the project root. StackHelx searches upward from your
+current working directory, so you can run commands from any subdirectory.
 
 ```yaml
-name: mi-proyecto
+name: my-project
 
 services:
   db:
     command: docker compose up -d postgres
     port: 5432
-    detached: true       # el comando termina, el servicio sigue vivo
+    detached: true       # command exits while the container stays alive
 
   api:
     command: npm run dev
@@ -154,39 +158,38 @@ services:
     needs: [api]
 
 profiles:
-  backend: [api]         # arrastra db, que es su dependencia
+  backend: [api]         # pulls in db automatically via its dependency chain
 ```
 
-`command` es el único obligatorio. La referencia de todos los campos, los
-healthchecks de `ready` y los perfiles heredados de un compose están en
+`command` is the only required field. The complete field reference, `ready`
+healthcheck modes, and inherited Compose profiles live in
 [`docs/stack-yaml.md`](docs/stack-yaml.md).
 
-## Interfaz web
+## Web dashboard
 
-Cuando tenés varios proyectos, el CLI se queda corto: trabaja sobre el
-directorio actual. La interfaz los muestra todos a la vez.
+When you work across multiple projects, the CLI only sees the current directory.
+The web dashboard shows all registered projects at once.
 
 ```bash
-stackhelx serve        # abre http://127.0.0.1:7666
+stackhelx serve        # opens http://127.0.0.1:7666
 ```
 
-Viene con la instalación, no hace falta nada más. Registrar proyectos se puede
-desde la propia interfaz con `Explorar…`, o desde la terminal con
-`stackhelx add .`.
+Included out of the box with no extra dependencies. Register projects directly
+from the browser via `Explorar…` or from the terminal with `stackhelx add .`.
 
-Estado de cada servicio, arrancar y apagar stacks, liberar puertos tomados por
-procesos ajenos, y logs en vivo por proyecto.
+Monitor service states, start and stop stacks, free ports held by stray
+processes, inspect system-wide listening ports, and stream live logs per project.
 
-El detalle de cada control, y el modelo de seguridad del servidor local, en
+Control details and the local server security model are covered in
 [`docs/interfaz.md`](docs/interfaz.md).
 
-## Puertos
+## Ports
 
-Revisar el estado de los puertos sin arrancar nada:
+Inspect port status without starting anything:
 
 ```bash
-stackhelx ports              # los declarados en stack.yaml
-stackhelx ports 3000 8080    # o los que le pases
+stackhelx ports              # ports declared in stack.yaml
+stackhelx ports 3000 8080    # specific ports
 ```
 
 ```
@@ -196,76 +199,79 @@ PUERTO  ESTADO   PID    PROCESO   COMANDO
 5432    ocupado  9012   com.docker.backend.exe
 ```
 
-Liberar un puerto tomado por un proceso zombie:
+Free a port held by a zombie process:
 
 ```bash
 stackhelx free 3000
 ```
 
-Muestra qué proceso lo ocupa y pide confirmación antes de cerrarlo. Si decís
-que no, sugiere el siguiente puerto disponible.
+Shows the owning process and asks for confirmation before terminating it. If you
+decline, it suggests the next available port.
 
-Opciones: `--yes` salta la confirmación (para scripts), `--force` aplica
-`kill()` cuando el proceso ignora la señal de terminación.
+Flags: `--yes` skips confirmation (for scripts), `--force` escalates to `kill()`
+when the process ignores graceful termination.
 
-Después de un crash o un cambio de rama suele quedar más de uno colgado:
+After a crash or branch switch, multiple ports may stay occupied:
 
 ```bash
 stackhelx free --all
 ```
 
-Recorre los puertos declarados por todos los proyectos registrados, lista lo
-que encuentre ocupado y pide una sola confirmación. Sale con código 1 si no
-pudo cerrar alguno.
+Scans every port declared across all registered projects, lists what is occupied,
+and asks for a single confirmation. Exits with code 1 if any port could not be
+freed.
 
-El CLI no sabe qué arrancaste vos: si tenés un stack levantado en otra
-terminal, sus servicios aparecen en esa lista y también se cierran. Por eso la
-muestra entera antes de tocar nada, y por eso la confirmación viene con "no"
-por defecto. La interfaz web sí lo sabe, y ahí el botón "Liberar todos"
-descarta lo que arrancó ella.
+The CLI does not track which processes you started in other terminals: if another
+stack is running in a separate shell, its services appear in that list too. That
+is why the CLI prints the full list before touching anything and defaults the
+prompt to "no". The web dashboard tracks its own active sessions and excludes
+them automatically when clicking "Liberar todos".
 
-## Qué no hace el kill switch
+## What the kill switch refuses to do
 
-Estas reglas están en el código, no en la documentación:
+These guardrails are enforced in code:
 
-- Nunca cierra PID 0, PID 4, el propio StackHelx ni un proceso padre suyo.
-  Matar tu propia terminal no es una función.
-- Revalida la hora de creación del proceso entre el escaneo y el cierre. Los
-  PID se reciclan; sin ese chequeo terminás matando algo al azar.
-- Manda `terminate()` y espera 5 segundos. `kill()` solo con `--force`
-  explícito, porque un `npm run dev` matado a lo bruto deja hijos huérfanos.
-- Sin permisos, lo dice y corta. No reintenta escalando privilegios.
-- Nunca cierra el proxy de Docker o de WSL. Un puerto publicado por un
-  contenedor no lo escucha el contenedor: lo escucha un proceso compartido por
-  todos, y cerrarlo apaga el motor entero. En vez de eso te dice qué contenedor
-  parar.
+- Never terminates PID 0, PID 4, StackHelx itself, or any of its parent
+  processes. Killing your own terminal is not a feature.
+- Revalidates process creation time (`create_time`) between scanning and
+  signaling. OS PIDs recycle quickly; without this check, you risk killing an
+  unrelated process.
+- Sends `terminate()` and waits 5 seconds. Escalates to `kill()` only with
+  explicit `--force`, because force-killing an `npm run dev` wrapper leaves
+  orphaned child processes behind.
+- Fails fast when permissions are insufficient instead of attempting privilege
+  escalation.
+- Never kills the Docker or WSL proxy process. A port published by a container
+  is bound by a shared host proxy process; killing it takes down the entire
+  Docker engine. Instead, StackHelx tells you which container to stop.
 
-## Otros comandos
+## Other commands
 
-`down`, `switch`, `doctor` y `open`, con qué revisa cada uno y por qué, en
-[`docs/comandos.md`](docs/comandos.md).
+`down`, `switch`, `doctor`, `open`, `run`, `share`, `clean`, and `mcp` are
+detailed in [`docs/comandos.md`](docs/comandos.md).
 
-## Modelo de confianza
+## Trust model
 
-`stack.yaml` ejecuta comandos arbitrarios, igual que `package.json` o un
-`Makefile`. StackHelx no lo sandboxea: sería teatro. Tratá un `stack.yaml`
-de un repo ajeno con el mismo cuidado que sus scripts de build.
+`stack.yaml` runs arbitrary commands, just like `package.json` or a `Makefile`.
+StackHelx does not sandbox them. Treat a `stack.yaml` from an untrusted
+repository with the same caution you give its build scripts.
 
-Sin `stack.yaml`, los comandos salen de la detección, y `scripts.dev` de un
-`package.json` ajeno es igual de arbitrario. Por eso `up` muestra qué va a
-ejecutar y pregunta antes, y `-y` es tuyo para saltarlo cuando ya lo leíste.
+Without `stack.yaml`, commands come from auto-detection, and `scripts.dev` in an
+untrusted `package.json` is equally arbitrary. That is why `up` prints the exact
+commands it detected and asks for confirmation before executing anything, while
+`-y` lets you skip the prompt once you trust the project.
 
-## Desarrollo
+## Development
 
 ```bash
 python -m venv .venv
-.venv/bin/pip install -e ".[dev]"    # .venv\Scripts\pip en Windows
-pytest
+.venv/bin/pip install -e ".[dev]"    # .venv\Scripts\pip on Windows
+pytest -q -n auto
 ```
 
-Los tests levantan sockets y procesos reales, sin mocks. Es lo único que
-prueba de verdad un módulo cuyo trabajo es hablar con el sistema operativo.
+Tests run against real OS sockets and processes with zero mocks. That is the
+only way to verify software whose job is talking to the operating system.
 
-## Licencia
+## License
 
 MIT

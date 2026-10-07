@@ -4,7 +4,7 @@ name = "stackhelx"
 # lados, un release publica el de aca y `stackhelx --version` muestra el otro
 # en cuanto alguien se olvide de sincronizarlos.
 dynamic = ["version"]
-description = "Orquestador de entornos de desarrollo locales: puertos, Docker, backend y frontend con un solo comando"
+description = "Local development environment orchestrator: ports, Docker, backend, and frontend with a single command"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"

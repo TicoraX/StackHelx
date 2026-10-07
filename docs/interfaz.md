@@ -1,87 +1,81 @@
-# Interfaz web
+# Web dashboard
 
-Cómo se arranca y qué muestra está en el
-[README](../README.md#interfaz-web). Acá está el detalle de cada control y por
-qué se comporta como se comporta.
+**English** · [Español](es/interfaz.md)
 
-## Caídas y avisos
+How to launch the dashboard and what it displays is covered in the
+[README](../README.md#web-dashboard). This document explains how each control
+behaves under the hood and why.
 
-Cuando un servicio se muere solo, el título de la pestaña lleva un contador y
-el encabezado dice cuántos hay caídos. Con `Avisarme` podés además pedir
-notificaciones del navegador, que solo avisan de caídas nuevas y nunca de un
-`Apagar` ni de un `Reiniciar`. El permiso se pide con ese click y nunca al
-cargar la página.
+## Crashes and browser notifications
 
-## Congelar a stack.yaml
+When a running service exits unexpectedly, the browser tab title shows a counter
+and the header reports how many services have fallen. Clicking `Avisarme`
+requests browser notification permissions so you get alerted on unexpected
+crashes, never when you click `Apagar` or `Reiniciar` yourself. Permission is
+requested only on that click, never on page load.
 
-Un proyecto detectado trae `Congelar a stack.yaml`, que es `stackhelx init`
-sin salir de la interfaz: útil cuando ves en la tarjeta que detectó un puerto
-que no era. Pide confirmación sobre el mismo botón, escribe la ruta del
-registro y nunca una que venga del navegador, y no sobreescribe un archivo
-existente.
+## Freezing to stack.yaml
 
-## Reiniciar un servicio
+Auto-detected projects show a `Congelar a stack.yaml` button, which runs
+`stackhelx init` directly from the browser. Useful when you want to customize a
+detected command or pin a port. It asks for confirmation inline on the same
+button, writes to the registered project path on the server (never trusting a
+path sent from the client), and refuses to overwrite an existing file.
 
-Cada servicio arrancado desde la interfaz trae un `Reiniciar` propio, que baja y
-sube ese solo. Cuando el frontend se cuelga, los contenedores que estaban bien
-no tienen por qué pagarlo.
+## Restarting a single service
 
-## El botón Abrir
+Every service started from the dashboard has its own `Reiniciar` button that
+cycles only that service. When your frontend hangs, your database containers do
+not need to restart with it.
 
-Los servicios que se pueden abrir en el navegador traen un botón `Abrir`, y la
-tarjeta del proyecto trae el suyo, que lleva al último de la lista que conteste,
-para no buscar cuál de los tres es el frontend. Cuál lo lleva no se adivina por
-el nombre: cuando el servicio queda listo, StackHelx le hace una petición al
-puerto. Si contesta HTTP, es abrible. Un `404` cuenta,
-porque la mayoría de las APIs no sirven nada en la raíz; lo que descarta al
-servicio es que no conteste, que es el caso de una base de datos.
+## The Open button
 
-## Docker
+Services that answer HTTP display an `Abrir` button, and the project card has a
+top-level `Abrir` button that opens the last HTTP-capable service in startup
+order (typically the frontend). StackHelx does not guess by service name: once a
+service is ready, it probes the bound port over HTTP. Even a `404` counts as an
+HTTP server because many APIs do not serve a root route; only non-HTTP listeners
+like databases are excluded.
 
-Si algún proyecto de la página usa Docker, la fila de herramientas dice
-`Docker corriendo` o `Docker cerrado`, y al lado hay un botón que cambia de
-trabajo según cuál sea: `Abrir Docker` con el motor caído, `Reiniciar Docker`
-con el motor arriba, que es lo que uno quiere cuando los contenedores empiezan a
-portarse raro. Los dos se ven siempre: un control que solo aparece cuando algo
-falla no distingue "está en orden" de "esto dejó de funcionar".
+## Docker controls
 
-Esa sección de la interfaz se ve siempre que haya un proyecto registrado, y
-cuando no hay ningún intruso lo dice en lugar de desaparecer. Por el mismo
-motivo que el estado de Docker: una sección vacía informa, una sección ausente
-deja dudando si el chequeo corrió.
+When any registered project uses Docker, the toolbar displays `Docker corriendo`
+or `Docker cerrado` alongside an action button: `Abrir Docker` when the daemon
+is down, or `Reiniciar Docker` when the daemon is up. Both controls remain
+visible whenever a project uses Docker: a status indicator that disappears when
+healthy cannot distinguish "everything is fine" from "the check stopped
+working".
 
-Reiniciar pide confirmación sobre el mismo botón, como `Congelar`. Se lleva
-puestos todos los contenedores que estén corriendo, incluidos los de proyectos
-que no estás mirando. Abrir no pregunta nada, porque ahí no hay nada que perder.
+The stray processes section (`Procesos intrusos`) follows the same principle: as
+long as at least one project is registered, the section stays visible and
+explicitly states when zero stray processes are holding your ports.
 
-Ojo con qué significa `Docker cerrado`: la pregunta es si el daemon contesta,
-no si la ventana de Docker Desktop está abierta. Cerrar la ventana deja el motor
-corriendo en la bandeja, y ahí tus contenedores arrancan igual.
+Restarting Docker asks for inline confirmation because it restarts every running
+container on the machine, including containers from other projects. Starting
+Docker runs immediately without confirmation.
 
-Por debajo corre `docker desktop start --detach` o `docker desktop restart
---detach`, el plugin oficial del CLI: `docker` ya tiene que estar en el `PATH`
-para que un stack con compose sirva de algo, y el ejecutable de Docker Desktop
-no lo está en ninguna plataforma. `--detach` porque sin él el comando espera
-medio minuto a que el motor termine, y el request se lo comería entero.
+Note that `Docker cerrado` checks whether the Docker daemon answers `docker
+info`, not whether the Docker Desktop window is open.
 
-El botón dice lo que pasó de verdad, incluido `docker no esta en el PATH` o el
-error del propio Docker. Cuando el motor termina de levantar, el botón no
-desaparece: pasa a decir `Reiniciar Docker`. Lo mueve la misma vista de estado
-que ya sondea `docker info`.
+Under the hood, StackHelx runs `docker desktop start --detach` or
+`docker desktop restart --detach` via the official Docker CLI plugin, returning
+immediately so the HTTP request does not block for 30 seconds while the engine
+boots.
 
-## Explorar carpetas
+## Folder browser
 
-Para registrar un proyecto no hace falta copiar la ruta: `Explorar…` abre un
-navegador de carpetas que empieza en tu home y en las unidades montadas, y marca
-las que tienen `stack.yaml`, un compose, un `package.json` o un `manage.py`. El
-listado lo arma el servidor, porque una página web no puede conocer rutas
-absolutas de tu disco. Devuelve nombres de carpetas y de esos archivos
-marcadores, nunca contenido.
+You do not need to copy-paste paths to register a project: `Explorar…` opens a
+directory browser starting at your home folder and mounted drives, highlighting
+folders that contain `stack.yaml`, a Compose file, `package.json`, or
+`manage.py`. The server builds the listing and returns only folder names and
+marker filenames, never file contents.
 
-## Seguridad
+## Security model
 
-El servidor escucha solo en loopback y exige un token que `serve` genera en
-`~/.stackhelx/token` y pasa en la URL de arranque. Ejecuta los comandos de tus
-`stack.yaml`, así que se trata como superficie sensible: rate limit en todas las
-rutas, CSP estricta, y validación del header `Host` contra rebinding de DNS.
-Podés fijar el token vos mismo con `STACKHELX_TOKEN`.
+The server binds strictly to loopback (`127.0.0.1`) and requires a 32-byte token
+stored in `~/.stackhelx/token` with `0600` permissions (or custom via
+`STACKHELX_TOKEN`). Because `stack.yaml` executes shell commands, the API
+enforces per-route rate limiting (`QUOTA_READ`, `QUOTA_WRITE`, `QUOTA_KILL`), a
+strict local-only Content Security Policy (`default-src 'self'`), and `Host`
+header validation against `127.0.0.1`, `localhost`, and `[::1]` to block DNS
+rebinding attacks.

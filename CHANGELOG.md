@@ -4,6 +4,13 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.1.2] - 2026-10-06
+
+### Añadido y Mejorado
+
+- **Documentación Bilingüe (Inglés / Español):** `README.md`, `stack.example.yaml`, `pyproject.toml` y la documentación técnica en `docs/` pasan al inglés como idioma principal para PyPI y GitHub, preservando la documentación completa en español en `README.es.md` y `docs/es/` con navegación recíproca y cero impacto en el runtime.
+- **Detección de Puertos del Sistema y Soporte IPv6 Dual-Stack (`ports.py`, `server.py`, `web/`):** Escaneo completo de puertos TCP en escucha del sistema operativo (`/api/ports/system`) y soporte dual-stack IPv4/IPv6 en las sondas de disponibilidad y cierre seguro de puertos.
+
 ## [1.1.1] - 2026-09-24
 
 ### Corregido y Mejorado

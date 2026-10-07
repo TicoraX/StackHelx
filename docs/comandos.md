@@ -1,50 +1,53 @@
-# Otros comandos
+# Other commands
 
-> **Nota:** Todos los comandos del sistema pueden ejecutarse indistintamente con `stackhelx <cmd>` o mediante el alias corto oficial **`shx <cmd>`** (por ejemplo: `shx down`, `shx doctor`, `shx switch`, `shx run`, `shx share`).
+**English** · [Español](es/comandos.md)
 
-`up`, `serve`, `ports` y `free` están en el [README](../README.md#comandos).
-Acá están los cuatro que quedan, con qué revisa cada uno y por qué.
+> **Note:** Every command can be run either as `stackhelx <cmd>` or via the official short alias **`shx <cmd>`** (for example: `shx down`, `shx doctor`, `shx switch`, `shx run`, `shx share`).
 
-## Bajar lo que sobrevive a la terminal
+`up`, `serve`, `ports`, and `free` are covered in the [README](../README.md#commands).
+Below are the remaining commands, what each one checks, and why.
+
+## Stopping services that outlive the terminal
 
 ```bash
 shx down
-# o stackhelx down
+# or stackhelx down
 shx down --profile backend
 ```
 
-`Ctrl-C` sobre un `stackhelx up` apaga a sus hijos, pero un
-`docker compose up -d` termina enseguida y deja los contenedores corriendo.
-`down` ejecuta el `stop` de cada servicio que lo declara, en orden inverso al
-de arranque. Si ningún servicio declara `stop`, lo dice y no hace nada: esos
-son hijos de la terminal y ya se fueron con `Ctrl-C`.
+Pressing `Ctrl-C` on `stackhelx up` terminates its child processes, but
+`docker compose up -d` exits immediately and leaves containers running in the
+background. `down` runs the `stop` command of every service that declares one,
+in reverse startup order. If no service declares `stop`, it reports that and
+exits: those services are direct children of the terminal and already stopped
+with `Ctrl-C`.
 
-## Cambiar de proyecto
+## Switching between projects
 
 ```bash
 stackhelx switch fitness
-stackhelx switch A:\Proyectos\Fitness    # o la ruta, si hay dos con el mismo nombre
+stackhelx switch A:\Proyectos\Fitness    # or the path, if two projects share a name
 ```
 
-Baja los proyectos registrados que declaran alguno de los puertos que este
-necesita, y después lo levanta. Solo los que chocan: parar una base de datos que
-nadie disputa no ayuda a arrancar y es lo que más cuesta volver a levantar.
+Stops registered projects that declare any of the ports required by the target
+project, then starts the target. Only colliding projects are stopped: shutting
+down an uncontested database does not help startup and is the slowest service to
+bring back up.
 
-Baja lo que declara `stop`, o sea contenedores. Un `npm run dev` de otra
-terminal no es hijo de nadie que StackHelx controle, así que si sigue ocupando
-el puerto lo agarra el paso de liberación de `up`, que pregunta antes de cerrar
-nada.
+It stops services that declare `stop` (containers). An `npm run dev` running in
+another terminal is not managed by `down`, so if it still holds a needed port,
+the port-freeing step of `up` catches it and asks before closing anything.
 
-## Diagnóstico
+## Diagnostics
 
 ```bash
 stackhelx doctor
 ```
 
-Revisa, sin arrancar nada, lo que suele impedir un arranque: qué stack se lee o
-se detecta, si cada comando existe en el `PATH`, si el daemon de Docker
-contesta, y qué puertos declarados están ocupados y por quién. Cada chequeo en
-rojo trae la línea para arreglarlo.
+Checks common startup blockers without starting anything: which stack is loaded
+or auto-detected, whether every service binary exists in `PATH`, whether the
+Docker daemon responds, and which declared ports are currently occupied and by
+whom. Every failed check includes the exact command to fix it.
 
 ```
 ok    token                  C:\Users\vos\.stackhelx\token
@@ -56,57 +59,58 @@ aviso puerto 3000            ocupado por node.exe (pid 24180), lo pide web
                              -> stackhelx free 3000
 ```
 
-Si hay un `.env.example`, compara sus claves contra el `.env` y avisa cuáles
-faltan o quedaron sin valor. Nombres de claves nada más: los valores no salen
-ni por la terminal ni por la API.
+If `.env.example` exists, `doctor` compares its keys against `.env` and flags
+which keys are missing or empty. Only key names are printed: secret values never
+appear in terminal output or API responses.
 
-Sale con 1 solo si algo impide arrancar. Un puerto ocupado es aviso, porque
-`stackhelx up` ofrece liberarlo, y una clave que falta también, porque puede
-ser opcional o venir del entorno. Fuera de un proyecto revisa nada más el
-entorno, que es lo que uno quiere recién instalado.
+Exits with code 1 only when a check prevents startup. An occupied port is a
+warning because `stackhelx up` offers to free it, and a missing `.env` key is a
+warning because it may be optional or provided by the host environment. Outside
+a project directory, `doctor` checks the global environment only.
 
-## Abrir el stack en el navegador
-
-```bash
-stackhelx open         # el ultimo servicio del stack que conteste HTTP
-stackhelx open 3000    # o el puerto que le pases
-```
-
-Sirve cuando el stack ya está corriendo en otra terminal. Recorre los puertos
-en orden inverso al de arranque, porque lo que uno quiere mirar suele ser el
-frontend, y abre el primero que contesta. Una base de datos no contesta HTTP,
-así que nunca es el elegido.
-
-## Ejecutar scripts y pipelines de tareas
+## Opening the stack in your browser
 
 ```bash
-stackhelx run              # lista las tareas declaradas en stack.yaml
-stackhelx run test         # ejecuta una tarea específica
-stackhelx run test -k foo  # pasa argumentos adicionales al comando
-stackhelx run check        # ejecuta un pipeline secuencial de scripts
+stackhelx open         # last service in the stack that answers HTTP
+stackhelx open 3000    # or a specific port
 ```
 
-Permite definir scripts del proyecto en `stack.yaml` (ej. tests, linters, migraciones, seeders)
-y ejecutarlos con el contexto completo de variables de entorno inyectadas (`.env`, `env.global`, etc.).
-Si un paso del pipeline falla, la ejecución se detiene inmediatamente con el código de error correspondiente.
+Useful when your stack is already running in another terminal. It probes ports
+in reverse startup order because the service you want to view in a browser is
+almost always the frontend, opening the first one that responds to HTTP. A
+database does not speak HTTP, so it is skipped automatically.
 
-## Compartir servicios vía túneles públicos
+## Running scripts and task pipelines
 
 ```bash
-stackhelx share               # expone el servicio web principal
-stackhelx share 3000          # expone un puerto específico
-stackhelx share api           # expone el servicio por nombre
-stackhelx share --provider ngrok  # fuerza el proveedor (cloudflared, ngrok, lt, tailscale)
+stackhelx run              # list tasks declared in stack.yaml
+stackhelx run test         # run a specific task
+stackhelx run test -k foo  # forward extra arguments to the command
+stackhelx run check        # run a sequential pipeline of scripts
 ```
 
-Genera un túnel HTTPS seguro y efímero hacia el puerto local, ideal para probar webhooks,
-compartir vistas previas con clientes o probar en dispositivos móviles. Presioná `Ctrl-C` para
-cerrar el túnel de inmediato.
+Lets you define project tasks in `stack.yaml` (tests, linters, migrations,
+seeders) and execute them with the full injected environment (`.env`,
+`env.global`). If any step in a pipeline returns a non-zero exit code, execution
+stops immediately with that exit code.
 
-**No se puede compartir el puerto de `stackhelx serve`.** Detrás de ese puerto está la API
-que arranca los servicios de tu `stack.yaml`, o sea ejecución de comandos: publicarla dejaría
-al token como única puerta entre internet y tu consola. Vale para el CLI y para el botón de la
-interfaz por igual:
+## Sharing services via public tunnels
+
+```bash
+stackhelx share               # expose the main web service
+stackhelx share 3000          # expose a specific port
+stackhelx share api           # expose a service by name
+stackhelx share --provider ngrok  # force provider (cloudflared, ngrok, lt, tailscale)
+```
+
+Opens an ephemeral HTTPS tunnel to a local port for testing webhooks, sharing
+previews, or testing on mobile devices. Press `Ctrl-C` to close the tunnel
+immediately.
+
+**You cannot share the `stackhelx serve` port.** Behind that port sits the API
+that executes commands from your `stack.yaml`: exposing it would leave the token
+as the only barrier between the public internet and your shell. This block
+applies to both the CLI and the web dashboard:
 
 ```console
 $ stackhelx share 7667
@@ -115,39 +119,39 @@ Error: el puerto 7667 es de un `stackhelx serve`. Publicarlo expone la API que
 ejecuta los comandos de tu stack.yaml, no tu proyecto.
 ```
 
-## Limpieza de recursos Docker (Higiene)
+## Cleaning Docker resources
 
 ```bash
-stackhelx clean                        # contenedores parados, imagenes sin tag, redes sin usar y cache de build
-stackhelx clean --solo cache --solo images   # solo esas dos categorias
-stackhelx clean --volumes              # ademas, volumenes anonimos/huerfanos
+stackhelx clean                        # stopped containers, untagged images, unused networks, build cache
+stackhelx clean --solo cache --solo images   # only those two categories
+stackhelx clean --volumes              # also prune anonymous/orphaned volumes
 ```
 
-Limpia **por categorías**, con un comando propio para cada una, no con un
-`docker system prune` que las tira todas juntas. No es lo mismo borrar
-contenedores parados que caché de build: la caché se regenera sola y las
-imágenes sin tag pueden ser la capa base que vas a volver a bajar. Poder
-separarlo es el punto.
+Cleans **by category**, running a dedicated command for each instead of a
+blanket `docker system prune` that wipes everything together. Deleting stopped
+containers is not the same as wiping build cache or untagged base images you may
+need on the next build.
 
-Los **volúmenes van aparte en todos lados** y nunca entran por defecto: adentro
-hay datos y no se regeneran. Hay que pedirlos con `--volumes`; en la interfaz
-son una casilla propia, y el servidor MCP directamente los rechaza.
+**Volumes are always separate** and never included by default: they hold state
+that cannot be regenerated. You must opt in with `--volumes`; in the web
+dashboard they have their own checkbox, and the MCP server rejects volume
+deletion altogether.
 
-Antes de borrar nada muestra `docker system df` para que veas qué hay en juego,
-y pregunta. `--yes` saltea la pregunta, para scripts. Si una categoría falla, las
-demás siguen y el resumen dice cuál falló: quedarse a mitad sin decir dónde es
-peor que terminar y contarlo.
+Before deleting anything, `clean` prints `docker system df` so you can see what
+is at stake and asks for confirmation (`--yes` skips the prompt in scripts). If
+one category fails, the remaining categories still run and the summary reports
+which one failed.
 
-## Validar el stack sin arrancarlo
+## Validating the stack without starting it
 
 ```bash
 stackhelx test-stack
-stackhelx test-stack ../otro-proyecto
+stackhelx test-stack ../other-project
 ```
 
-Carga el `stack.yaml`, resuelve el orden topológico y mira si los puertos
-declarados están libres. No arranca nada, así que es lo más barato para saber si
-un archivo que acabás de editar carga bien.
+Loads `stack.yaml`, resolves the topological startup order, and checks whether
+declared ports are free. Because it starts nothing, it is the fastest way to
+verify a `stack.yaml` you just edited.
 
 ```
 Validando stack demo en C:\...\demo...
@@ -158,17 +162,17 @@ OK: Todos los puertos declarados están libres
 Stack validado con éxito.
 ```
 
-Un archivo inválido sale por código 1 con el motivo, el mismo mensaje que daría
-`up` al arrancar:
+An invalid file exits with code 1 and prints the exact validation error that
+`up` would show:
 
 ```
 Configuración inválida: services.x.restart debe ser 'no', 'on-failure' o 'always'
 ```
 
-Los puertos ocupados salen como aviso y no como error: que algo esté escuchando
-ahí no es necesariamente un problema, y `up` los libera preguntando antes.
+Occupied ports are reported as warnings rather than errors because `up` can free
+them interactively before starting.
 
-## Historial de arranques
+## Startup history
 
 ```bash
 stackhelx history
@@ -184,25 +188,25 @@ stackhelx history --limit 20
 +--------------------------------------------------+
 ```
 
-**El historial lo escribe la interfaz web, no el CLI.** Cada arranque desde
-`stackhelx serve` deja una línea con su duración y su resultado; `stackhelx
-up` desde la terminal no registra nada. Si solo usaste el CLI, esto contesta
-`No hay historial para el proyecto <nombre>` y no está roto.
+**History is recorded by the web dashboard, not the CLI.** Every startup
+triggered from `stackhelx serve` appends an entry with its duration and outcome;
+running `stackhelx up` in a terminal does not write history. If you have only
+used the CLI, `history` prints `No hay historial para el proyecto <nombre>`.
 
-Los archivos viven en `~/.stackhelx/history/<id>.jsonl`, uno por proyecto, y se
-recortan solos a los últimos 250 arranques. `--limit` acepta de 1 a 50.
+History files live in `~/.stackhelx/history/<id>.jsonl`, one per project, and
+automatically rotate to the last 250 runs. `--limit` accepts values from 1 to 50.
 
-## Logs y métricas del stack que corre en la interfaz
+## Live logs and metrics from the web server
 
 ```bash
-stackhelx logs                    # lo que haya hasta ahora
-stackhelx logs --follow           # y seguir
-stackhelx logs --service api      # filtrar por nombre
-stackhelx stats                   # CPU y memoria (alias: stackhelx top)
+stackhelx logs                    # print buffered logs
+stackhelx logs --follow           # stream live logs
+stackhelx logs --service api      # filter by service name
+stackhelx stats                   # CPU and memory table (alias: stackhelx top)
 ```
 
-Los dos le preguntan al `stackhelx serve` que ya tengas abierto, así que
-necesitan que esté corriendo. Con `--port` se apunta a otro:
+Both commands query the active `stackhelx serve` instance, so `serve` must be
+running. Use `--port` if `serve` is listening on a custom port:
 
 ```
        Métricas en tiempo real: demo
@@ -213,64 +217,61 @@ necesitan que esté corriendo. Con `--port` se apunta a otro:
 +-----------------------------------------+
 ```
 
-Los números son del árbol completo de cada servicio, no del proceso directo: con
-`shell=True` el hijo inmediato es el shell y el servidor de verdad es un nieto,
-así que sumar solo el padre daría una memoria de juguete. Por eso el CPU pasa de
-100%, que es un núcleo entero: son porcentajes por núcleo sumados.
+Metrics aggregate the **entire process tree** of each service, not just the
+direct child PID: with `shell=True`, the immediate child is the shell wrapper
+and the actual server is a grandchild process. CPU percentage sums usage across
+all cores, so values above 100% indicate multi-core utilization.
 
-Sin el servidor levantado, los dos salen por código 1 diciéndolo:
+If `serve` is not running, both commands exit with code 1:
 
 ```
 No se pudo conectar con StackHelx en http://127.0.0.1:7666.
 Asegúrate de que `stackhelx serve` está corriendo.
 ```
 
-## Servidor MCP para Agentes de IA
+## MCP Server for AI Agents
 
 ```bash
 stackhelx mcp
+stackhelx mcp --config   # print JSON config for your MCP client
+stackhelx mcp --prompt   # print recommended system prompt for AI agents
 ```
 
-Inicia un servidor estándar Model Context Protocol (MCP) sobre `stdio`. Permite que
-asistentes inteligentes (Claude Desktop, Cursor, Gemini, Antigravity) inspeccionen el estado
-del stack, ejecuten scripts declarados en `stack.yaml`, consulten puertos y diagnostiquen errores
-en tiempo real durante sesiones de desarrollo guiado.
+Starts a standard Model Context Protocol (MCP) server over `stdio`. Enables AI
+coding assistants (Claude Desktop, Claude Code, Cursor, Gemini, Antigravity) to
+inspect stack status, execute tasks declared in `stack.yaml`, scan ports, and
+diagnose errors in real time.
 
-Las nueve herramientas que expone:
+The nine exposed tools (available under `stackhelx_*` and legacy `portmaster_*`
+aliases):
 
-| Herramienta | Qué hace |
+| Tool | What it does |
 |---|---|
-| `stackhelx_status` | Estado de servicios, proyectos y puertos |
-| `stackhelx_doctor` | Diagnóstico del entorno, con la solución sugerida de cada check |
-| `stackhelx_ports` | Escanea puertos, los que le pases o los del stack |
-| `stackhelx_free_port` | Cierra el proceso que ocupa un puerto |
-| `stackhelx_share` | Abre un túnel público hacia un puerto local |
-| `stackhelx_run` | Ejecuta un script o pipeline de `stack.yaml` |
-| `stackhelx_clean` | Limpia recursos de Docker |
-| `stackhelx_history` | Historial de arranques del proyecto |
-| `stackhelx_init` | Congela lo detectado en un `stack.yaml` |
+| `stackhelx_status` | Status of services, registered projects, and ports |
+| `stackhelx_doctor` | Environment diagnostics with actionable remediation per check |
+| `stackhelx_ports` | Scans specific ports or the ports declared by the stack |
+| `stackhelx_free_port` | Terminates the process holding a port |
+| `stackhelx_share` | Opens a public tunnel to a local port |
+| `stackhelx_run` | Runs a script or pipeline from `stack.yaml` |
+| `stackhelx_clean` | Cleans Docker resources |
+| `stackhelx_history` | Reads startup history for the project |
+| `stackhelx_init` | Freezes auto-detected services into a `stack.yaml` |
 
-Todas aceptan un `path` opcional; sin él trabajan sobre el directorio actual.
+Every tool accepts an optional `path` argument; when omitted, it operates on the
+current working directory.
 
-### Lo que el agente no puede hacer
+### Guardrails on agent actions
 
-Del otro lado hay un agente y no una persona mirando la pantalla, así que tres
-cosas están cortadas a propósito y no son las mismas que en el CLI:
+Because an autonomous agent is calling these tools rather than a human at a
+terminal, three restrictions are enforced in code:
 
-- **`stackhelx_share` solo publica puertos que el proyecto declara.** Pedir uno
-  ajeno responde `El puerto 5432 no pertenece a los puertos declarados`, y el
-  puerto de la propia interfaz está vetado aparte. El CLI no tiene esta
-  restricción: ahí el puerto lo escribís vos.
-- **`stackhelx_clean` no borra volúmenes.** El flag existe en el CLI y no en el
-  esquema de la herramienta.
-- **Hay un tope de 30 llamadas por minuto.** Pasado eso contesta `Límite de
-  acciones MCP excedido`. Es contra el bucle de un agente que se traba, no
-  contra un uso normal.
+- **`stackhelx_share` only publishes ports declared by the project.** Requesting
+  an undeclared port returns an error, and the `stackhelx serve` port is blocked
+  explicitly.
+- **`stackhelx_clean` cannot delete volumes.** The `--volumes` flag exists in
+  the CLI but is omitted from the MCP tool schema.
+- **Rate-limited to 30 calls per minute.** Exceeding that threshold returns a
+  rate-limit error to stop runaway agent loops.
 
-Los túneles que abre la sesión se cierran cuando la sesión termina. Sin eso, el
-cliente de túneles seguía vivo publicando el puerto después de que el agente se
-fuera.
-
-
-
-
+Any tunnel opened during an MCP session is closed automatically when the session
+ends so tunnel processes never outlive the agent.

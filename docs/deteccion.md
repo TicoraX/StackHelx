@@ -1,119 +1,102 @@
-# Detección sin stack.yaml
+# Auto-detection without stack.yaml
 
-Cuando un proyecto no tiene `stack.yaml`, StackHelx infiere los servicios de
-lo que encuentra en el disco. La tabla de qué reconoce está en el
-[README](../README.md#sin-stackyaml). Acá está por qué reconoce eso y no otra
-cosa, que es lo que hay que leer antes de agregar un detector.
+**English** · [Español](es/deteccion.md)
 
-La regla que ordena todo lo de abajo: solo se detecta lo que sirve en un
-puerto. Un binario que no abre ninguno, arrancado como servicio, deja al stack
-esperando un healthcheck que no va a llegar nunca.
+When a project has no `stack.yaml`, StackHelx infers services from the files on
+disk. The summary table is in the [README](../README.md#without-stackyaml). This
+document explains why each detector matches what it does and rejects everything
+else, which is required reading before adding a new detector.
 
-## Dónde busca
+One rule governs every detector below: **only detect services that listen on a
+port.** Starting a binary that never opens a socket leaves the orchestrator
+waiting on a healthcheck until it times out.
 
-Si la raíz no tiene `package.json`, busca una vuelta más abajo: `frontend/`,
-`web/`, `client/`, `ui/`, `front/`, `site/`, y los hijos de `apps/`,
-`packages/` y `services/`. Cada app encontrada es un servicio con el nombre de
-su carpeta. Si la raíz sí tiene `package.json`, gana ese y no se baja: en un
-monorepo su script `dev` suele ser el orquestador (turbo, nx) y arrancar además
-los hijos duplicaría todo.
+## Where it looks
 
-El backend sigue la misma regla, en `backend/`, `api/`, `server/` y los hijos de
-los mismos grupos. Reconoce Django (`manage.py`), FastAPI (`uvicorn` con un
-módulo ASGI), Go (`go.mod` con un paquete `main`),
-Rust (`Cargo.toml` con `src/main.rs`), Rails (`config/application.rb`), Laravel (`artisan`)
-y ASP.NET Core (un `.csproj` con `Sdk="Microsoft.NET.Sdk.Web"`).
+If the project root has no `package.json`, StackHelx checks one level down in
+`frontend/`, `web/`, `client/`, `ui/`, `front/`, `site/`, and the direct
+children of `apps/`, `packages/`, and `services/`. Each matching directory
+becomes a service named after its folder. If the root itself has a runnable
+`package.json`, the root wins and subdirectories are skipped: in a monorepo, the
+root `dev` script is usually the workspace orchestrator (`turbo`, `nx`), so
+starting child packages as well would launch everything twice.
 
-## Por lenguaje
+Backend detection follows the same pattern across `backend/`, `api/`, `server/`,
+and the children of the workspace directories. It recognizes Django
+(`manage.py`), FastAPI/ASGI (`uvicorn` with an ASGI module), Go (`go.mod` with a
+`main` package), Rust (`Cargo.toml` with `src/main.rs`), Rails
+(`config/application.rb`), Laravel (`artisan`), ASP.NET Core (`.csproj` with
+`Sdk="Microsoft.NET.Sdk.Web"`), JVM web frameworks, Elixir/Phoenix, Deno, and
+Bun.
 
-En Python el comando lleva `uv run` adelante cuando el proyecto tiene `uv.lock`
-o una sección `[tool.uv]` en el `pyproject.toml`. Vale para los dos casos que se
-detectan, Django y ASGI, porque es el mismo prefijo: con `uv` el intérprete del
-proyecto vive en su entorno y un `python manage.py` a secas correría con el del
-sistema, que no tiene las dependencias.
+## By language
 
-En Rust hace falta un framework declarado en el `Cargo.toml`: axum, actix-web,
-rocket y compañía. No hay servidor HTTP en la stdlib, así que sin uno el binario
-no sirve nada por un puerto. `hyper` no cuenta, aunque sea la base de casi todo
-el HTTP de Rust: entra como cliente tan seguido como de servidor, y un CLI que
-descarga algo declara exactamente la misma dependencia.
+- **Python**: Prefixes commands with `uv run` when the project contains
+  `uv.lock` or a `[tool.uv]` section in `pyproject.toml`. Applies to both Django
+  and ASGI services so the command runs inside the project's managed environment
+  rather than the system Python.
+- **Rust**: Requires a web framework declared in `Cargo.toml` (`axum`,
+  `actix-web`, `rocket`, `warp`, `tide`, `poem`, `salvo`, `tonic`, `trillium`,
+  `gotham`, `volo-http`). Rust has no HTTP server in its standard library, so a
+  binary without one does not serve a port. `hyper` is excluded intentionally:
+  it is used just as often as an HTTP client in CLI tools.
+- **Go**: A dependency list alone is not enough because `net/http` is in the
+  standard library and leaves no trace in `go.mod`. StackHelx checks for known
+  frameworks (`gin`, `echo`, `fiber`, `chi`, `gorilla/mux`) or a call to
+  `ListenAndServe` / `http.Serve(` in the entry file.
+- **Rails & Laravel**: `config/application.rb` and `artisan` only exist in
+  runnable web applications, whereas a standalone `Gemfile` or `composer.json`
+  might just be a library. Rails runs via `bundle exec rails server` rather than
+  the `bin/rails` shebang script so it works natively on Windows.
+- **JVM (Java & Kotlin)**: Both share the same build systems (`pom.xml`,
+  `build.gradle`, `build.gradle.kts`). Requires a web framework marker: Spring
+  Boot (`spring-boot-starter-web`, which also matches `-webflux`), Quarkus,
+  Micronaut, or Ktor. Bare `spring-boot-starter` is excluded because batch jobs
+  and queue consumers use it without opening a port. Prefers `mvn` or `gradle`
+  from `PATH` before falling back to `./mvnw` / `mvnw.cmd` so `stackhelx init`
+  produces a cross-platform `stack.yaml`.
+- **Elixir**: Requires Phoenix, matched via `{:phoenix,` in `mix.exs` (with the
+  comma, so component libraries using `phoenix_html` or `phoenix_live_view` are
+  ignored) or a `lib/<name>_web/` directory in umbrella apps.
+- **.NET**: Checks the `Sdk` attribute of `.csproj`. Libraries and console apps
+  use `Microsoft.NET.Sdk`; web applications use `Microsoft.NET.Sdk.Web`.
+- **Node subdirectories**: Subfolders must also declare a known dev server
+  dependency (`vite`, `next`, `nuxt`, `astro`, `@nestjs/cli`, `express`,
+  `fastify`, `hono`, etc.). Monorepo workspaces contain as many libraries as
+  apps, and a library with `"dev": "tsc --watch"` would hang waiting for a port
+  that never opens.
+- **Deno**: Recognizes `deno.json` or `deno.jsonc` with `dev`, `start`, or
+  `serve` tasks (`deno task <name>`), or falls back to `deno run --allow-net
+  <entry>` for standalone entry files (`main.ts`, `server.ts`, `app.ts`) when no
+  `package.json` is present.
+- **Bun**: Projects with `package.json` and a server script go through the Node
+  detector using `bun` as the package manager (`bun run dev`). The standalone
+  Bun detector handles projects without `package.json` scripts where Bun executes
+  an entry file directly (`bun run index.ts`), provided a Bun marker
+  (`bunfig.toml`, `bun.lock`, `bun.lockb`) and either `Bun.serve(`,
+  `export default { fetch }`, or a web framework (`hono`, `elysia`) are present.
 
-En Go no alcanza con la lista, porque `net/http` es stdlib y un servidor escrito
-con ella no deja rastro en `go.mod`: se busca además la llamada a
-`ListenAndServe` en el fuente. Un binario que no sirve nada no se detecta,
-porque arrancarlo dejaría al stack esperando un puerto que nunca abre.
+Directory scanning is strictly non-recursive beyond one workspace level so it
+never traverses `node_modules`.
 
-Rails y Laravel no tienen ese problema: `config/application.rb` y `artisan` solo
-existen en aplicaciones que sirven, y un `Gemfile` o un `composer.json` sueltos
-no alcanzan. Rails arranca con `bundle exec rails server` y no con el binstub
-`bin/rails`, que es un script con shebang y en Windows no lo ejecuta nadie.
+## Docker Compose
 
-En la JVM da lo mismo Java que Kotlin: el build es el mismo y `build.gradle.kts`
-sólo cambia la extensión. Hace falta un framework declarado, porque un `pom.xml`
-o un `build.gradle` sueltos pueden ser una librería o una app de consola: Spring
-Boot (`spring-boot-starter-web`, que también cubre `-webflux`), Quarkus,
-Micronaut o Ktor. `spring-boot-starter` a secas no cuenta, y esa es la
-diferencia que importa: es una app de Spring sin servlet container, una tarea
-batch o un consumidor de colas, y no abre ningún puerto.
+A Compose file is not treated as a single opaque block: each container becomes
+its own service with its published port, health status, and browser link, while
+startup order comes from `depends_on`. `docker compose up -d <name>` starts each
+container idempotently. Port expressions like `${WEB_PORT:-8080}` are resolved
+against the host environment, the project `.env` file, and the inline default,
+matching Compose's own precedence.
 
-El comando prefiere `mvn` o `gradle` del PATH, y sólo cae al wrapper del repo
-cuando no están. No es una preferencia de estilo. El comando detectado termina
-en el `stack.yaml` que escribe `stackhelx freeze`, ese archivo se commitea, y
-lo abre alguien en otro sistema operativo: `mvn spring-boot:run` es igual en los
-tres, mientras que `./mvnw` no corre en `cmd.exe` y `mvnw.cmd` no corre en bash.
-Un repo que commiteó sólo el wrapper de POSIX, visto desde Windows, cae al
-binario pelado por la misma razón. Sin binario y sin wrapper se emite igual el
-nombre a secas: fallar con "command not found" dice más que no detectar nada.
+## How ports are discovered
 
-En Elixir hace falta Phoenix, y la señal es `{:phoenix, ...}` en el `mix.exs`,
-con la coma. No alcanza con que diga "phoenix" en algún lado: una librería de
-componentes declara `phoenix_html` o `phoenix_live_view` sin ser una aplicación,
-no tiene endpoint y `mix phx.server` ahí falla. La otra señal aceptada es
-`lib/<algo>_web/`, que Phoenix genera siempre y que sirve para el proyecto de un
-umbrella, donde las dependencias viven en el `mix.exs` de la raíz. Un `mix.exs`
-solo es una librería o una app OTP sin puerto, y no se detecta.
+Ports for `npm run dev` or `uvicorn` are never guessed by parsing config files:
+StackHelx starts the process with `ready: listen` and queries the OS socket
+table to see which port the process tree actually bound. That works reliably
+even when Vite sees port 5173 occupied and shifts to 5174. The trade-off is that
+`ready: listen` ports cannot be pre-freed before startup because the port number
+is only known after the process binds it. Compose ports are declared statically
+and freed beforehand.
 
-En .NET la señal está en el atributo `Sdk` del `.csproj` y en ningún otro lado:
-una librería y una app de consola usan `Microsoft.NET.Sdk` a secas, y ni el
-nombre del proyecto ni sus paquetes distinguen una cosa de la otra.
-
-En las subcarpetas hace falta además una dependencia que declare un servidor de
-desarrollo (vite, next, nest, astro, nodemon y compañía). Un workspace tiene
-tantas librerías como apps, y una librería con `dev: tsc --watch` entraría como
-servicio y se quedaría esperando un puerto que nunca abre.
-
-Con Bun hay dos caminos distintos y conviene no confundirlos. Un proyecto con
-`package.json` y un script (`dev`, `serve`, `start`) sale por el camino de Node,
-y el `bun.lock` sólo decide el gestor: el comando queda `bun run dev`. El
-detector propio de Bun es para lo otro, el proyecto sin `package.json`, sin
-`scripts`, o con scripts que no sirven nada, donde Bun ejecuta el archivo
-directo: `bun run index.ts`.
-
-Hace falta una marca de Bun (`bunfig.toml`, `bun.lock` o `bun.lockb`) y además
-la señal de que eso sirve por un puerto, que es la llamada a `Bun.serve(` en el
-fuente o un framework declarado (hono, elysia). Es el mismo par que Go: `Bun.serve`
-es API nativa y no figura en ninguna dependencia, igual que `net/http`. Sin
-ninguna de las dos señales es una CLI y no se detecta.
-
-Nada de esto es recursivo: un scan profundo termina dentro de `node_modules`.
-
-## Compose
-
-Un compose no entra como un bloque único: cada contenedor es un servicio con su
-puerto publicado, su estado y su link, y el orden sale del `depends_on` del
-propio archivo. `docker compose up -d <nombre>` arranca ese contenedor con sus
-dependencias y es idempotente. Los puertos escritos como `${WEB_PORT:-8080}` se
-resuelven con el entorno, con el `.env` del proyecto y por último con el default
-de la expresión, el mismo orden que usa compose.
-
-## De dónde sale el puerto
-
-El puerto de `npm run dev` y de `uvicorn` no se adivina: se arranca el proceso y
-se le pregunta cuál quedó escuchando. Es más confiable que parsear
-`vite.config.ts`, los flags del script y `.env`, y acierta cuando Vite encuentra
-5173 tomado y se corre a 5174. El costo es que esos puertos no se pueden liberar
-antes de arrancar, porque no se saben hasta después. Los de compose sí, que
-están declarados en el archivo.
-
-`stackhelx init` escribe lo detectado como `stack.yaml` para editarlo a mano.
-No sobreescribe uno existente.
+`stackhelx init` writes the detected stack to `stack.yaml` for manual editing
+and refuses to overwrite an existing file.

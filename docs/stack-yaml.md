@@ -1,28 +1,30 @@
-# Referencia de stack.yaml
+# stack.yaml Reference
 
-El ejemplo mínimo está en el [README](../README.md#stackyaml). Acá está cada
-campo, con el ejemplo completo y comentado en
+**English** · [Español](es/stack-yaml.md)
+
+A minimal example is in the [README](../README.md#stackyaml). Below is the
+complete specification for every field, alongside the annotated template in
 [`stack.example.yaml`](../stack.example.yaml).
 
-## Campos
+## Fields
 
-`command` es el único campo obligatorio. `needs` define el orden de arranque
-y los ciclos fallan al cargar el archivo, no a mitad del arranque. Un perfil
-arrastra sus dependencias transitivas: pedir `api` sin su base de datos nunca
-es lo que alguien quiso decir.
+`command` is the only required field on a service. `needs` defines the startup
+order, and dependency cycles fail immediately when loading the file rather than
+mid-startup. Profiles pull in their transitive dependencies automatically:
+requesting `api` without its database is never what you want.
 
-Los servicios que no dependen entre sí arrancan juntos, y cada tanda espera a
-estar lista antes de la siguiente. El stack tarda el healthcheck más lento de
-cada nivel en lugar de la suma de todos, a cambio de que los logs de los
-primeros segundos se entreveren. Van prefijados por servicio y con un color
-propio cada uno, así que se siguen leyendo.
+Services that do not depend on each other start in parallel within the same
+topological wave, and each wave waits until all its services pass their
+healthcheck before the next wave begins. Startup time equals the slowest
+healthcheck in each wave rather than the sum of all services. Logs are prefixed
+and color-coded per service.
 
-`default` es opcional y lista qué arranca cuando no pedís perfil. Sin él,
-arranca todo, que es lo que casi siempre querés. Existe para el caso de abajo.
+`default` is optional and lists which services start when no `--profile` flag is
+passed. Without `default`, every declared service starts.
 
-## Perfiles de un compose detectado
+## Profiles from an auto-detected Compose file
 
-Un `compose.yaml` con `profiles:` los trae puestos:
+When a `compose.yaml` uses `profiles:`, StackHelx preserves that behavior:
 
 ```yaml
 services:
@@ -32,70 +34,69 @@ services:
     profiles: [tools]
 ```
 
-Ahí `seed` queda afuera del arranque por defecto y entra con
-`stackhelx up --profile tools`, igual que con `docker compose --profile tools`.
-Ojo con la semántica, porque está invertida: en compose `profiles:` **excluye**
-un servicio hasta que lo pidas, mientras que en `stack.yaml` un perfil es la
-lista de lo que se arranca. `detect` traduce de una a la otra, y por eso
-`stackhelx init` sobre ese proyecto escribe también un `default`: sin él, el
-archivo congelado prendería lo que el compose deja apagado a propósito.
+Here `seed` stays off during a default startup and joins when you run
+`stackhelx up --profile tools`, matching `docker compose --profile tools`.
+Notice the inverted semantics: in Compose, `profiles:` **excludes** a container
+from default startup until requested, whereas in `stack.yaml` a profile is the
+explicit list of services to start. `detect` translates between the two and
+writes a `default` list when you run `stackhelx init` so frozen files do not
+accidentally boot optional containers by default.
 
 ## ready
 
-`ready` decide cuándo un servicio cuenta como listo, y acepta cinco formas:
+`ready` controls when a service is considered healthy and accepts five formats:
 
-| Valor | Espera a que |
+| Value | Waits until |
 |---|---|
-| `port` | el puerto acepte conexiones (default si hay `port`) |
-| `listen` | el proceso abra un puerto cualquiera, y lo reporta |
-| `log:texto` | ese texto aparezca en la salida del servicio |
-| `http://...` | esa URL responda con menos de 400 |
-| `none` | nada (default si no hay `port`) |
+| `port` | The declared TCP port accepts connections (default when `port` is set) |
+| `listen` | The process tree binds any TCP port, then reports which port it chose |
+| `log:<text>` | `<text>` appears in the service's stdout/stderr |
+| `http://...` | The URL responds with an HTTP status code below 400 |
+| `none` | Immediately ready without waiting (default when `port` is omitted) |
 
-`listen` es para servicios que eligen su propio puerto. Es incompatible con
-`port`: si lo conocés, el healthcheck es `port`.
+`listen` is designed for dev servers that pick their own port at runtime. It
+cannot be combined with `port`: if you already know the port, use `port`.
 
-`port` no distingue quién contesta. Si alguien ya escuchaba ahí antes de
-arrancar, el servicio se declara listo en el acto aunque el `listo` sea de otro
-proceso, y por eso el arranque lo dice: `listo (3000) · el puerto ya estaba
-ocupado antes de arrancar`. Con `up` normal no pasa, porque libera los puertos
-primero; aparece con `--no-free`, y en el caso legítimo de un
-`docker compose up -d` sobre un contenedor que ya estaba arriba.
+`port` checks whether a listener accepts connections on that port. If another
+process was already listening before startup (for example when running with
+`--no-free` or when a Docker container was already up), StackHelx notes it in
+the startup log: `listo (3000) · el puerto ya estaba ocupado antes de arrancar`.
 
 ## stop
 
-`stop` es un comando de apagado propio, opcional. Sin él, apagar mata el árbol
-de procesos del servicio, que es lo correcto para un `npm run dev` y no alcanza
-para un contenedor: `docker compose up -d` termina enseguida y lo que queda
-vivo no es hijo nuestro. Los servicios detectados de un compose traen
-`stop: docker compose stop <nombre>`. Si el comando falla o tarda más de 90s, se
-loguea y el apagado sigue con el resto.
+`stop` is an optional custom shutdown command. Without it, StackHelx terminates
+the service's process tree, which works for `npm run dev` but not for detached
+containers (`docker compose up -d` exits immediately while the container lives
+inside the Docker daemon). Auto-detected Compose services automatically include
+`stop: docker compose stop <name>`. If a `stop` command fails or exceeds 90
+seconds, StackHelx logs a warning and continues shutting down the remaining
+services.
 
 ## env_file
 
-`env_file` permite cargar variables de entorno desde uno o varios archivos (ej.
-`env_file: .env` o `env_file: [.env, .env.local]`).
+`env_file` loads environment variables from one or more files (e.g.
+`env_file: .env` or `env_file: [.env, .env.local]`).
 
-Las rutas van **relativas a la raíz del proyecto y no pueden salir de ella**:
-`../../.env` o una ruta absoluta son `ConfigError` al cargar el archivo, igual
-que `cwd`. Un `stack.yaml` ajeno no puede pedir el `.env` de otro proyecto tuyo.
+Paths must be **relative to the project root and cannot escape it**:
+`../../.env` or an absolute path raises a `ConfigError` when loading the file,
+just like `cwd`. An untrusted `stack.yaml` cannot read `.env` files from your
+other projects.
 
-La precedencia de variables es:
-1. `os.environ` del sistema anfitrión.
-2. `~/.stackhelx/env.global` (bóveda global de variables compartidas, si existe).
-3. Archivos listados en `env_file` (en orden de aparición).
-4. `env:` declarado explícitamente en el servicio.
+Variable precedence (from lowest to highest):
+1. Host `os.environ`.
+2. `~/.stackhelx/env.global` (global shared environment file, if present).
+3. Files listed in `env_file` (in declaration order).
+4. Explicit `env:` key-values declared on the service.
 
-Con una excepción: después de aplicar todo lo anterior, `build_env` fija
-`PYTHONUNBUFFERED=1` y `FORCE_COLOR=1`. Para esas dos claves `env:` no gana,
-porque de ellas depende que los logs del servicio lleguen a la terminal y a
-la interfaz en vivo en lugar de quedarse en un buffer.
+One exception: after merging all four layers, `build_env` sets
+`PYTHONUNBUFFERED=1` and `FORCE_COLOR=1` so service logs stream to the terminal
+and web dashboard in real time instead of buffering.
 
 ## url
 
-Adónde lleva el botón `Abrir`, en la interfaz y en `stackhelx open`. Sin él es
-`http://localhost:<port>`, que es lo correcto para la mayoría de los servicios y
-no alcanza para los que no viven en la raíz del puerto:
+Controls where the `Abrir` button and `stackhelx open` navigate. Defaults to
+`http://localhost:<port>`, which works for most services but falls short when an
+app mounts on a subpath or expects a query parameter:
 
 ```yaml
 services:
@@ -106,46 +107,36 @@ services:
     url: http://127.0.0.1:8765/?token=${ORQUESTER_TOKEN}
 ```
 
-Reglas:
+Rules:
 
-- Solo `http://` y `https://`. Otro esquema es error al cargar el archivo. No es
-  una barrera de seguridad —un `stack.yaml` ya ejecuta comandos arbitrarios, y
-  eso está en el modelo de confianza del README— sino que convierte el error de
-  tipeo más probable, escribir `127.0.0.1:8765` sin esquema, en un mensaje claro
-  en vez de una ruta relativa que el navegador interpreta como puede.
-- Admite `${VAR}` y `${VAR:-default}`, resueltos con **el mismo entorno con el
-  que corre el servicio**: la precedencia es la de `env_file`, de arriba. Si la
-  URL necesita un token, es el token que recibió el proceso.
-- No se combina con `ready: listen`. El puerto de un servicio `listen` lo elige
-  el proceso y se descubre al arrancar, así que cualquier puerto escrito en la
-  URL es una apuesta. Y como `url` le gana al puerto descubierto, declararla
-  **empeora** el botón: si el proceso arranca en 3001, sigue llevando al 3000.
-- Una variable sin valor y sin default deja el servicio **sin URL**. Con `port:`,
-  el botón vuelve al `http://localhost:<port>` de siempre. **Sin `port:` no hay
-  a qué caer**: ese servicio se saltea y `stackhelx open` sigue con el siguiente
-  candidato; si no queda ninguno, sale con código 1. Abrir una URL con un
-  `${TOKEN}` literal adentro sería peor: la página carga, falla por dentro, y
-  parece que funcionó.
-- En la interfaz, el botón sigue apareciendo solo cuando el puerto contestó
-  HTTP. Un servicio sin `port:` nunca se puede saber si está arriba, así que ahí
-  no se dibuja; ese caso lo abre `stackhelx open` desde la terminal, que no
-  sondea nada.
+- Only `http://` and `https://` schemes are allowed. Any other scheme raises a
+  `ConfigError` on load.
+- Supports `${VAR}` and `${VAR:-default}`, interpolated against **the exact
+  environment passed to the service** (`env`, `env_file`, `env.global`, and host
+  env).
+- Cannot be combined with `ready: listen`. Because a `listen` service picks its
+  port dynamically at runtime, hardcoding a port in `url:` would override the
+  discovered port and point the button to the wrong address.
+- If a referenced `${VAR}` is unset and has no default, the service URL resolves
+  to `None`. If `port:` is set, it falls back to `http://localhost:<port>`;
+  otherwise the service is skipped by `stackhelx open`, preventing the browser
+  from opening a broken literal `${TOKEN}` URL.
 
-## pre_start y post_start
+## pre_start and post_start
 
-Hooks síncronos de ciclo de vida:
-*   `pre_start`: Comando que se ejecuta antes de lanzar el proceso principal (ej.
-    migraciones de base de datos o compilación). Si retorna un código distinto de 0,
-    el arranque del servicio se aborta inmediatamente.
-*   `post_start`: Comando que se ejecuta una vez que el servicio confirma que está
-    listo (`ready`). Si falla, se reporta el error y se detiene el stack.
+Synchronous lifecycle hooks:
+- `pre_start`: Command executed before spawning the main service process (e.g.
+  database migrations or build steps). If it exits with a non-zero code, startup
+  aborts immediately.
+- `post_start`: Command executed right after the service passes its `ready`
+  healthcheck. If it fails, the error is reported and the stack shuts down.
 
-## restart y max_retries
+## restart and max_retries
 
-`restart` decide qué pasa cuando un servicio termina solo, y vale `no` (el
-default), `on-failure` o `always`. Con `on-failure` reintenta si el código de
-salida no es cero; con `always`, también si salió limpio. `max_retries` es el
-tope de reintentos y por default son 3.
+`restart` controls what happens when a service exits on its own: `no` (default),
+`on-failure`, or `always`. `on-failure` restarts when the exit code is non-zero;
+`always` restarts regardless of exit code. `max_retries` caps the number of
+restart attempts (default `3`).
 
 ```yaml
 services:
@@ -156,63 +147,49 @@ services:
     max_retries: 2
 ```
 
-Corriendo eso con un comando que sale con código 3:
+When a process exits with code 3:
 
 ```
 worker | proceso terminado con codigo 3. Reiniciando automaticamente (intento 1/2)...
 worker | proceso terminado con codigo 3. Reiniciando automaticamente (intento 2/2)...
 ```
 
-Agotados los reintentos, ese servicio queda abajo y no se vuelve a levantar. El
-resto del stack sigue como si nada: el seguimiento de logs continúa y el stack
-se da por terminado solo cuando no queda ningún servicio vivo. Con un solo
-servicio declarado son la misma cosa, con varios no.
+Once `max_retries` is exhausted, that service stays down while the rest of the
+stack keeps running. The stack only exits when no live services remain.
 
-Dos límites que conviene saber antes de apoyarse en esto. El primero es que el
-vigilante vive en el seguimiento de logs, o sea que `restart` actúa mientras
-`stackhelx up` sigue corriendo o mientras la interfaz tiene la sesión viva, y
-no después. El segundo es que la cuenta de reintentos no se reinicia cuando el
-servicio se estabiliza: un proceso que cae una vez por hora agota su
-`max_retries` a lo largo del día y deja de levantarse.
-
-Los servicios `detached` quedan afuera: su comando termina por diseño y
-tratarlo como una caída lo relanzaría en loop.
-
-Cualquier otro valor en `restart` es error al cargar el archivo, no a mitad del
-arranque:
-
-```
-services.x.restart debe ser 'no', 'on-failure' o 'always'
-services.x.max_retries debe ser un entero positivo o 0
-```
+Three constraints:
+1. The restart supervisor lives inside the log follower, so `restart` is active
+   while `stackhelx up` is attached or while `stackhelx serve` holds the session.
+2. The retry counter does not reset over time.
+3. `detached: true` services are excluded from automatic restarts because their
+   launch command exits immediately by design.
 
 ## scripts
 
-La sección `scripts` permite declarar tareas de desarrollo o pipelines secuenciales:
+The `scripts` section declares development tasks or sequential pipelines:
 
 ```yaml
 scripts:
   test: pytest tests/ -v
   lint: ruff check .
-  check: [lint, test]           # ejecuta lint y luego test
+  check: [lint, test]           # runs lint, then test if lint succeeds
   migrate: alembic upgrade head
 ```
 
-Se ejecutan con `stackhelx run <nombre>` (ej. `stackhelx run test`). Cada comando corre en la raíz del proyecto y recibe el contexto de variables de entorno inyectadas.
+Run them with `stackhelx run <name>` (e.g. `stackhelx run test`). Each command
+executes at the project root with the full injected environment.
 
 ## includes
 
-Permite componer stacks importando servicios de otros repositorios o subcarpetas:
+Compose multi-repo or modular stacks by importing services from other
+directories:
 
 ```yaml
 includes:
-  - ../servicio-auth
-  - ./servicios/pagos
+  - ../auth-service
+  - ./services/payments
 ```
 
-Cada ruta relativa se resuelve respecto al `stack.yaml` padre. Los servicios importados
-se ejecutan en su propio directorio de trabajo (`cwd`) y pueden declararse como dependencias
-en `needs:` de cualquier otro servicio del stack. Se detectan y previenen ciclos de inclusión.
-
-
-
+Each path is resolved relative to the parent `stack.yaml`. Imported services run
+in their own working directory (`cwd`) and can be referenced in `needs:` across
+the stack. Circular includes are detected and rejected at load time.
