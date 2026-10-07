@@ -53,6 +53,14 @@ def banda():
     return (inicio, inicio + ancho - 1)
 
 
+# Puertos ya entregados por este worker durante la corrida. `randint` dentro de
+# una franja de ~2500 puertos (4 workers) repite el primer puerto alrededor del
+# test ~60 (paradoja del cumpleanos): si el proceso del test anterior todavia
+# esta cerrando el socket en el kernel, el siguiente test hereda el mismo numero
+# y falla con EADDRINUSE. Recordarlos elimina la repeticion sin achicar la banda.
+_USADOS: set[int] = set()
+
+
 @pytest.fixture
 def free_ports():
     """Reserva n puertos libres y los suelta justo antes de devolverlos."""
@@ -67,7 +75,7 @@ def free_ports():
             if intentos > INTENTOS:
                 raise RuntimeError(f"sin puertos libres en {mi_banda} despues de 200 intentos")
             candidato = random.randint(*mi_banda)
-            if candidato in numeros:
+            if candidato in numeros or candidato in _USADOS:
                 continue
             sock = socket.socket()
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -78,6 +86,7 @@ def free_ports():
                 continue
             socks.append(sock)
             numeros.append(candidato)
+            _USADOS.add(candidato)
         for sock in socks:
             sock.close()
         return tuple(numeros)
