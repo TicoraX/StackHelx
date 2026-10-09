@@ -326,7 +326,7 @@ def test_up_env_file_inexistente(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["up", "--env-file", "no_existe.env"])
     assert resultado.exit_code == 1
-    assert "No se encontró el archivo env" in resultado.output
+    assert "Env file not found" in resultado.output
 
 
 
@@ -353,7 +353,7 @@ def test_up_cancela_si_no_puede_liberar_el_puerto(tmp_path, monkeypatch, free_po
         monkeypatch.chdir(tmp_path)
         resultado = runner.invoke(cli.app, ["up", "--yes"])
         assert resultado.exit_code == 1
-        assert "Cancelado" in resultado.output
+        assert "Cancelled" in resultado.output
     finally:
         ocupado.close()
 
@@ -368,8 +368,8 @@ def test_up_no_free_ni_lo_intenta(tmp_path, monkeypatch, free_ports):
         _stack_con_puerto(tmp_path, port)
         monkeypatch.chdir(tmp_path)
         resultado = runner.invoke(cli.app, ["up", "--yes", "--no-free"])
-        assert "Cancelado" not in resultado.output
-        assert "ocupado por PID" not in resultado.output
+        assert "Cancelled" not in resultado.output
+        assert "occupied by PID" not in resultado.output
     finally:
         ocupado.close()
 
@@ -458,7 +458,7 @@ def test_switch_con_un_nombre_que_no_existe(tmp_path):
     resultado = runner.invoke(cli.app, ["switch", "noexiste"])
     assert resultado.exit_code == 1
     salida = _sin_saltos(resultado.output)
-    assert "no es un proyecto registrado" in salida
+    assert "is not a registered project" in salida
     assert "blog" in salida, "no dice cuales si conoce"
 
 
@@ -568,7 +568,7 @@ def test_free_all_sin_nada_ocupado_no_falla(tmp_path, free_ports):
 
     res = runner.invoke(cli.app, ["free", "--all"])
     assert res.exit_code == 0
-    assert "Ningun puerto" in _sin_saltos(res.output)
+    assert "No ports" in _sin_saltos(res.output)
 
 
 def test_version_por_flag_y_por_subcomando():
@@ -652,7 +652,7 @@ def test_clean_no_borra_nada_si_decis_que_no(monkeypatch):
     llamadas = _prune_espia(monkeypatch)
     res = runner.invoke(cli.app, ["clean"], input="n\n")
     assert res.exit_code == 0
-    assert "Cancelado" in res.output
+    assert "Cancelled" in res.output
     assert llamadas == [], "borro con la respuesta en no"
 
 
@@ -667,7 +667,7 @@ def test_clean_avisa_de_los_volumenes_aparte(monkeypatch):
     """Los volumenes tienen datos adentro: no es lo mismo que un cache."""
     _prune_espia(monkeypatch)
     res = runner.invoke(cli.app, ["clean", "--volumes"], input="n\n")
-    assert "volumenes anonimos huerfanos" in _sin_saltos(res.output)
+    assert "anonymous dangling volumes" in _sin_saltos(res.output)
 
 
 def test_clean_con_yes_no_pregunta(monkeypatch):
@@ -785,7 +785,7 @@ def test_open_sin_puerto_y_con_una_variable_sin_valor_no_revienta(
     resultado = runner.invoke(cli.app, ["open"])
     assert resultado.exit_code == 1
     assert abierto == []
-    assert "Ningun puerto del stack contesta HTTP" in resultado.output
+    assert "No port in the stack is responding over HTTP" in resultado.output
 
 
 def test_open_sin_puerto_no_tapa_al_servicio_que_si_contesta(
@@ -836,7 +836,7 @@ def test_test_stack_valido(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["test-stack"])
     assert resultado.exit_code == 0
-    assert "Stack validado con éxito" in resultado.output
+    assert "Stack validated successfully" in resultado.output
     assert "db" in resultado.output
     assert "api" in resultado.output
 
@@ -858,7 +858,7 @@ def test_cli_history_vacio(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["history"])
     assert resultado.exit_code == 0
-    assert "No hay historial" in resultado.output
+    assert "No startup history" in resultado.output
 
 
 def test_cli_history_con_entradas(tmp_path, monkeypatch):
@@ -869,7 +869,7 @@ def test_cli_history_con_entradas(tmp_path, monkeypatch):
     cli.history.append(pid, {"duration_s": 3.4, "result": "running", "profile": "dev"})
     resultado = runner.invoke(cli.app, ["history"])
     assert resultado.exit_code == 0
-    assert "Historial de arranques" in resultado.output
+    assert "Startup history" in resultado.output
     assert "3.4s" in resultado.output
 
 
@@ -878,7 +878,7 @@ def test_cli_logs_sin_servidor(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["logs", "--port", "59999"])
     assert resultado.exit_code == 1
-    assert "No se pudo conectar" in resultado.output
+    assert "Could not connect" in resultado.output
 
 
 def test_cli_stats_sin_servidor(tmp_path, monkeypatch):
@@ -886,7 +886,7 @@ def test_cli_stats_sin_servidor(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["stats", "--port", "59999"])
     assert resultado.exit_code == 1
-    assert "No se pudo conectar" in resultado.output
+    assert "Could not connect" in resultado.output
 
 
 def test_up_env_file_unwraps_quotes(tmp_path, monkeypatch):
@@ -917,7 +917,7 @@ def test_clean_solo_rejects_volumes(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["clean", "--solo", "volumes"])
     assert resultado.exit_code == 1
-    assert "Categoria desconocida" in resultado.output
+    assert "Unknown category" in resultado.output
 
 
 def test_test_stack_cycle_dependency_error(tmp_path, monkeypatch):
@@ -930,7 +930,7 @@ def test_test_stack_cycle_dependency_error(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     resultado = runner.invoke(cli.app, ["test-stack"])
     assert resultado.exit_code == 1
-    assert "Configuración inválida" in resultado.output
+    assert "Invalid configuration" in resultado.output
 
 
 
@@ -973,9 +973,9 @@ def test_serve_port_occupied_suggests_alternative(free_ports):
         resultado = runner.invoke(cli.app, ["serve", "--port", str(port), "--no-open"])
         salida = sin_color(resultado.output)
         assert resultado.exit_code == 1
-        assert f"El puerto {port} ya esta ocupado" in salida
+        assert f"Port {port} is already occupied" in salida
         assert f"stackhelx free {port}" in salida
-        assert "arranca con: --port" in salida
+        assert "start with: --port" in salida
     finally:
         sock.close()
 
@@ -988,7 +988,7 @@ def test_mcp_status_cli():
     mcp.record_tool_call("stackhelx_status", 15.0, "ok")
     resultado = runner.invoke(cli.app, ["mcp-status"])
     assert resultado.exit_code == 0
-    assert "Servidor MCP StackHelx" in resultado.output
+    assert "StackHelx MCP Server" in resultado.output
     assert "stackhelx_status" in resultado.output
 
 

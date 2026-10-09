@@ -6,6 +6,13 @@ Cómo se arranca y qué muestra está en el
 [README](../../README.es.md#interfaz-web). Acá está el detalle de cada control y por
 qué se comporta como se comporta.
 
+## Selector de idioma (EN / ES)
+
+El encabezado incluye un botón `EN / ES` que conmuta todas las etiquetas, estados,
+tooltips y modales entre inglés y español en tiempo real sin recargar la página.
+La interfaz abre en inglés por defecto y recuerda tu elección en `localStorage`
+(`stackhelx.lang`).
+
 ## Caídas y avisos
 
 Cuando un servicio se muere solo, el título de la pestaña lleva un contador y

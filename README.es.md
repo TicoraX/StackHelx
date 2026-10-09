@@ -173,8 +173,9 @@ stackhelx serve        # abre http://127.0.0.1:7666
 ```
 
 Viene con la instalación, no hace falta nada más. Registrar proyectos se puede
-desde la propia interfaz con `Explorar…`, o desde la terminal con
-`stackhelx add .`.
+desde la propia interfaz con `Explorar…` (`Browse…`), o desde la terminal con
+`stackhelx add .`. En el encabezado podés conmutar el idioma de toda la interfaz
+en vivo con el selector `EN / ES`.
 
 Estado de cada servicio, arrancar y apagar stacks, liberar puertos tomados por
 procesos ajenos, y logs en vivo por proyecto.

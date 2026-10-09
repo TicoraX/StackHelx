@@ -112,12 +112,12 @@ root:
 | `package.json` with a server script (`dev`, `start:dev`, `serve`, `start`) | `npm run dev`, switching to `pnpm`/`yarn`/`bun` based on lockfile or `packageManager` |
 
 ```
-mi-app  A:\Proyectos\mi-app
-Sin stack.yaml. Detectado:
+my-app  A:\Proyectos\my-app
+No stack.yaml. Detected:
   docker  docker compose up -d        5433
-  web     pnpm run dev                al arrancar
-Para congelarlo en un archivo editable: stackhelx init
-Arrancar? [Y/n]
+  web     pnpm run dev                on start
+To freeze into an editable file: stackhelx init
+Start? [Y/n]
 ```
 
 Services start in that order and chain dependencies automatically: frontend
@@ -175,7 +175,9 @@ stackhelx serve        # opens http://127.0.0.1:7666
 ```
 
 Included out of the box with no extra dependencies. Register projects directly
-from the browser via `Explorar…` or from the terminal with `stackhelx add .`.
+from the browser via `Browse…` or from the terminal with `stackhelx add .`. Use
+the `EN / ES` toggle in the header to switch the interface between English and
+Spanish at any time.
 
 Monitor service states, start and stop stacks, free ports held by stray
 processes, inspect system-wide listening ports, and stream live logs per project.
@@ -193,10 +195,10 @@ stackhelx ports 3000 8080    # specific ports
 ```
 
 ```
-PUERTO  ESTADO   PID    PROCESO   COMANDO
-3000    ocupado  24188  node.exe  node C:\proj\frontend\node_modules\.bin\vite
-8080    libre    -      -         -
-5432    ocupado  9012   com.docker.backend.exe
+PORT    STATUS    PID    PROCESS   COMMAND
+3000    occupied  24188  node.exe  node C:\proj\frontend\node_modules\.bin\vite
+8080    free      -      -         -
+5432    occupied  9012   com.docker.backend.exe
 ```
 
 Free a port held by a zombie process:
@@ -225,7 +227,7 @@ The CLI does not track which processes you started in other terminals: if anothe
 stack is running in a separate shell, its services appear in that list too. That
 is why the CLI prints the full list before touching anything and defaults the
 prompt to "no". The web dashboard tracks its own active sessions and excludes
-them automatically when clicking "Liberar todos".
+them automatically when clicking "Free all".
 
 ## What the kill switch refuses to do
 

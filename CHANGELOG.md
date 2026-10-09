@@ -4,6 +4,14 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.1.3] - 2026-10-09
+
+### Añadido y Mejorado
+
+- **Selector de idioma en vivo (EN / ES) en la interfaz Web (`index.html`, `app.css`, `app.js`):** Botón selector accesible en el encabezado (`#btn-lang`) que conmuta toda la interfaz web en tiempo real sin recargar la página. Arranca en inglés por defecto y persiste la preferencia en `localStorage` (`stackhelx.lang`).
+- **CLI internacionalizado a Inglés (`cli.py`):** Todos los comandos, ayudas (`shx --help`, `stackhelx <cmd> --help`), encabezados de tablas, confirmaciones y mensajes del CLI pasan a inglés.
+- **Documentación y pruebas actualizadas (`README.md`, `README.es.md`, `docs/`, `tests/`):** Ejemplos de consola y referencias de interfaz actualizadas, aserciones del CLI en inglés y nueva prueba para el selector de idioma web (482/482 pruebas pasando al 100%).
+
 ## [1.1.2] - 2026-10-06
 
 ### Añadido y Mejorado

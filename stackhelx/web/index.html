@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,19 +13,43 @@
   <body>
     <header class="masthead">
       <h1 class="wordmark">StackHelx</h1>
-      <p class="masthead__status" id="connection" role="status">Conectando…</p>
+      <p class="masthead__status" id="connection" role="status" data-en="Connecting…" data-es="Conectando…">Connecting…</p>
       <p class="masthead__health" id="health" hidden></p>
-      <button class="btn btn--quiet masthead__notify" type="button" id="btn-mcp-modal" title="Telemetría y llamadas de herramientas MCP">
-        MCP
-      </button>
-      <button class="btn btn--quiet masthead__notify" type="button" id="notify" hidden>
-        Avisarme
-      </button>
+      <div class="masthead__actions">
+        <button
+          class="btn btn--quiet masthead__lang"
+          type="button"
+          id="btn-lang"
+          data-en-title="Switch language to Español"
+          data-es-title="Cambiar idioma a English"
+          data-en-aria="Switch language to Español"
+          data-es-aria="Cambiar idioma a English"
+          title="Switch language to Español"
+          aria-label="Switch language to Español"
+        >
+          <span class="masthead__lang-opt" data-lang-opt="en">EN</span>
+          <span class="masthead__lang-sep" aria-hidden="true">/</span>
+          <span class="masthead__lang-opt" data-lang-opt="es">ES</span>
+        </button>
+        <button
+          class="btn btn--quiet masthead__notify"
+          type="button"
+          id="btn-mcp-modal"
+          data-en-title="MCP tool calls and telemetry"
+          data-es-title="Telemetría y llamadas de herramientas MCP"
+          title="MCP tool calls and telemetry"
+        >
+          MCP
+        </button>
+        <button class="btn btn--quiet masthead__notify" type="button" id="notify" hidden data-en="Notify me" data-es="Avisarme">
+          Notify me
+        </button>
+      </div>
     </header>
 
     <main class="sheet">
-      <p class="lede">
-        Tus stacks locales. Arrancá, apagá, liberá los puertos que quedaron tomados.
+      <p class="lede" data-en="Your local stacks. Start, stop, and free ports left occupied." data-es="Tus stacks locales. Arrancá, apagá, liberá los puertos que quedaron tomados.">
+        Your local stacks. Start, stop, and free ports left occupied.
       </p>
 
       <div class="find" id="find" hidden>
@@ -39,59 +63,73 @@
             type="search"
             autocomplete="off"
             spellcheck="false"
-            placeholder="Buscar por nombre o ruta…"
+            data-en-placeholder="Search by name or path…"
+            data-es-placeholder="Buscar por nombre o ruta…"
+            placeholder="Search by name or path…"
           />
-          <kbd class="kbd" title="Presioná / para buscar">/</kbd>
+          <kbd class="kbd" data-en-title="Press / to search" data-es-title="Presioná / para buscar" title="Press / to search">/</kbd>
           <span class="find__count" id="count" role="status"></span>
         </div>
-        <div class="filter-chips" id="filter-chips" role="tablist" aria-label="Filtrar por estado">
+        <div
+          class="filter-chips"
+          id="filter-chips"
+          role="tablist"
+          data-en-aria="Filter by status"
+          data-es-aria="Filtrar por estado"
+          aria-label="Filter by status"
+        >
           <button class="chip chip--active" type="button" data-status="" role="tab" aria-selected="true">
-            <span>Todos</span>
+            <span data-en="All" data-es="Todos">All</span>
           </button>
           <button class="chip" type="button" data-status="running" role="tab" aria-selected="false">
             <span class="dot" data-tone="good" aria-hidden="true"></span>
-            <span>Corriendo</span>
+            <span data-en="Running" data-es="Corriendo">Running</span>
           </button>
           <button class="chip" type="button" data-status="stopped" role="tab" aria-selected="false">
             <span class="dot" data-tone="neutral" aria-hidden="true"></span>
-            <span>Detenidos</span>
+            <span data-en="Stopped" data-es="Detenidos">Stopped</span>
           </button>
           <button class="chip" type="button" data-status="error" role="tab" aria-selected="false">
             <span class="dot" data-tone="bad" aria-hidden="true"></span>
-            <span>Con error</span>
+            <span data-en="Failed" data-es="Con error">Failed</span>
           </button>
           <button class="chip chip--ports" type="button" id="btn-ports-modal">
-            <span>Mapa de puertos</span>
+            <span data-en="Port map" data-es="Mapa de puertos">Port map</span>
           </button>
         </div>
       </div>
 
       <div id="projects" class="index" aria-busy="true">
-        <p class="index__loading">Cargando proyectos…</p>
+        <p class="index__loading" data-en="Loading projects…" data-es="Cargando proyectos…">Loading projects…</p>
       </div>
 
-      <nav class="pager" id="pager" aria-label="Paginas de proyectos" hidden>
-        <button class="btn" type="button" data-page="prev">Anterior</button>
+      <nav
+        class="pager"
+        id="pager"
+        data-en-aria="Project pages"
+        data-es-aria="Paginas de proyectos"
+        aria-label="Project pages"
+        hidden
+      >
+        <button class="btn" type="button" data-page="prev" data-en="Previous" data-es="Anterior">Previous</button>
         <span class="pager__at" id="pager-at"></span>
-        <button class="btn" type="button" data-page="next">Siguiente</button>
+        <button class="btn" type="button" data-page="next" data-en="Next" data-es="Siguiente">Next</button>
       </nav>
 
       <p class="empty" id="empty" hidden>
-        Todavía no registraste ningún proyecto. Corré <code>stackhelx add</code>
-        dentro de una carpeta con <code>stack.yaml</code>, o pegá la ruta acá abajo.
+        <span data-en="No projects registered yet. Run " data-es="Todavía no registraste ningún proyecto. Corré ">No projects registered yet. Run </span><code>stackhelx add</code><span data-en=" inside a folder with " data-es=" dentro de una carpeta con "> inside a folder with </span><code>stack.yaml</code><span data-en=", or paste the path below." data-es=", o pegá la ruta acá abajo.">, or paste the path below.</span>
       </p>
 
-      <!-- A diferencia de la de intrusos, esta si desaparece cuando esta vacia.
-           Un "no hay intrusos" informa que el chequeo corrio; un "no hay
-           tuneles" es ruido permanente para algo que solo existe si vos
-           apretaste el boton. Cuando hay, es lo que mas grita de la pagina. -->
       <section class="orphans tunnels" id="tunnels" hidden>
         <div class="orphans__header">
           <div>
-            <h2 class="orphans__heading" id="tunnels-heading">Túneles abiertos</h2>
-            <p class="orphans__desc">
-              Estos puertos están accesibles desde internet por una URL pública.
-              Se cierran solos al apagar StackHelx.
+            <h2 class="orphans__heading" id="tunnels-heading" data-en="Open tunnels" data-es="Túneles abiertos">Open tunnels</h2>
+            <p
+              class="orphans__desc"
+              data-en="These ports are reachable from the internet via a public URL. They close automatically when StackHelx stops."
+              data-es="Estos puertos están accesibles desde internet por una URL pública. Se cierran solos al apagar StackHelx."
+            >
+              These ports are reachable from the internet via a public URL. They close automatically when StackHelx stops.
             </p>
           </div>
         </div>
@@ -101,18 +139,24 @@
       <section class="orphans" id="orphans" hidden>
         <div class="orphans__header">
           <div>
-            <h2 class="orphans__heading" id="orphans-heading">Procesos intrusos</h2>
-            <p class="orphans__desc">Puertos de tus proyectos ocupados por procesos que no arrancó StackHelx. Podés cerrarlos desde acá.</p>
+            <h2 class="orphans__heading" id="orphans-heading" data-en="Stray processes" data-es="Procesos intrusos">Stray processes</h2>
+            <p
+              class="orphans__desc"
+              data-en="Project ports occupied by processes not started by StackHelx. You can close them from here."
+              data-es="Puertos de tus proyectos ocupados por procesos que no arrancó StackHelx. Podés cerrarlos desde acá."
+            >
+              Project ports occupied by processes not started by StackHelx. You can close them from here.
+            </p>
           </div>
-          <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden>Liberar todos</button>
+          <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden data-en="Free all" data-es="Liberar todos">Free all</button>
         </div>
         <ul class="orphans__list" id="orphans-list"></ul>
       </section>
 
       <form class="enroll" id="enroll">
         <label class="enroll__label" for="path">
-          Registrar un proyecto
-          <span class="enroll__hint">· o arrastrá una carpeta acá</span>
+          <span data-en="Register a project" data-es="Registrar un proyecto">Register a project</span>
+          <span class="enroll__hint" data-en="· or drag a folder here" data-es="· o arrastrá una carpeta acá">· or drag a folder here</span>
         </label>
         <div class="enroll__row">
           <input
@@ -123,33 +167,35 @@
             list="path-suggestions"
             autocomplete="off"
             spellcheck="false"
-            placeholder="A:\Proyectos\mi-app (o arrastrá la carpeta acá)"
+            data-en-placeholder="A:\Projects\my-app (or drag folder here)"
+            data-es-placeholder="A:\Proyectos\mi-app (o arrastrá la carpeta acá)"
+            placeholder="A:\Projects\my-app (or drag folder here)"
             required
           />
           <datalist id="path-suggestions"></datalist>
-          <button class="btn" type="button" id="browse">Explorar…</button>
-          <button class="btn btn--primary" type="submit">Registrar</button>
+          <button class="btn" type="button" id="browse" data-en="Browse…" data-es="Explorar…">Browse…</button>
+          <button class="btn btn--primary" type="submit" data-en="Register" data-es="Registrar">Register</button>
         </div>
         <div class="enroll__tools">
-          <a class="btn btn--quiet" id="btn-export" href="/api/projects/export" download="stackhelx-projects.json">Exportar proyectos</a>
-          <button class="btn btn--quiet" type="button" id="btn-import">Importar JSON</button>
-          <!-- Los dos se ven siempre que algun proyecto use Docker. El boton
-               abre o reinicia segun el estado; el texto lo pone updateDocker. -->
+          <a class="btn btn--quiet" id="btn-export" href="/api/projects/export" download="stackhelx-projects.json" data-en="Export projects" data-es="Exportar proyectos">Export projects</a>
+          <button class="btn btn--quiet" type="button" id="btn-import" data-en="Import JSON" data-es="Importar JSON">Import JSON</button>
           <span class="tools__docker" id="docker-state" hidden></span>
           <button class="btn btn--quiet" type="button" id="btn-docker" hidden></button>
-          <button class="btn btn--quiet" type="button" id="btn-docker-clean" hidden>Limpiar Docker</button>
+          <button class="btn btn--quiet" type="button" id="btn-docker-clean" hidden data-en="Clean Docker" data-es="Limpiar Docker">Clean Docker</button>
           <input type="file" id="file-import" accept=".json" hidden />
         </div>
       </form>
 
-      <!-- Elegir que limpiar. El boton abria un prune de todo junto, y el cache
-           de build puede ser decenas de GB que se regeneran solas mientras que
-           una imagen sin tag puede ser la capa base que vas a volver a bajar.
-           No es lo mismo, y hasta ahora iba en el mismo paquete. -->
-      <dialog class="picker" id="clean-modal" aria-label="Limpiar Docker">
+      <dialog
+        class="picker"
+        id="clean-modal"
+        data-en-aria="Clean Docker"
+        data-es-aria="Limpiar Docker"
+        aria-label="Clean Docker"
+      >
         <div class="picker__head">
-          <p class="picker__path">Qué limpiar de Docker</p>
-          <button class="btn btn--quiet" type="button" data-clean="close">Cerrar</button>
+          <p class="picker__path" data-en="What to clean in Docker" data-es="Qué limpiar de Docker">What to clean in Docker</p>
+          <button class="btn btn--quiet" type="button" data-clean="close" data-en="Close" data-es="Cerrar">Close</button>
         </div>
         <div class="clean">
           <pre class="clean__usage" id="clean-usage" tabindex="0"></pre>
@@ -157,49 +203,61 @@
         </div>
         <div class="picker__foot">
           <span class="clean__warn" id="clean-warn" aria-live="polite"></span>
-          <button class="btn btn--primary" type="button" id="clean-run">Limpiar</button>
+          <button class="btn btn--primary" type="button" id="clean-run" data-en="Clean" data-es="Limpiar">Clean</button>
         </div>
       </dialog>
 
-      <dialog class="picker ports-modal" id="ports-modal" aria-label="Mapa de puertos">
+      <dialog
+        class="picker ports-modal"
+        id="ports-modal"
+        data-en-aria="Port map"
+        data-es-aria="Mapa de puertos"
+        aria-label="Port map"
+      >
         <div class="picker__head">
-          <p class="picker__path">Mapa de puertos</p>
+          <p class="picker__path" data-en="Port map" data-es="Mapa de puertos">Port map</p>
           <div class="ports-modal__tabs" role="tablist">
-            <button class="btn btn--quiet is-active" type="button" data-ports-tab="projects" role="tab" aria-selected="true">De proyectos</button>
-            <button class="btn btn--quiet" type="button" data-ports-tab="system" role="tab" aria-selected="false">Todo el sistema</button>
+            <button class="btn btn--quiet is-active" type="button" data-ports-tab="projects" role="tab" aria-selected="true" data-en="Projects" data-es="De proyectos">Projects</button>
+            <button class="btn btn--quiet" type="button" data-ports-tab="system" role="tab" aria-selected="false" data-en="All system" data-es="Todo el sistema">All system</button>
           </div>
-          <button class="btn btn--quiet" type="button" data-ports-modal="close" aria-label="Cerrar">✕</button>
+          <button class="btn btn--quiet" type="button" data-ports-modal="close" data-en-aria="Close" data-es-aria="Cerrar" aria-label="Close">✕</button>
         </div>
         <ul class="orphans__list" id="ports-modal-list"></ul>
       </dialog>
 
-      <dialog class="picker mcp-modal" id="mcp-modal" aria-label="Telemetría de Agentes MCP">
+      <dialog
+        class="picker mcp-modal"
+        id="mcp-modal"
+        data-en-aria="MCP Agent Telemetry"
+        data-es-aria="Telemetría de Agentes MCP"
+        aria-label="MCP Agent Telemetry"
+      >
         <div class="picker__head">
-          <p class="picker__path">Servidor MCP para Agentes</p>
-          <button class="btn btn--quiet" type="button" data-mcp-modal="close">Cerrar</button>
+          <p class="picker__path" data-en="MCP Server for Agents" data-es="Servidor MCP para Agentes">MCP Server for Agents</p>
+          <button class="btn btn--quiet" type="button" data-mcp-modal="close" data-en="Close" data-es="Cerrar">Close</button>
         </div>
         <div class="mcp__content">
           <details class="mcp__setup" id="mcp-setup">
             <summary class="mcp__setup-summary">
-              <span>Configuración y Prompt para Agentes</span>
+              <span data-en="Agent Configuration &amp; Prompt" data-es="Configuración y Prompt para Agentes">Agent Configuration &amp; Prompt</span>
               <span class="mcp__setup-icon" aria-hidden="true">▾</span>
             </summary>
             <div class="mcp__setup-body">
               <div class="mcp__setup-tabs">
                 <label class="mcp__setup-radio">
                   <input type="radio" name="mcp-cmd-type" value="shx" checked>
-                  <span>shx (recomendado)</span>
+                  <span data-en="shx (recommended)" data-es="shx (recomendado)">shx (recommended)</span>
                 </label>
                 <label class="mcp__setup-radio">
                   <input type="radio" name="mcp-cmd-type" value="uvx">
-                  <span>uvx (sin instalación)</span>
+                  <span data-en="uvx (zero-install)" data-es="uvx (sin instalación)">uvx (zero-install)</span>
                 </label>
               </div>
               <pre class="mcp__code" id="mcp-json-snippet"></pre>
               <div class="mcp__setup-actions">
-                <button class="btn btn--quiet" type="button" id="btn-mcp-copy-json">Copiar JSON</button>
-                <button class="btn btn--quiet" type="button" id="btn-mcp-download-json">Descargar .json</button>
-                <button class="btn btn--quiet" type="button" id="btn-mcp-copy-prompt">Copiar Prompt</button>
+                <button class="btn btn--quiet" type="button" id="btn-mcp-copy-json" data-en="Copy JSON" data-es="Copiar JSON">Copy JSON</button>
+                <button class="btn btn--quiet" type="button" id="btn-mcp-download-json" data-en="Download .json" data-es="Descargar .json">Download .json</button>
+                <button class="btn btn--quiet" type="button" id="btn-mcp-copy-prompt" data-en="Copy Prompt" data-es="Copiar Prompt">Copy Prompt</button>
               </div>
               <p class="mcp__setup-hint">
                 <strong>Claude Desktop (Windows):</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code><br>
@@ -209,18 +267,18 @@
           </details>
 
           <div class="mcp__stats">
-            <span class="mcp__stat">Llamadas totales: <strong id="mcp-total-calls">0</strong></span>
-            <span class="mcp__stat">Cuota activa: <strong id="mcp-quota-used">0/30</strong> req/min</span>
+            <span class="mcp__stat"><span data-en="Total calls:" data-es="Llamadas totales:">Total calls:</span> <strong id="mcp-total-calls">0</strong></span>
+            <span class="mcp__stat"><span data-en="Active quota:" data-es="Cuota activa:">Active quota:</span> <strong id="mcp-quota-used">0/30</strong> req/min</span>
           </div>
           <div class="mcp__breakdown" id="mcp-breakdown"></div>
           <div class="mcp__table-scroll">
             <table class="history__table mcp__table">
               <thead>
                 <tr>
-                  <th>Hora</th>
-                  <th>Herramienta</th>
-                  <th>Duración</th>
-                  <th>Estado</th>
+                  <th data-en="Time" data-es="Hora">Time</th>
+                  <th data-en="Tool" data-es="Herramienta">Tool</th>
+                  <th data-en="Duration" data-es="Duración">Duration</th>
+                  <th data-en="Status" data-es="Estado">Status</th>
                 </tr>
               </thead>
               <tbody id="mcp-tbody"></tbody>
@@ -229,57 +287,73 @@
         </div>
       </dialog>
 
-      <dialog class="picker" id="picker" aria-label="Elegir carpeta">
+      <dialog
+        class="picker"
+        id="picker"
+        data-en-aria="Choose folder"
+        data-es-aria="Elegir carpeta"
+        aria-label="Choose folder"
+      >
         <div class="picker__head">
           <p class="picker__path" id="picker-path"></p>
-          <button class="btn btn--quiet" type="button" data-picker="close">Cerrar</button>
+          <button class="btn btn--quiet" type="button" data-picker="close" data-en="Close" data-es="Cerrar">Close</button>
         </div>
         <div class="picker__frequent" id="picker-frequent" hidden>
-          <span class="picker__frequent-label">Frecuentes:</span>
+          <span class="picker__frequent-label" data-en="Frequent:" data-es="Frecuentes:">Frequent:</span>
           <div class="picker__frequent-chips" id="picker-frequent-chips"></div>
         </div>
         <ul class="picker__list" id="picker-list"></ul>
         <p class="picker__note" id="picker-note" hidden></p>
         <div class="picker__foot">
           <div class="picker__nav">
-            <button class="btn" type="button" data-picker="back" disabled>Volver</button>
-            <button class="btn" type="button" data-picker="up">Arriba</button>
+            <button class="btn" type="button" data-picker="back" disabled data-en="Back" data-es="Volver">Back</button>
+            <button class="btn" type="button" data-picker="up" data-en="Up" data-es="Arriba">Up</button>
           </div>
-          <button class="btn btn--primary" type="button" data-picker="pick">Usar esta carpeta</button>
+          <button class="btn btn--primary" type="button" data-picker="pick" data-en="Use this folder" data-es="Usar esta carpeta">Use this folder</button>
         </div>
       </dialog>
 
-      <dialog class="picker" id="auth-modal" aria-label="Autenticación">
+      <dialog
+        class="picker"
+        id="auth-modal"
+        data-en-aria="Authentication"
+        data-es-aria="Autenticación"
+        aria-label="Authentication"
+      >
         <div class="picker__head">
-          <p class="picker__path">Token de StackHelx requerido</p>
+          <p class="picker__path" data-en="StackHelx token required" data-es="Token de StackHelx requerido">StackHelx token required</p>
         </div>
         <div class="auth">
           <p class="auth__hint">
-            Pegá tu token de acceso (lo encontrás en <code>~/.stackhelx/token</code>).
+            <span data-en="Paste your access token (found in " data-es="Pegá tu token de acceso (lo encontrás en ">Paste your access token (found in </span><code>~/.stackhelx/token</code><span>).</span>
           </p>
           <input
             class="enroll__input auth__input"
             id="auth-token-input"
             type="password"
-            placeholder="Pegá el token acá..."
+            data-en-placeholder="Paste token here..."
+            data-es-placeholder="Pegá el token acá..."
+            placeholder="Paste token here..."
           />
         </div>
         <div class="picker__foot">
-          <button class="btn btn--primary" type="button" id="auth-token-save">Guardar token</button>
+          <button class="btn btn--primary" type="button" id="auth-token-save" data-en="Save token" data-es="Guardar token">Save token</button>
         </div>
       </dialog>
     </main>
 
     <footer class="colophon">
-      <!-- Decia "Nada de esto sale de tu máquina", escrito antes de que
-           existiera el botón Túnel, que está tres bloques más arriba en esta
-           misma página. La primera mitad sigue siendo cierta y es la que
-           tranquiliza; la segunda avisa donde corresponde. -->
-      <span>Solo loopback. Un túnel que abras acá sí expone ese puerto a internet.</span>
-      <!-- Sin esto no hay forma de saber si el navegador esta sirviendo una
-           pagina vieja de su cache. Lo llena el JS con lo que contesta el
-           servidor: si no aparece, lo cargado es viejo. -->
-      <span class="colophon__build" id="build" title="Version que sirve el servidor"></span>
+      <span
+        data-en="Loopback only. Any tunnel you open here exposes that port to the internet."
+        data-es="Solo loopback. Un túnel que abras acá sí expone ese puerto a internet."
+      >Loopback only. Any tunnel you open here exposes that port to the internet.</span>
+      <span
+        class="colophon__build"
+        id="build"
+        data-en-title="Version served by the backend"
+        data-es-title="Version que sirve el servidor"
+        title="Version served by the backend"
+      ></span>
     </footer>
 
     <p class="flash" id="flash" role="alert" hidden></p>
@@ -292,13 +366,20 @@
             <p class="state"><span class="dot"></span><span class="state__text"></span></p>
           </div>
           <div class="project__head-actions">
-            <a class="btn btn--open project__open" target="_blank" rel="noopener noreferrer" hidden>
-              Abrir ↗
+            <a class="btn btn--open project__open" target="_blank" rel="noopener noreferrer" hidden data-en="Open ↗" data-es="Abrir ↗">
+              Open ↗
             </a>
-            <button class="btn btn--primary" type="button" data-act="up">Arrancar</button>
-            <button class="btn" type="button" data-act="down">Apagar</button>
-            <button class="btn btn--quiet project__toggle" type="button" aria-expanded="false" aria-label="Detalles">
-              <span class="project__toggle-text">Detalles</span>
+            <button class="btn btn--primary" type="button" data-act="up" data-en="Start" data-es="Arrancar">Start</button>
+            <button class="btn" type="button" data-act="down" data-en="Stop" data-es="Apagar">Stop</button>
+            <button
+              class="btn btn--quiet project__toggle"
+              type="button"
+              aria-expanded="false"
+              data-en-aria="Details"
+              data-es-aria="Detalles"
+              aria-label="Details"
+            >
+              <span class="project__toggle-text" data-en="Details" data-es="Detalles">Details</span>
               <span class="chevron" aria-hidden="true">▼</span>
             </button>
           </div>
@@ -309,10 +390,33 @@
             <div class="project__path-wrapper">
               <p class="project__path"></p>
               <div class="project__path-actions">
-                <button class="btn btn--quiet btn--sm project__path-copy" type="button" aria-label="Copiar ruta">Copiar ruta</button>
-                <button class="btn btn--quiet btn--sm" type="button" data-act="open-folder" title="Abrir en el Explorador de archivos del sistema">Carpeta</button>
+                <button
+                  class="btn btn--quiet btn--sm project__path-copy"
+                  type="button"
+                  data-en="Copy path"
+                  data-es="Copiar ruta"
+                  data-en-aria="Copy path"
+                  data-es-aria="Copiar ruta"
+                  aria-label="Copy path"
+                >Copy path</button>
+                <button
+                  class="btn btn--quiet btn--sm"
+                  type="button"
+                  data-act="open-folder"
+                  data-en="Folder"
+                  data-es="Carpeta"
+                  data-en-title="Open in system file explorer"
+                  data-es-title="Abrir en el Explorador de archivos del sistema"
+                  title="Open in system file explorer"
+                >Folder</button>
                 <div class="editor-select-wrap">
-                  <select class="editor__select" data-act="select-editor" title="Elegir y abrir en editor">
+                  <select
+                    class="editor__select"
+                    data-act="select-editor"
+                    data-en-title="Choose and open in editor"
+                    data-es-title="Elegir y abrir en editor"
+                    title="Choose and open in editor"
+                  >
                     <option value="" disabled selected>Editor…</option>
                   </select>
                 </div>
@@ -323,34 +427,51 @@
             <ul class="services"></ul>
             <div class="project__actions">
               <label class="profile">
-                <span class="profile__label">Perfil</span>
+                <span class="profile__label" data-en="Profile" data-es="Perfil">Profile</span>
                 <select class="profile__select"></select>
               </label>
               <button class="btn btn--quiet" type="button" data-act="logs" aria-expanded="false">
                 Logs
               </button>
-              <button class="btn btn--quiet" type="button" data-act="history" aria-expanded="false">
-                Historial
+              <button class="btn btn--quiet" type="button" data-act="history" aria-expanded="false" data-en="History" data-es="Historial">
+                History
               </button>
-              <button class="btn btn--quiet" type="button" data-act="graph" aria-expanded="false" hidden>
-                Grafo
+              <button class="btn btn--quiet" type="button" data-act="graph" aria-expanded="false" hidden data-en="Graph" data-es="Grafo">
+                Graph
               </button>
               <button class="btn btn--quiet" type="button" data-act="env-audit" aria-expanded="false">
                 .env
               </button>
-              <button class="btn btn--quiet project__freeze" type="button" data-act="freeze" hidden>
-                Congelar a stack.yaml
+              <button class="btn btn--quiet project__freeze" type="button" data-act="freeze" hidden data-en="Freeze to stack.yaml" data-es="Congelar a stack.yaml">
+                Freeze to stack.yaml
               </button>
-              <button class="btn btn--quiet project__drop" type="button" data-act="drop">
-                Quitar proyecto
+              <button class="btn btn--quiet project__drop" type="button" data-act="drop" data-en="Remove project" data-es="Quitar proyecto">
+                Remove project
               </button>
             </div>
             <div class="logs__box" hidden>
               <div class="logs__toolbar">
-                <input class="logs__filter" type="search" placeholder="Filtrar logs..." aria-label="Filtrar logs" />
-                <span class="logs__live" hidden title="Transmisión en tiempo real activa">En vivo</span>
-                <button class="btn btn--quiet btn--sm" type="button" data-act="copy-logs">Copiar</button>
-                <button class="btn btn--quiet btn--sm" type="button" data-act="clear-logs">Limpiar</button>
+                <input
+                  class="logs__filter"
+                  type="search"
+                  data-en-placeholder="Filter logs..."
+                  data-es-placeholder="Filtrar logs..."
+                  data-en-aria="Filter logs"
+                  data-es-aria="Filtrar logs"
+                  placeholder="Filter logs..."
+                  aria-label="Filter logs"
+                />
+                <span
+                  class="logs__live"
+                  hidden
+                  data-en="Live"
+                  data-es="En vivo"
+                  data-en-title="Real-time streaming active"
+                  data-es-title="Transmisión en tiempo real activa"
+                  title="Real-time streaming active"
+                >Live</span>
+                <button class="btn btn--quiet btn--sm" type="button" data-act="copy-logs" data-en="Copy" data-es="Copiar">Copy</button>
+                <button class="btn btn--quiet btn--sm" type="button" data-act="clear-logs" data-en="Clear" data-es="Limpiar">Clear</button>
               </div>
               <pre class="logs" tabindex="0"></pre>
             </div>
@@ -358,10 +479,10 @@
               <table class="history__table">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Perfil</th>
-                    <th>Duración</th>
-                    <th>Resultado</th>
+                    <th data-en="Date" data-es="Fecha">Date</th>
+                    <th data-en="Profile" data-es="Perfil">Profile</th>
+                    <th data-en="Duration" data-es="Duración">Duration</th>
+                    <th data-en="Result" data-es="Resultado">Result</th>
                   </tr>
                 </thead>
                 <tbody class="history__tbody"></tbody>
@@ -369,10 +490,16 @@
             </div>
             <div class="graph__box" hidden>
               <div class="graph__header">
-                <span class="graph__title">Orden de arranque y dependencias</span>
+                <span class="graph__title" data-en="Startup order and dependencies" data-es="Orden de arranque y dependencias">Startup order and dependencies</span>
               </div>
               <div class="graph__canvas-wrapper">
-                <svg class="graph__svg" role="img" aria-label="Grafo de dependencias"></svg>
+                <svg
+                  class="graph__svg"
+                  role="img"
+                  data-en-aria="Dependency graph"
+                  data-es-aria="Grafo de dependencias"
+                  aria-label="Dependency graph"
+                ></svg>
               </div>
             </div>
             <div class="env__box" hidden>
@@ -382,15 +509,15 @@
               </div>
               <div class="env__details">
                 <div class="env__section env__section--missing" hidden>
-                  <span class="env__section-title">Claves faltantes en .env:</span>
+                  <span class="env__section-title" data-en="Missing keys in .env:" data-es="Claves faltantes en .env:">Missing keys in .env:</span>
                   <ul class="env__list env__list--missing"></ul>
                 </div>
                 <div class="env__section env__section--placeholders" hidden>
-                  <span class="env__section-title">Claves con placeholders inseguros:</span>
+                  <span class="env__section-title" data-en="Keys with insecure placeholders:" data-es="Claves con placeholders inseguros:">Keys with insecure placeholders:</span>
                   <ul class="env__list env__list--placeholders"></ul>
                 </div>
                 <div class="env__section env__section--empty" hidden>
-                  <span class="env__section-title">Claves declaradas vacías:</span>
+                  <span class="env__section-title" data-en="Keys declared empty:" data-es="Claves declaradas vacías:">Keys declared empty:</span>
                   <ul class="env__list env__list--empty"></ul>
                 </div>
               </div>

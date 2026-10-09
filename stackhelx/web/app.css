@@ -97,6 +97,41 @@ body {
   display: none;
 }
 
+.masthead__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+
+.masthead__lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 0.3rem 0.55rem;
+  border: var(--rule) solid var(--color-rule-strong);
+  border-radius: var(--radius);
+  color: var(--color-ink-3);
+}
+
+.masthead__lang-opt {
+  color: var(--color-ink-3);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.masthead__lang-sep {
+  color: var(--color-ink-3);
+  opacity: 0.6;
+}
+
+html[lang="en"] .masthead__lang-opt[data-lang-opt="en"],
+html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
 /* sheet ------------------------------------------------------------------- */
 
 .sheet {

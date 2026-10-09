@@ -2323,3 +2323,23 @@ def test_mcp_setup_collapsible_details():
     assert ".mcp__setup-summary" in css
 
 
+def test_web_language_selector_en_es():
+    """La interfaz web incluye el selector EN / ES, arranca en inglés por defecto y traduce en vivo."""
+    html = (server.WEB / "index.html").read_text(encoding="utf-8")
+    assert '<html lang="en">' in html
+    assert 'id="btn-lang"' in html
+    assert 'data-lang-opt="en"' in html
+    assert 'data-lang-opt="es"' in html
+    assert 'data-en="Your local stacks. Start, stop, and free ports left occupied."' in html
+    assert 'data-es="Tus stacks locales. Arrancá, apagá, liberá los puertos que quedaron tomados."' in html
+
+    js = (server.WEB / "app.js").read_text(encoding="utf-8")
+    assert 'LANG_STORAGE_KEY = "stackhelx.lang"' in js
+    assert "function applyLanguage(" in js
+    assert "function tr(" in js
+
+    css = (server.WEB / "app.css").read_text(encoding="utf-8")
+    assert ".masthead__lang" in css
+    assert 'html[lang="en"] .masthead__lang-opt[data-lang-opt="en"]' in css
+    assert 'html[lang="es"] .masthead__lang-opt[data-lang-opt="es"]' in css
+
