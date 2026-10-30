@@ -475,6 +475,31 @@ def _external_ports() -> dict[Path, list[int]]:
         return valor
 
 
+# Mismo TTL y mismo patron: un `docker ps` cada dos sondeos, y solo si algun
+# servicio con contenedor tiene su puerto publicado.
+_containers_seen: tuple[float, dict[int, str] | None] = (float("-inf"), None)
+_containers_lock = threading.Lock()
+
+
+def _container_owns(path: Path, port: int) -> bool:
+    """El contenedor que publica `port` lo levanto el compose de este proyecto.
+
+    Que el proxy de Docker tenga el puerto no alcanza: `laravel-pg`, un
+    contenedor suelto de otro proyecto, ponia en listo el postgres de
+    Decepticon, y Apagar no hacia nada. Sin respuesta de docker, no es suyo.
+    """
+    global _containers_seen
+    with _containers_lock:
+        cuando, valor = _containers_seen
+        if time.monotonic() - cuando >= EXTERNAL_TTL:
+            valor = docker.published()
+            _containers_seen = (time.monotonic(), valor)
+    carpeta = (valor or {}).get(port)
+    if not carpeta:
+        return False
+    return Path(carpeta).resolve().is_relative_to(path.resolve())
+
+
 # Cuanto vale una deteccion antes de repetirla. Entre los dos TTL que ya hay, y
 # a proposito: `registry.PORTS_TTL` son 30s porque alimenta un aviso de puertos
 # compartidos, donde llegar tarde no molesta. Esto alimenta la fila principal
@@ -1764,13 +1789,13 @@ def _project_view(path: Path) -> dict:
         # Y al reves: el puerto lo publica el proxy de Docker, asi que el
         # contenedor esta arriba lo haya arrancado esta interfaz o no. Sin esto
         # un stack levantado desde la terminal se ve "detenido" con los tres
-        # puertos en rojo.
-        #
-        # ponytail: asume que el contenedor de ese puerto es el de este
-        # proyecto, la misma apuesta que hace `ready: port` en el runner.
-        # Preguntarle a `docker ps` por cada puerto costaria un subproceso, y
-        # esto se sondea cada 2.5s.
-        if state == "stopped" and service.detached and _published(status):
+        # puertos en rojo. Siempre que el contenedor sea de este compose.
+        if (
+            state == "stopped"
+            and service.detached
+            and _published(status)
+            and _container_owns(path, service.port)
+        ):
             state = "ready"
         # Solo lo que contesta HTTP se ofrece para abrir: un postgres listo tiene
         # puerto y no es algo que mandar al navegador.

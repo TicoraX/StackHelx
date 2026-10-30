@@ -35,6 +35,8 @@ def aislado(tmp_path, monkeypatch):
         server._stack_seen.clear()
     with server._external_lock:
         server._external_seen = (float("-inf"), {})
+    with server._containers_lock:
+        server._containers_seen = (float("-inf"), None)
     with server.sessions_lock:
         server.sessions.clear()
         server.selected_profiles.clear()
@@ -336,14 +338,24 @@ def test_un_contenedor_arriba_no_es_un_intruso(client, tmp_path, proxy_de_docker
     assert [o for o in intrusos if o["port"] == proxy_de_docker] == []
 
 
-def test_un_contenedor_arriba_figura_corriendo(client, tmp_path, proxy_de_docker):
+def test_un_contenedor_arriba_figura_corriendo(client, tmp_path, proxy_de_docker, monkeypatch):
     """Un stack levantado desde la terminal no se ve detenido y en rojo."""
     _proyecto_compose(tmp_path, proxy_de_docker)
+    # Lo que contestaria `docker ps`: el contenedor es del compose de este proyecto.
+    monkeypatch.setattr(server.docker, "published", lambda: {proxy_de_docker: str(tmp_path / "condocker")})
 
     proyecto = client.get("/api/state").json()["projects"][0]
     (db,) = proyecto["services"]
     assert db["state"] == "ready"
     assert db["occupant"] is None
+
+
+def test_un_contenedor_de_otro_proyecto_no_lo_pone_listo(client, tmp_path, proxy_de_docker, monkeypatch):
+    _proyecto_compose(tmp_path, proxy_de_docker)
+    monkeypatch.setattr(server.docker, "published", lambda: {proxy_de_docker: ""})
+
+    (db,) = client.get("/api/state").json()["projects"][0]["services"]
+    assert db["state"] == "stopped"
 
 
 def test_paginado(client, tmp_path):
@@ -1597,6 +1609,32 @@ def test_state_dos_servicios_sin_puerto_no_se_adivina_cual(client, externo):
     assert not any(s["external"] for s in servicios.values())
     assert proyecto["external_ports"] == [port]
     assert proyecto["state"] == "external"
+
+
+def test_docker_published_lee_puerto_y_carpeta_del_compose():
+    salida = (
+        "0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp\tA:\\Proyectos\\apps\\Fitness\n"
+        "127.0.0.1:5432->5432/tcp\t\n"
+        "\t\n"
+    )
+    assert server.docker._parse_published(salida) == {5433: "A:\\Proyectos\\apps\\Fitness", 5432: ""}
+
+
+def test_contenedor_ajeno_en_el_puerto_no_es_del_proyecto(tmp_path, monkeypatch):
+    """El caso de Decepticon: `laravel-pg`, un contenedor suelto de otro
+    proyecto, publicaba el 5432 y la tarjeta daba el postgres por listo. Apagar
+    no hacia nada, porque el compose de Decepticon no tenia nada arriba."""
+    sub = tmp_path / "infra"
+    for publicado, esperado in (
+        ({5432: ""}, False),
+        ({5432: str(tmp_path.parent / "otro")}, False),
+        ({5432: str(tmp_path)}, True),
+        ({5432: str(sub)}, True),
+        (None, False),
+    ):
+        monkeypatch.setattr(server.docker, "published", lambda p=publicado: p)
+        monkeypatch.setattr(server, "_containers_seen", (float("-inf"), None))
+        assert server._container_owns(tmp_path, 5432) is esperado, publicado
 
 
 def test_el_endpoint_de_contenedores_lista_los_que_corren(client, monkeypatch):
