@@ -28,7 +28,6 @@ from rich.console import Console
 from . import config, detect, ports
 from .config import Service, Stack
 
-
 # Variables con las que `am-i-vibing` reconoce a un agente por si solas. Astro 7
 # la usa en `astro dev` (dist/cli/dev/index.js:85) y, si detecta uno, arranca
 # como daemon: el comando sale con 0, el servidor queda fuera de nuestro arbol y
