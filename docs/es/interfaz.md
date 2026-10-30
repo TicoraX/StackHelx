@@ -78,6 +78,18 @@ error del propio Docker. Cuando el motor termina de levantar, el botón no
 desaparece: pasa a decir `Reiniciar Docker`. Lo mueve la misma vista de estado
 que ya sondea `docker info`.
 
+## Mapa de puertos
+
+El mapa abre en `Todo el sistema`: cada socket que el sistema reporta en escucha,
+con protocolo, dirección (`0.0.0.0` o `::` sale marcado como expuesto a la red),
+proceso, línea de comandos y, si se puede atribuir, el proyecto registrado al que
+pertenece. Se lee al abrir el mapa o al tocar `Refrescar`, nunca en segundo
+plano. `Ocultar procesos de Windows` (activo por defecto) esconde RPC, SMB y
+parecidos, `Incluir UDP` suma los sockets UDP ligados, y el filtro busca por
+puerto, proceso, proyecto o comando. La pestaña `De proyectos` muestra solo los
+puertos de proyectos registrados, incluidos los servidores arrancados fuera de
+StackHelx.
+
 ## Explorar carpetas
 
 Para registrar un proyecto no hace falta copiar la ruta: `Explorar…` abre un

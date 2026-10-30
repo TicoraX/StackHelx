@@ -57,6 +57,16 @@ The stray processes section (`Stray processes`) follows the same principle: as
 long as at least one project is registered, the section stays visible and
 explicitly states when zero stray processes are holding your ports.
 
+The port map opens on `All system`: every socket the OS reports as listening,
+with protocol, bind address (`0.0.0.0` or `::` is marked as exposed to the
+network), process, command line and, when it can be attributed, the registered
+project it belongs to. It is read on demand when you open the map or press
+`Refresh`, never polled. `Hide Windows processes` (on by default) hides RPC,
+SMB and similar system listeners, `Include UDP` adds bound UDP sockets, and the
+filter matches port, process, project or command line. The `Projects` tab shows
+only ports tied to registered projects, including servers started outside
+StackHelx.
+
 Restarting Docker asks for inline confirmation because it restarts every running
 container on the machine, including containers from other projects. Starting
 Docker runs immediately without confirmation.
