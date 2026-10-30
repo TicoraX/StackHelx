@@ -611,7 +611,7 @@ def serve_cmd(
 
         from . import server
     except ImportError:
-        err.print("Missing fastapi or uvicorn. Reinstall stackhelx: pipx reinstall stackhelx")
+        err.print("Missing fastapi or uvicorn. Reinstall stackhelx: uv tool install --force stackhelx (or: pipx reinstall stackhelx)")
         raise typer.Exit(1)
 
     if not ports.is_free(port):
