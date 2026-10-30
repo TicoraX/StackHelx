@@ -2389,10 +2389,13 @@ if (ui.btnPortsModal && ui.portsModal) {
   if (typeof prefs.hideOs === "boolean") ui.portsHideOs.checked = prefs.hideOs;
   if (typeof prefs.udp === "boolean") ui.portsUdp.checked = prefs.udp;
 
-  ui.btnPortsModal.addEventListener("click", () => {
-    ui.portsModal.showModal();
-    refreshPortsModal();
-  });
+  // Arriba en el encabezado y abajo en la seccion de intrusos: el mismo modal.
+  for (const btn of document.querySelectorAll("[data-ports-open]")) {
+    btn.addEventListener("click", () => {
+      ui.portsModal.showModal();
+      refreshPortsModal();
+    });
+  }
   const closeBtn = ui.portsModal.querySelector('[data-ports-modal="close"]');
   if (closeBtn) {
     closeBtn.addEventListener("click", () => {

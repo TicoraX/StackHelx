@@ -940,10 +940,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   border-bottom: 0;
 }
 
-.chip--ports {
-  margin-left: auto;
-}
-
 /* grafo de dependencias --------------------------------------------------- */
 
 .graph__box {
@@ -1522,10 +1518,48 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   padding: var(--space-sm) var(--space-md) 0;
 }
 
+.orphans__header > div:first-child {
+  flex: 1;
+}
+
 .orphans__desc {
   font-size: var(--text-xs);
   color: var(--color-ink-3);
   margin: 0;
+}
+
+/* Titulo y acciones en la misma franja: el boton suelto al costado quedaba
+   flotando entre la franja y la descripcion. */
+.orphans__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-paper-3);
+  border-bottom: var(--rule) solid var(--color-rule);
+}
+
+.orphans .orphans__bar .orphans__heading {
+  background: none;
+  border-bottom: 0;
+}
+
+.orphans[data-tone="bad"] .orphans__bar {
+  background: oklch(55% 0.18 27 / 0.1);
+  border-bottom-color: oklch(55% 0.18 27 / 0.25);
+}
+
+.orphans__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-inline-end: var(--space-sm);
+}
+
+.orphans__map {
+  font-size: var(--text-xs);
+  white-space: nowrap;
 }
 
 /* Los tokens y no un oklch a mano: --color-bad y sus derivados ya se redefinen

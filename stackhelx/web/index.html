@@ -34,6 +34,19 @@
         <button
           class="btn btn--quiet masthead__notify"
           type="button"
+          id="btn-ports-modal"
+          data-ports-open
+          data-en="Ports"
+          data-es="Puertos"
+          data-en-title="Everything listening on this machine"
+          data-es-title="Todo lo que escucha en esta máquina"
+          title="Everything listening on this machine"
+        >
+          Ports
+        </button>
+        <button
+          class="btn btn--quiet masthead__notify"
+          type="button"
           id="btn-mcp-modal"
           data-en-title="MCP tool calls and telemetry"
           data-es-title="Telemetría y llamadas de herramientas MCP"
@@ -93,9 +106,6 @@
             <span class="dot" data-tone="bad" aria-hidden="true"></span>
             <span data-en="Failed" data-es="Con error">Failed</span>
           </button>
-          <button class="chip chip--ports" type="button" id="btn-ports-modal">
-            <span data-en="Port map" data-es="Mapa de puertos">Port map</span>
-          </button>
         </div>
       </div>
 
@@ -139,16 +149,21 @@
       <section class="orphans" id="orphans" hidden>
         <div class="orphans__header">
           <div>
-            <h2 class="orphans__heading" id="orphans-heading" data-en="Stray processes" data-es="Procesos intrusos">Stray processes</h2>
+            <div class="orphans__bar">
+              <h2 class="orphans__heading" id="orphans-heading" data-en="Stray processes" data-es="Procesos intrusos">Stray processes</h2>
+              <div class="orphans__actions">
+                <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden data-en="Free all" data-es="Liberar todos">Free all</button>
+                <button class="btn btn--quiet orphans__map" type="button" data-ports-open data-en="Full port map →" data-es="Mapa completo →">Full port map →</button>
+              </div>
+            </div>
             <p
               class="orphans__desc"
-              data-en="Project ports occupied by processes not started by StackHelx. You can close them from here."
-              data-es="Puertos de tus proyectos ocupados por procesos que no arrancó StackHelx. Podés cerrarlos desde acá."
+              data-en="Your projects' ports held by processes StackHelx did not start. Everything else listening on the machine is in the full map."
+              data-es="Puertos de tus proyectos tomados por procesos que no arrancó StackHelx. Todo lo demás que escucha en la máquina está en el mapa completo."
             >
-              Project ports occupied by processes not started by StackHelx. You can close them from here.
+              Your projects' ports held by processes StackHelx did not start. Everything else listening on the machine is in the full map.
             </p>
           </div>
-          <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden data-en="Free all" data-es="Liberar todos">Free all</button>
         </div>
         <ul class="orphans__list" id="orphans-list"></ul>
       </section>
