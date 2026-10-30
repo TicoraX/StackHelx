@@ -153,6 +153,52 @@ def declared_ports(max_age: float = 0.0) -> dict[int, list[Path]]:
     return found
 
 
+# Interpretes: con el cwd en un proyecto, lo que corren es codigo del proyecto.
+# Un binario propio (claude.exe, un servidor MCP) hereda el cwd de quien lo
+# abrio y no dice nada del proyecto.
+RUNTIMES = ("node", "bun", "deno", "java", "javaw", "dotnet", "php", "ruby")
+
+
+def _is_runtime(name: str | None) -> bool:
+    stem = os.path.splitext((name or "").lower())[0]
+    return stem in RUNTIMES or stem.startswith("python")
+
+
+def project_for(
+    cwd: str | None, cmdline: str | None, roots: list[Path], name: str | None = None
+) -> Path | None:
+    """Proyecto registrado al que pertenece un proceso, o None.
+
+    `detect` no adivina puertos, asi que un servidor lanzado desde otra terminal
+    no tiene como asociarse a su proyecto. Esto lo asocia por evidencia del
+    proceso: un path del proyecto en su cmdline (`node A:\\proj\\node_modules\\...`),
+    y si no, su `cwd`, pero solo si `name` es un interprete. Medido: el cwd solo
+    le atribuia al Portfolio `claude.exe` y dos servidores MCP abiertos ahi.
+    Gana el root mas largo, para que un proyecto anidado le gane a su carpeta
+    madre. Pura a proposito: el que llama le pasa los roots una vez por request.
+    """
+    by_length = sorted(roots, key=lambda r: len(str(r)), reverse=True)
+    if cmdline:
+        line = os.path.normcase(cmdline)
+        for root in by_length:
+            r = os.path.normcase(str(root)).rstrip(os.sep)
+            start = line.find(r)
+            while start != -1:
+                # Lo que sigue al root tiene que cerrar el componente: sin esto
+                # `A:\app` se atribuia `A:\app2\x.js`.
+                after = line[start + len(r) : start + len(r) + 1]
+                if after in ("", os.sep, '"', "'", " "):
+                    return root
+                start = line.find(r, start + 1)
+    if cwd and _is_runtime(name):
+        here = os.path.normcase(cwd)
+        for root in by_length:
+            r = os.path.normcase(str(root))
+            if here == r or here.startswith(r.rstrip(os.sep) + os.sep):
+                return root
+    return None
+
+
 def name_of(path: Path, max_age: float = PORTS_TTL) -> str:
     """Como se llama un proyecto registrado, igual que en su ficha.
 
