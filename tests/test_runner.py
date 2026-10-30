@@ -1309,3 +1309,33 @@ def test_build_env_compatibilidad_stackhelx_y_portmaster(tmp_path, monkeypatch):
     env = runner.build_env(srv)
     assert env.get("MI_GLOBAL") == "desde_stackhelx"
 
+
+
+def _srv_env(tmp_path, env=None):
+    return config.Service(
+        name="srv", command="echo ok", cwd=tmp_path, port=None, ready="listen",
+        needs=(), env=env or {}, detached=False,
+    )
+
+
+def test_build_env_no_le_pasa_al_servicio_las_variables_de_agente(tmp_path, monkeypatch):
+    """Astro 7 (via `am-i-vibing`) se va a segundo plano si ve un agente en el
+    entorno: `pnpm dev` sale con 0 y el servidor queda fuera del arbol, sin
+    puerto descubierto y sin forma de apagarlo con `down`."""
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setenv("CLAUDECODE", "1")
+    monkeypatch.setenv("AI_AGENT", "claude-code")
+    monkeypatch.setenv("OPENCODE", "1")
+    monkeypatch.setenv("MI_VARIABLE", "sigue")
+    env = runner.build_env(_srv_env(tmp_path))
+    assert "CLAUDECODE" not in env
+    assert "AI_AGENT" not in env
+    assert "OPENCODE" not in env
+    assert env["MI_VARIABLE"] == "sigue"
+
+
+def test_build_env_respeta_la_variable_de_agente_si_el_servicio_la_declara(tmp_path, monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setenv("CLAUDECODE", "1")
+    env = runner.build_env(_srv_env(tmp_path, {"CLAUDECODE": "1"}))
+    assert env["CLAUDECODE"] == "1"

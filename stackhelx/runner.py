@@ -29,15 +29,45 @@ from . import config, detect, ports
 from .config import Service, Stack
 
 
+# Variables con las que `am-i-vibing` reconoce a un agente por si solas. Astro 7
+# la usa en `astro dev` (dist/cli/dev/index.js:85) y, si detecta uno, arranca
+# como daemon: el comando sale con 0, el servidor queda fuera de nuestro arbol y
+# se pierden `ready: listen`, la tarjeta y el `down`. StackHelx es el dueno del
+# ciclo de vida del servicio, lo lance una persona o un agente via MCP.
+# Fuera quedan las genericas (`PAGER`, `TERM_PROGRAM`, `REPL_ID`) que el
+# detector solo combina con otras. Tabla de am-i-vibing 0.4.0.
+AGENT_ENV_VARS = (
+    "CLAUDECODE",
+    "AI_AGENT",
+    "OPENCODE",
+    "OPENCODE_BIN_PATH",
+    "OPENCODE_SERVER",
+    "OPENCODE_APP_INFO",
+    "OPENCODE_MODES",
+    "ANTIGRAVITY_AGENT",
+    "ANTIGRAVITY_PROJECT_ID",
+    "GEMINI_CLI",
+    "CODEX_THREAD_ID",
+    "CODEIUM_EDITOR_APP_ROOT",
+    "CRUSH",
+    "AMP_CURRENT_THREAD_ID",
+    "AUGMENT_AGENT",
+    "QWEN_CODE",
+)
+
+
 def build_env(service: Service, extra_env: dict[str, str] | None = None) -> dict[str, str]:
     """Construye el entorno de ejecucion con precedencia clara:
-    1. os.environ
+    1. os.environ, sin las AGENT_ENV_VARS
     2. ~/.stackhelx/env.global (o legacy ~/.portmaster/env.global si existe)
     3. service.env_file (en orden)
     4. service.env (declarado explicito)
     5. extra_env (e.g. desde --env-file en CLI)
     """
     env = dict(os.environ)
+    # Solo del entorno heredado: si env.global o el servicio la declaran, vale.
+    for name in AGENT_ENV_VARS:
+        env.pop(name, None)
     global_env = Path.home() / ".stackhelx" / "env.global"
     if not global_env.is_file():
         global_env = Path.home() / ".portmaster" / "env.global"
