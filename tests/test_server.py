@@ -33,6 +33,8 @@ def aislado(tmp_path, monkeypatch):
     # marca como estado compartido, un test que pasa solo y falla acompanado.
     with server._stack_lock:
         server._stack_seen.clear()
+    with server._external_lock:
+        server._external_seen = (float("-inf"), {})
     with server.sessions_lock:
         server.sessions.clear()
         server.selected_profiles.clear()
@@ -1513,6 +1515,81 @@ def test_endpoint_system_ports_lista_puertos(client, intruso):
     assert len(found) == 1
     assert found[0]["pid"] is not None
     assert found[0]["projects"] == ["conintruso"]
+
+
+@pytest.fixture
+def externo(tmp_path, free_ports):
+    """Un proyecto Astro registrado, sin puerto declarado, con un servidor
+    levantado desde su carpeta por fuera de StackHelx (otra terminal)."""
+
+    def levantar(*paquetes):
+        (port,) = free_ports(1)
+        root = tmp_path / "astroapp"
+        for sub in paquetes or ("",):
+            (root / sub).mkdir(parents=True, exist_ok=True)
+            (root / sub / "package.json").write_text(
+                '{"scripts":{"dev":"astro dev"},"dependencies":{"astro":"7.0.0"}}', encoding="utf-8"
+            )
+        registry.add(root)
+        proc = subprocess.Popen([sys.executable, "-c", SERVER.format(port=port)], cwd=root)
+        procs.append(proc)
+        assert esperar(lambda: not ports.is_free(port)), "el servidor externo nunca tomo el puerto"
+        return root, port
+
+    procs = []
+    yield levantar
+    for proc in procs:
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
+
+
+def _servicios(client, nombre):
+    proyecto = next(p for p in client.get("/api/state?size=50").json()["projects"] if p["path"].endswith(nombre))
+    return proyecto, {s["name"]: s for s in proyecto["services"]}
+
+
+def test_ports_system_atribuye_el_proyecto_por_cwd(client, externo):
+    _, port = externo()
+    fila = [p for p in client.get("/api/ports/system").json()["ports"] if p["port"] == port]
+    assert len(fila) == 1
+    assert fila[0]["project"] == "astroapp"
+    assert fila[0]["proto"] == "tcp"
+    assert fila[0]["addrs"] == ["127.0.0.1"]
+
+
+def test_ports_system_udp_solo_con_el_flag(client, free_ports):
+    (port,) = free_ports(1)
+    u = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        u.bind(("127.0.0.1", port))
+        sin = [p for p in client.get("/api/ports/system").json()["ports"] if p["port"] == port]
+        con = [p for p in client.get("/api/ports/system?udp=1").json()["ports"] if p["port"] == port]
+        assert sin == []
+        assert [p["proto"] for p in con] == ["udp"]
+    finally:
+        u.close()
+
+
+def test_state_servicio_levantado_por_fuera_sale_listo(client, externo):
+    """El caso del Portfolio: `astro dev` desde otra terminal y la tarjeta
+    decia detenido, porque `detect` no adivina puertos."""
+    _, port = externo()
+    proyecto, servicios = _servicios(client, "astroapp")
+    web = servicios["web"]
+    assert web["state"] == "ready"
+    assert web["port"] == port
+    assert web["external"] is True
+    assert web["managed"] is False
+    assert proyecto["external_ports"] == []
+
+
+def test_state_dos_servicios_sin_puerto_no_se_adivina_cual(client, externo):
+    _, port = externo("web", "frontend")
+    proyecto, servicios = _servicios(client, "astroapp")
+    assert {s["state"] for s in servicios.values()} == {"stopped"}
+    assert not any(s["external"] for s in servicios.values())
+    assert proyecto["external_ports"] == [port]
 
 
 def test_el_endpoint_de_contenedores_lista_los_que_corren(client, monkeypatch):
