@@ -104,7 +104,7 @@ body {
   margin-left: auto;
 }
 
-.masthead__lang {
+.btn.masthead__lang {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -114,6 +114,11 @@ body {
   border: var(--rule) solid var(--color-rule-strong);
   border-radius: var(--radius);
   color: var(--color-ink-3);
+}
+
+/* .btn--quiet:hover le borra el borde: este es el unico quiet que lo lleva. */
+.btn.masthead__lang:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--color-ink-3);
 }
 
 .masthead__lang-opt {
@@ -611,7 +616,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 /* Unica accion en acento del index: abrir lo que esta corriendo es lo que mas se
    hace desde aca, y es lo unico que se lleva un color. */
-.btn--open {
+.btn.btn--open {
   font-size: var(--text-xs);
   padding: 0.3rem 0.6rem;
   color: var(--color-accent);
@@ -619,7 +624,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   text-decoration: none;
 }
 
-.btn--open:hover {
+/* Con los :not de .btn:hover, o este pierde por especificidad. */
+.btn.btn--open:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
 }
@@ -876,9 +882,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .logs__live {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--color-good);
-  background: color-mix(in oklch, var(--color-good) 12%, transparent);
-  border: var(--rule) solid var(--color-good);
+  color: var(--color-ok);
+  background: color-mix(in oklch, var(--color-ok) 12%, transparent);
+  border: var(--rule) solid var(--color-ok);
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
   display: inline-flex;
@@ -893,8 +899,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-good);
-  box-shadow: 0 0 4px var(--color-good);
+  background: var(--color-ok);
+  box-shadow: 0 0 4px var(--color-ok);
 }
 
 .logs {

@@ -1313,7 +1313,7 @@ function renderGraph(project, entry) {
 
   nodeMap.forEach((node) => {
     let dotColor = "var(--color-ink-4)";
-    if (node.state === "ready") dotColor = "var(--color-good)";
+    if (node.state === "ready") dotColor = "var(--color-ok)";
     else if (node.state === "starting") dotColor = "var(--color-warn)";
     else if (node.state === "error") dotColor = "var(--color-bad)";
 
@@ -1504,7 +1504,7 @@ function renderHistoryTable(entry, runs) {
       }
       tdRes.textContent = resText;
       if (r.result === "running") {
-        tdRes.style.color = "var(--color-good)";
+        tdRes.style.color = "var(--color-ok)";
       } else if (r.result === "error") {
         tdRes.style.color = "var(--color-bad)";
       }
