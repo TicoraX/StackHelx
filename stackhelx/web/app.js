@@ -1325,13 +1325,13 @@ function renderGraph(project, entry) {
         <rect width="${nodeWidth}" height="${nodeHeight}" rx="6"
               fill="var(--color-paper)" stroke="var(--color-rule-strong)" stroke-width="1" />
         <circle cx="12" cy="${nodeHeight / 2}" r="4" fill="${dotColor}" />
-        <text x="24" y="${nodeHeight / 2 + (portText ? -2 : 4)}"
-              fill="var(--color-ink)" font-family="var(--font-mono)" font-size="11" font-weight="600">
+        <text x="24" y="${nodeHeight / 2 + (portText ? -3 : 5)}"
+              fill="var(--color-ink)" font-family="var(--font-body)" font-size="13" font-weight="600">
           ${escapeXml(label)}
         </text>
         ${
           portText
-            ? `<text x="24" y="${nodeHeight / 2 + 10}" fill="var(--color-ink-3)" font-family="var(--font-mono)" font-size="9">${escapeXml(portText)}</text>`
+            ? `<text x="24" y="${nodeHeight / 2 + 12}" fill="var(--color-ink-3)" font-family="var(--font-mono)" font-size="11">${escapeXml(portText)}</text>`
             : ""
         }
       </g>

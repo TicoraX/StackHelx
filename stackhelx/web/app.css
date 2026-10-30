@@ -34,11 +34,19 @@ body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-body);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   line-height: 1.55;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Los controles no heredan la familia por defecto; el tamano lo pone cada uno. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 ::selection {
@@ -72,7 +80,6 @@ body {
 }
 
 .masthead__status {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-ink-3);
   margin: 0;
@@ -85,7 +92,6 @@ body {
 /* Lo unico global de la pagina que habla de salud y no de inventario. Aparece
    solo cuando hay algo caido: el resto del tiempo no ocupa lugar. */
 .masthead__health {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-bad);
   margin: 0;
@@ -108,7 +114,6 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   padding: 0.3rem 0.55rem;
   border: var(--rule) solid var(--color-rule-strong);
@@ -215,7 +220,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .find__input {
   flex: 1 1 auto;
   min-width: 0;
-  font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--color-ink);
   background: transparent;
@@ -230,7 +234,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 .kbd {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   color: var(--color-ink-3);
   background: var(--color-paper-3);
   border: var(--rule) solid var(--color-rule);
@@ -240,7 +244,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .find__count {
-  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-xs);
   color: var(--color-ink-3);
   white-space: nowrap;
@@ -259,9 +263,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-family: var(--font-body);
   font-size: var(--text-xs);
-  font-weight: 500;
   color: var(--color-ink-2);
   background: var(--color-paper);
   border: var(--rule) solid var(--color-rule-strong);
@@ -313,7 +315,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .pager__at {
-  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: var(--text-xs);
   color: var(--color-ink-3);
 }
@@ -358,7 +360,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   gap: var(--space-md);
 }
 
-.project__name {
+.project__name,
+.dialog__title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: 400;
@@ -462,7 +465,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .editor__select {
-  font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-ink-2);
   background: var(--color-paper-2);
@@ -499,7 +501,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   align-items: center;
   gap: 0.45em;
   font-size: var(--text-xs);
-  font-family: var(--font-mono);
   color: var(--color-ink-2);
   margin: 0;
   white-space: nowrap;
@@ -594,9 +595,12 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   stroke-linejoin: round;
 }
 
+.service__port {
+  font-family: var(--font-mono);
+}
+
 .service__port,
 .service__state {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
   color: var(--color-ink-2);
@@ -803,7 +807,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .btn--kill {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   padding: 0.3rem 0.55rem;
   color: var(--color-bad);
@@ -845,7 +848,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .profile__select {
-  font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--color-ink);
   background: var(--color-paper-2);
@@ -880,7 +882,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .logs__live {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-ok);
   background: color-mix(in oklch, var(--color-ok) 12%, transparent);
@@ -933,7 +934,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .history__table th {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-ink-2);
 }
 
@@ -965,11 +966,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .graph__title {
-  font-size: var(--text-xs);
-  font-family: var(--font-mono);
-  color: var(--color-ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 .graph__canvas-wrapper {
@@ -1003,12 +1002,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 .env__status-badge {
   font-size: var(--text-xs);
-  font-family: var(--font-mono);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .env__status-badge--ok {
@@ -1037,9 +1033,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 .env__section-title {
   display: block;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--color-ink-2);
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 2px;
 }
 
@@ -1109,7 +1105,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .tools__docker {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-ink-3);
   white-space: nowrap;
@@ -1185,9 +1180,13 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   border-bottom: var(--rule) solid var(--color-rule);
 }
 
-.picker__path {
+.picker__path,
+.dialog__title {
   flex: 1;
   min-width: 0;
+}
+
+.picker__path {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-ink-2);
@@ -1219,7 +1218,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   color: var(--color-ink);
   background: var(--color-paper-2);
   border-color: var(--color-rule-subtle);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* Mas ancho que el resto de los picker: cada fila lleva el comando del proceso. */
@@ -1247,7 +1246,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .ports-modal__search {
   flex: 1 1 14rem;
   min-width: 0;
-  font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--color-ink);
   background: var(--color-paper-2);
@@ -1355,7 +1353,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   gap: var(--space-md);
   inline-size: 100%;
   text-align: start;
-  font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--color-ink);
   background: none;
@@ -1571,7 +1568,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 /* Los tokens y no un oklch a mano: --color-bad y sus derivados ya se redefinen
    para el tema oscuro, y un color crudo se quedaria con el claro en los dos. */
 .btn--kill-all {
-  font-family: var(--font-body);
   font-size: var(--text-xs);
   padding: 0.35rem 0.75rem;
   background: var(--color-bad-soft);
@@ -1651,7 +1647,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 .orphan__name {
   font-size: var(--text-sm);
-  font-weight: 500;
   color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -1678,7 +1673,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .orphan__kill {
-  font-family: var(--font-body);
   font-size: var(--text-xs);
   padding: 0.3rem 0.6rem;
   background: oklch(55% 0.18 27 / 0.15);
@@ -1852,7 +1846,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   justify-content: space-between;
   padding: var(--space-xs) var(--space-sm);
   font-size: var(--text-sm);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-ink-2);
   cursor: pointer;
   user-select: none;
@@ -1954,7 +1948,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 .mcp__stat strong {
   color: var(--color-ink);
-  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .mcp__breakdown {
@@ -1993,7 +1988,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .mcp__status-badge {
-  font-family: var(--font-mono);
   font-size: var(--text-xs);
   padding: 0.15rem 0.4rem;
   border-radius: 3px;
