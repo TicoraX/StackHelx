@@ -217,10 +217,32 @@
         <div class="picker__head">
           <p class="picker__path" data-en="Port map" data-es="Mapa de puertos">Port map</p>
           <div class="ports-modal__tabs" role="tablist">
-            <button class="btn btn--quiet is-active" type="button" data-ports-tab="projects" role="tab" aria-selected="true" data-en="Projects" data-es="De proyectos">Projects</button>
-            <button class="btn btn--quiet" type="button" data-ports-tab="system" role="tab" aria-selected="false" data-en="All system" data-es="Todo el sistema">All system</button>
+            <button class="btn btn--quiet is-active" type="button" data-ports-tab="system" role="tab" aria-selected="true" data-en="All system" data-es="Todo el sistema">All system</button>
+            <button class="btn btn--quiet" type="button" data-ports-tab="projects" role="tab" aria-selected="false" data-en="Projects" data-es="De proyectos">Projects</button>
           </div>
           <button class="btn btn--quiet" type="button" data-ports-modal="close" data-en-aria="Close" data-es-aria="Cerrar" aria-label="Close">✕</button>
+        </div>
+        <div class="ports-modal__tools" id="ports-tools">
+          <input
+            class="ports-modal__search"
+            type="search"
+            id="ports-search"
+            data-en-placeholder="Filter by port, process or project"
+            data-es-placeholder="Filtrar por puerto, proceso o proyecto"
+            placeholder="Filter by port, process or project"
+            data-en-aria="Filter ports"
+            data-es-aria="Filtrar puertos"
+            aria-label="Filter ports"
+          />
+          <label class="ports-modal__check">
+            <input type="checkbox" id="ports-hide-os" checked />
+            <span data-en="Hide Windows processes" data-es="Ocultar procesos de Windows">Hide Windows processes</span>
+          </label>
+          <label class="ports-modal__check">
+            <input type="checkbox" id="ports-udp" />
+            <span data-en="Include UDP" data-es="Incluir UDP">Include UDP</span>
+          </label>
+          <button class="btn btn--quiet" type="button" id="ports-refresh" data-en="Refresh" data-es="Refrescar">Refresh</button>
         </div>
         <ul class="orphans__list" id="ports-modal-list"></ul>
       </dialog>
