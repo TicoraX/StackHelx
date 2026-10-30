@@ -315,9 +315,10 @@ def test_system_listeners_mismo_puerto_dos_duenos_dos_filas(free_ports):
         u.close()
 
 
-def test_system_listeners_cwd_denegado_no_rompe():
+def test_system_listeners_cwd_denegado_no_rompe(listener):
     # Los servicios del sistema niegan cwd a un usuario normal: tiene que dar
-    # None y seguir, no cortar el listado.
+    # None y seguir, no cortar el listado. El listener propio garantiza al menos
+    # una fila: en macOS sin root no se ven los procesos ajenos.
     items = ports.system_listeners()
     assert items
     assert all(s.cwd is None or isinstance(s.cwd, str) for s in items)

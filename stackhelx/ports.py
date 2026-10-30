@@ -249,21 +249,32 @@ def system_listeners(udp: bool = False) -> list[PortStatus]:
     procesos en 127.0.0.1 y [::], se pisaban. Las IP del mismo dueno se juntan
     en `addrs`. UDP no tiene LISTEN: con `udp=True` entra todo socket UDP ligado.
     """
+    kind = "inet" if udp else "tcp"
     found: dict[tuple[str, int, int | None], set[str]] = {}
+
+    def add(conn, pid: int | None) -> None:
+        if not conn.laddr:
+            return
+        if conn.type == socket.SOCK_STREAM:
+            if conn.status != psutil.CONN_LISTEN:
+                return
+            proto = "tcp"
+        else:
+            proto = "udp"
+        found.setdefault((proto, conn.laddr.port, pid), set()).add(conn.laddr.ip)
+
     try:
-        for conn in psutil.net_connections(kind="inet" if udp else "tcp"):
-            if not conn.laddr:
-                continue
-            if conn.type == socket.SOCK_STREAM:
-                if conn.status != psutil.CONN_LISTEN:
-                    continue
-                proto = "tcp"
-            else:
-                proto = "udp"
-            found.setdefault((proto, conn.laddr.port, conn.pid), set()).add(conn.laddr.ip)
+        for conn in psutil.net_connections(kind=kind):
+            add(conn, conn.pid)
     except (psutil.AccessDenied, PermissionError):
-        # ponytail: macOS sin root solo deja ver TCP proceso por proceso, sin IP.
-        found = {("tcp", port, pid): set() for port, pid in _process_listeners_cache().items()}
+        # macOS sin root niega la tabla global, pero deja leer los sockets de
+        # cada proceso propio: misma informacion, sin los procesos ajenos.
+        for proc in psutil.process_iter():
+            try:
+                for conn in proc.net_connections(kind=kind):
+                    add(conn, proc.pid)
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                continue
 
     # Windows a veces reporta el mismo socket con y sin pid: si hay dueno, el
     # registro sin pid sobra.
