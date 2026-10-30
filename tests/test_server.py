@@ -1582,6 +1582,12 @@ def test_state_servicio_levantado_por_fuera_sale_listo(client, externo):
     assert web["external"] is True
     assert web["managed"] is False
     assert proyecto["external_ports"] == []
+    # Y el proyecto tambien: con el servicio listo, el badge seguia en detenido
+    # y el filtro "corriendo" no lo encontraba.
+    assert proyecto["state"] == "external"
+    corriendo = client.get("/api/state?status=running").json()["projects"]
+    assert [p["name"] for p in corriendo] == ["astroapp"]
+    assert client.get("/api/state?status=stopped").json()["projects"] == []
 
 
 def test_state_dos_servicios_sin_puerto_no_se_adivina_cual(client, externo):
@@ -1590,6 +1596,7 @@ def test_state_dos_servicios_sin_puerto_no_se_adivina_cual(client, externo):
     assert {s["state"] for s in servicios.values()} == {"stopped"}
     assert not any(s["external"] for s in servicios.values())
     assert proyecto["external_ports"] == [port]
+    assert proyecto["state"] == "external"
 
 
 def test_el_endpoint_de_contenedores_lista_los_que_corren(client, monkeypatch):

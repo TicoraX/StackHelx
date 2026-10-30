@@ -1683,8 +1683,10 @@ def _status_match(path: Path, wanted: str) -> bool:
     with sessions_lock:
         session = sessions.get(pid)
     state = session.state if session else "stopped"
+    if state == "stopped" and _external_ports().get(path):
+        state = "external"
     if wanted == "running":
-        return state in ("starting", "running")
+        return state in ("starting", "running", "external")
     if wanted == "stopped":
         return state == "stopped"
     if wanted == "error":
@@ -1742,6 +1744,9 @@ def _project_view(path: Path) -> dict:
     externos = [] if session else _external_ports().get(path, [])
     sin_puerto = [s.name for s in stack.services.values() if not s.port and s.ready == "listen"]
     externo = sin_puerto[0] if externos and len(sin_puerto) == 1 else None
+    # Sin esto el servicio salia listo y el proyecto seguia "detenido" arriba.
+    if externos:
+        estado = "external"
     # Cacheado: resolver el stack de cada proyecto registrado cuesta de 1 a 92ms
     # segun tenga stack.yaml o haya que detectarlo, y esto corre por proyecto y
     # por request cada 2.5s. Ver registry.declared_ports.

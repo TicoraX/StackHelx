@@ -232,6 +232,7 @@ function getProjectLabel(state) {
     stopped: [tr("stopped", "detenido"), ""],
     starting: [tr("starting", "arrancando"), "starting"],
     running: [tr("running", "corriendo"), "ready"],
+    external: [tr("running · external", "corriendo · externo"), "ready"],
     stopping: [tr("stopping", "apagando"), "starting"],
     error: [tr("failed", "con error"), "bad"],
     invalid: [tr("invalid config", "config invalida"), "bad"],
@@ -1063,7 +1064,11 @@ function updateCard(entry, project) {
   root.querySelector(".project__path").textContent = project.path;
 
   if (!entry.userToggled) {
-    entry.expanded = project.state === "running" || project.state === "starting" || Boolean(project.error);
+    entry.expanded =
+      project.state === "running" ||
+      project.state === "starting" ||
+      project.state === "external" ||
+      Boolean(project.error);
     root.setAttribute("data-expanded", String(entry.expanded));
     const toggleBtn = root.querySelector(".project__toggle");
     if (toggleBtn) toggleBtn.setAttribute("aria-expanded", String(entry.expanded));
@@ -1208,7 +1213,8 @@ function updateCard(entry, project) {
   const stopping = project.state === "stopping";
   // Hay algo que apagar aunque no lo hayamos arrancado nosotros: un contenedor
   // levantado desde la terminal publica su puerto y se ve "listo".
-  const algoVivo = live || project.services.some((s) => s.state !== "stopped");
+  // Lo arrancado por fuera no cuenta: no hay proceso nuestro que apagar.
+  const algoVivo = live || project.services.some((s) => s.state !== "stopped" && !s.external);
   root.querySelector('[data-act="up"]').disabled =
     live || stopping || project.state === "invalid";
   root.querySelector('[data-act="down"]').disabled = !algoVivo || stopping;
