@@ -50,6 +50,11 @@ class PortStatus:
     name: str | None = None
     cmdline: str | None = None
     create_time: float | None = None
+    # Solo los llena `system_listeners`: el resto de los llamadores preguntan
+    # por un puerto TCP concreto y no los necesitan.
+    proto: str = "tcp"
+    addrs: tuple[str, ...] = ()
+    cwd: str | None = None
 
     @property
     def owner_unknown(self) -> bool:
@@ -237,42 +242,57 @@ def _listeners(wanted: set[int]) -> dict[int, int | None]:
     return found
 
 
-def system_listeners() -> list[PortStatus]:
-    """Puertos TCP actualmente en LISTEN en el sistema operativo.
+def system_listeners(udp: bool = False) -> list[PortStatus]:
+    """Sockets en escucha en el sistema operativo, uno por (protocolo, puerto, pid).
 
-    Devuelve la lista ordenada por puerto con el estado y proceso dueno.
+    Indexar solo por puerto dejaba un dueno por numero: TCP y UDP, o dos
+    procesos en 127.0.0.1 y [::], se pisaban. Las IP del mismo dueno se juntan
+    en `addrs`. UDP no tiene LISTEN: con `udp=True` entra todo socket UDP ligado.
     """
-    listeners: dict[int, int | None] = {}
+    found: dict[tuple[str, int, int | None], set[str]] = {}
     try:
-        for conn in psutil.net_connections(kind="tcp"):
-            if conn.laddr and conn.status == psutil.CONN_LISTEN:
-                port = conn.laddr.port
-                if port not in listeners or conn.pid:
-                    listeners[port] = conn.pid
+        for conn in psutil.net_connections(kind="inet" if udp else "tcp"):
+            if not conn.laddr:
+                continue
+            if conn.type == socket.SOCK_STREAM:
+                if conn.status != psutil.CONN_LISTEN:
+                    continue
+                proto = "tcp"
+            else:
+                proto = "udp"
+            found.setdefault((proto, conn.laddr.port, conn.pid), set()).add(conn.laddr.ip)
     except (psutil.AccessDenied, PermissionError):
-        listeners = _process_listeners_cache()
+        # ponytail: macOS sin root solo deja ver TCP proceso por proceso, sin IP.
+        found = {("tcp", port, pid): set() for port, pid in _process_listeners_cache().items()}
 
-    proc_cache: dict[int, tuple[str | None, str | None, float | None]] = {}
-    for pid in set(listeners.values()):
-        if pid is None:
+    # Windows a veces reporta el mismo socket con y sin pid: si hay dueno, el
+    # registro sin pid sobra.
+    con_dueno = {(proto, port) for proto, port, pid in found if pid is not None}
+    for key in [k for k in found if k[2] is None and (k[0], k[1]) in con_dueno]:
+        del found[key]
+
+    proc_cache: dict[int, tuple[str | None, str | None, float | None, str | None]] = {}
+    for _, _, pid in found:
+        if pid is None or pid in proc_cache:
             continue
         try:
             proc = psutil.Process(pid)
             with proc.oneshot():
-                name = _quiet(proc.name)
-                cmdline = _quiet(lambda: " ".join(proc.cmdline()))
-                created = _quiet(proc.create_time)
-                proc_cache[pid] = (name, cmdline, created)
+                proc_cache[pid] = (
+                    _quiet(proc.name),
+                    _quiet(lambda: " ".join(proc.cmdline())),
+                    _quiet(proc.create_time),
+                    _quiet(proc.cwd),
+                )
         except (psutil.AccessDenied, psutil.NoSuchProcess):
-            proc_cache[pid] = (None, None, None)
+            proc_cache[pid] = (None, None, None, None)
 
     statuses: list[PortStatus] = []
-    for port, pid in sorted(listeners.items()):
-        if pid is not None and pid in proc_cache:
-            name, cmdline, created = proc_cache[pid]
-            statuses.append(PortStatus(port, False, pid, name, cmdline or None, created))
-        else:
-            statuses.append(PortStatus(port=port, free=False, pid=pid))
+    for (proto, port, pid), ips in sorted(found.items(), key=lambda kv: (kv[0][1], kv[0][0], kv[0][2] or 0)):
+        name, cmdline, created, cwd = proc_cache.get(pid, (None, None, None, None)) if pid else (None,) * 4
+        statuses.append(
+            PortStatus(port, False, pid, name, cmdline or None, created, proto, tuple(sorted(ips)), cwd)
+        )
     return statuses
 
 
