@@ -27,6 +27,28 @@ def test_find_collisions(tmp_path, monkeypatch):
     assert 8080 not in collisions
 
 
+def test_declared_ports_cuenta_los_servicios_fuera_del_default(tmp_path, monkeypatch):
+    """El caso de Decepticon: su `web` en el 3000 vive en un perfil aparte.
+    Mirando solo el default, el choque con otro proyecto en el 3000 no se avisaba
+    y los intrusos decian un dueno que el mapa de puertos no."""
+    monkeypatch.setattr(registry, "HOME", tmp_path)
+    monkeypatch.setattr(registry, "PROJECTS", tmp_path / "projects.json")
+    p1 = tmp_path / "app1"
+    p2 = tmp_path / "app2"
+    p1.mkdir()
+    p2.mkdir()
+    (p1 / "stack.yaml").write_text(
+        "name: a1\nservices:\n  db:\n    command: echo db\n    port: 5432\n"
+        "  web:\n    command: echo web\n    port: 3000\ndefault: [db]\n",
+        encoding="utf-8",
+    )
+    (p2 / "stack.yaml").write_text("name: a2\nservices:\n  web:\n    command: echo 2\n    port: 3000\n", encoding="utf-8")
+    registry.add(p1)
+    registry.add(p2)
+
+    assert set(registry.find_collisions()[3000]) == {p1.resolve(), p2.resolve()}
+
+
 def _proyecto(raiz, nombre, comando):
     root = raiz / nombre
     root.mkdir()
