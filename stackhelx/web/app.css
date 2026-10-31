@@ -940,10 +940,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   border-bottom: 0;
 }
 
-.chip--ports {
-  margin-left: auto;
-}
-
 /* grafo de dependencias --------------------------------------------------- */
 
 .graph__box {
@@ -1220,6 +1216,67 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   font-weight: 500;
 }
 
+/* Mas ancho que el resto de los picker: cada fila lleva el comando del proceso. */
+.ports-modal {
+  inline-size: min(48rem, calc(100vw - 2 * var(--space-md)));
+}
+
+/* El dialog no tiene padding: sin el propio, el ultimo control queda cortado
+   contra el borde. */
+.ports-modal__tools {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: var(--rule) solid var(--color-rule);
+}
+
+/* `display` propio le gana a la regla del navegador para [hidden]. */
+.ports-modal__tools[hidden] {
+  display: none;
+}
+
+.ports-modal__search {
+  flex: 1 1 14rem;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+  background: var(--color-paper-2);
+  border: var(--rule) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.55rem;
+}
+
+.ports-modal__search::placeholder {
+  color: var(--color-ink-3);
+}
+
+.ports-modal__search:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.ports-modal__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  cursor: pointer;
+}
+
+.ports-modal__check input {
+  accent-color: var(--color-accent);
+}
+
+/* 0.0.0.0 o ::, el puerto se ve desde la red. */
+.orphan__meta[data-tone="warn"] {
+  color: var(--color-warn);
+}
+
 .picker__frequent {
   display: flex;
   align-items: flex-start;
@@ -1461,10 +1518,48 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   padding: var(--space-sm) var(--space-md) 0;
 }
 
+.orphans__header > div:first-child {
+  flex: 1;
+}
+
 .orphans__desc {
   font-size: var(--text-xs);
   color: var(--color-ink-3);
   margin: 0;
+}
+
+/* Titulo y acciones en la misma franja: el boton suelto al costado quedaba
+   flotando entre la franja y la descripcion. */
+.orphans__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-paper-3);
+  border-bottom: var(--rule) solid var(--color-rule);
+}
+
+.orphans .orphans__bar .orphans__heading {
+  background: none;
+  border-bottom: 0;
+}
+
+.orphans[data-tone="bad"] .orphans__bar {
+  background: oklch(55% 0.18 27 / 0.1);
+  border-bottom-color: oklch(55% 0.18 27 / 0.25);
+}
+
+.orphans__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-inline-end: var(--space-sm);
+}
+
+.orphans__map {
+  font-size: var(--text-xs);
+  white-space: nowrap;
 }
 
 /* Los tokens y no un oklch a mano: --color-bad y sus derivados ya se redefinen

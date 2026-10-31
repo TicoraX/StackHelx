@@ -117,5 +117,21 @@ se le pregunta cuál quedó escuchando. Es más confiable que parsear
 antes de arrancar, porque no se saben hasta después. Los de compose sí, que
 están declarados en el archivo.
 
+Un servidor arrancado desde otra terminal (por ejemplo `astro dev` en la carpeta
+del proyecto) no está en el árbol de StackHelx, así que su puerto no se descubre
+por ahí. La interfaz lo atribuye con evidencia del sistema: una ruta del proyecto
+en la línea de comandos del proceso, o su carpeta de trabajo si el proceso es un
+intérprete (`node`, `python`, `bun`, `deno`, `java`, `dotnet`, `php`, `ruby`). Un
+binario que solo heredó la carpeta, como un editor o un servidor MCP, no se
+atribuye. Si el proyecto tiene un solo servicio sin puerto declarado, ese
+servicio sale listo, con el puerto y la marca `externo`; con dos o más, los
+puertos se listan en el proyecto sin adivinar de cuál son.
+
+StackHelx además saca del entorno de los servicios las variables que delatan a un
+agente (`CLAUDECODE`, `AI_AGENT`, `OPENCODE`, `GEMINI_CLI` y parecidas). Astro 7
+manda `astro dev` a segundo plano cuando las ve, y el servidor queda fuera del
+árbol, sin puerto y sin forma de apagarlo. Si la declarás en `env.global` o en
+el `env` del servicio, vale.
+
 `stackhelx init` escribe lo detectado como `stack.yaml` para editarlo a mano.
 No sobreescribe uno existente.

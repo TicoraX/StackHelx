@@ -4,6 +4,18 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.1.4] - 2026-10-29
+
+### Corregido
+
+- **Servidores arrancados fuera de StackHelx (`registry.py`, `server.py`):** un `astro dev` corriendo desde otra terminal no aparecía en la tarjeta ni en la pestaña "De proyectos", porque `detect` no adivina puertos y `ready: listen` solo los descubre en el árbol propio. Ahora se atribuyen al proyecto por la ruta en la línea de comandos, o por la carpeta de trabajo si el proceso es un intérprete. Un proyecto con un solo servicio sin puerto lo muestra listo y `externo`; con más, lista los puertos sin adivinar el servicio (`external_ports`).
+- **Astro 7 se desacoplaba bajo un agente (`runner.py`):** `astro dev` detecta agentes por variables de entorno (`am-i-vibing`) y se va a segundo plano: `up` terminaba con 0 y el servidor quedaba fuera del árbol. `build_env` ya no pasa esas variables a los servicios, salvo que las declare `env.global` o el `env` del servicio.
+
+### Añadido
+
+- **Vista global de puertos real (`ports.py`, `/api/ports/system`, `web/`):** un registro por protocolo, puerto y proceso (antes uno por puerto), con dirección de escucha, carpeta del proceso y proyecto atribuido. UDP opcional con `?udp=1`. El mapa abre en "Todo el sistema" con filtro, "Ocultar procesos de Windows", "Incluir UDP" y "Refrescar"; sigue siendo a pedido, sin sondeo.
+- El mapa muestra el error y un botón Reintentar en vez de quedar en silencio cuando falla la lectura.
+
 ## [1.1.3] - 2026-10-09
 
 ### Añadido y Mejorado

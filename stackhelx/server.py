@@ -441,6 +441,40 @@ def _docker_is_down() -> bool:
         caido = doctor._docker().level == "fail"
         _docker_seen = (time.monotonic(), caido)
         return caido
+# Puertos levantados por fuera de StackHelx, atribuidos a su proyecto. Leer la
+# tabla de sockets del sistema cuesta ~65ms medidos en Windows con 30 listeners,
+# y la vista se sondea cada 2.5s: con 5s de TTL se paga una vez cada dos
+# sondeos. Mas largo y `astro dev` recien levantado tarda en verse en la tarjeta.
+EXTERNAL_TTL = 5.0
+_external_seen: tuple[float, dict[Path, list[int]]] = (float("-inf"), {})
+_external_lock = threading.Lock()
+
+
+def _external_ports() -> dict[Path, list[int]]:
+    """Proyecto registrado -> puertos TCP que escucha un proceso de su carpeta.
+
+    Mismo patron que `_docker_is_down`: se calcula adentro del lock para que
+    una tanda de requests pague una sola lectura.
+    """
+    global _external_seen
+    with _external_lock:
+        cuando, valor = _external_seen
+        if time.monotonic() - cuando < EXTERNAL_TTL:
+            return valor
+        roots = registry.paths()
+        mine = os.getpid()
+        found: dict[Path, set[int]] = {}
+        for s in ports.system_listeners():
+            if s.pid == mine:
+                continue
+            root = registry.project_for(s.cwd, s.cmdline, roots, s.name)
+            if root is not None:
+                found.setdefault(root, set()).add(s.port)
+        valor = {root: sorted(ps) for root, ps in found.items()}
+        _external_seen = (time.monotonic(), valor)
+        return valor
+
+
 # Cuanto vale una deteccion antes de repetirla. Entre los dos TTL que ya hay, y
 # a proposito: `registry.PORTS_TTL` son 30s porque alimenta un aviso de puertos
 # compartidos, donde llegar tarde no molesta. Esto alimenta la fila principal
@@ -1405,22 +1439,30 @@ def create_app(token: str | None = None) -> FastAPI:
         return {"orphans": registry.find_orphans(_active_service_ports())}
 
     @app.get("/api/ports/system", dependencies=[quota("state", QUOTA_READ), Depends(require_token)])
-    def system_ports() -> dict:
-        """Todos los puertos TCP en escucha en el sistema operativo."""
+    def system_ports(udp: bool = False) -> dict:
+        """Todos los sockets en escucha del sistema, con el proyecto que los levanto.
+
+        Sin cache: lo pide la interfaz a mano, al abrir el modal o al refrescar.
+        """
         declared = registry.declared_ports()
         active = _active_service_ports()
         my_pid = os.getpid()
+        roots = registry.paths()
 
-        raw = ports.system_listeners()
+        raw = ports.system_listeners(udp=udp)
         items = []
         for s in raw:
             is_self = s.pid == my_pid
             projects = [p.name for p in declared.get(s.port, [])]
+            owner = registry.project_for(s.cwd, s.cmdline, roots, s.name)
             items.append(
                 {
                     "port": s.port,
+                    "proto": s.proto,
+                    "addrs": list(s.addrs),
+                    "project": registry.name_of(owner) if owner else None,
                     "pid": s.pid,
-                    "name": s.name or "desconocido",
+                    "name": s.name,
                     "cmd": (s.cmdline or "")[:120] or None,
                     "is_self": is_self,
                     "projects": projects,
@@ -1641,8 +1683,10 @@ def _status_match(path: Path, wanted: str) -> bool:
     with sessions_lock:
         session = sessions.get(pid)
     state = session.state if session else "stopped"
+    if state == "stopped" and _external_ports().get(path):
+        state = "external"
     if wanted == "running":
-        return state in ("starting", "running")
+        return state in ("starting", "running", "external")
     if wanted == "stopped":
         return state == "stopped"
     if wanted == "error":
@@ -1667,6 +1711,7 @@ def _project_view(path: Path) -> dict:
             "state": "invalid",
             "error": str(exc),
             "services": [],
+            "external_ports": [],
             "profiles": [],
             "profile": None,
             "default": [],
@@ -1692,6 +1737,16 @@ def _project_view(path: Path) -> dict:
     tomados = session.service_taken() if session else set()
 
     scanned = ports.scan_many([s.port for s in stack.services.values() if s.port])
+    # Levantado desde otra terminal: `detect` no adivina puertos, asi que sin
+    # esto un `astro dev` corriendo se veia detenido. Solo se le asigna el
+    # puerto a un servicio si hay uno solo que lo descubre al arrancar; con
+    # dos, elegir seria adivinar, y los puertos quedan listados aparte.
+    externos = [] if session else _external_ports().get(path, [])
+    sin_puerto = [s.name for s in stack.services.values() if not s.port and s.ready == "listen"]
+    externo = sin_puerto[0] if externos and len(sin_puerto) == 1 else None
+    # Sin esto el servicio salia listo y el proyecto seguia "detenido" arriba.
+    if externos:
+        estado = "external"
     # Cacheado: resolver el stack de cada proyecto registrado cuesta de 1 a 92ms
     # segun tenga stack.yaml o haya que detectarlo, y esto corre por proyecto y
     # por request cada 2.5s. Ver registry.declared_ports.
@@ -1700,6 +1755,8 @@ def _project_view(path: Path) -> dict:
     for service in stack.services.values():
         status = scanned.get(service.port) if service.port else None
         state = running.get(service.name, "stopped")
+        if service.name == externo:
+            state = "ready"
         # Un detached vive fuera de nuestro arbol: si alguien lo bajo por afuera
         # (docker stop), el puerto libre es la verdad y el proceso no dice nada.
         if state == "ready" and service.detached and status is not None and status.free:
@@ -1717,7 +1774,7 @@ def _project_view(path: Path) -> dict:
             state = "ready"
         # Solo lo que contesta HTTP se ofrece para abrir: un postgres listo tiene
         # puerto y no es algo que mandar al navegador.
-        abrible = state != "stopped" and service.name in openable
+        abrible = state != "stopped" and (service.name in openable or service.name == externo)
         occ = _occupant(status, state != "stopped")
         suggested_alt = (
             ports.suggest_alternative(service.port, set(compartidos.keys()))
@@ -1730,7 +1787,11 @@ def _project_view(path: Path) -> dict:
                 # Contenedor o proceso local: es lo unico que se sabe de verdad
                 # del rol de un servicio. Adivinar "backend" por el nombre no.
                 "kind": "container" if service.detached else "local",
-                "port": service.port or discovered.get(service.name),
+                "port": service.port
+                or discovered.get(service.name)
+                or (externos[0] if service.name == externo else None),
+                # Corre, pero no lo arranco StackHelx: no hay proceso que apagar.
+                "external": service.name == externo,
                 "openable": abrible,
                 # Adonde lleva "Abrir", si el stack.yaml lo declara. None deja
                 # que la interfaz arme el default con el puerto.
@@ -1776,6 +1837,9 @@ def _project_view(path: Path) -> dict:
         # Que levanta Arrancar sin perfil. Vacio = todos.
         "default": list(stack.default or ()),
         "services": services,
+        # Puertos de este proyecto levantados por fuera que no se pudieron
+        # asignar a un servicio.
+        "external_ports": externos[1:] if externo else externos,
         "metrics": metrics,
         # Los dos: `docker_down` en False quiere decir "el daemon contesta" y
         # tambien "este proyecto no usa Docker", y la interfaz necesita

@@ -98,3 +98,49 @@ def test_un_proyecto_que_se_rompio_cae_en_el_nombre_de_la_carpeta(tmp_path, monk
     (carpeta / "stack.yaml").unlink()
     carpeta.rmdir()
     assert registry.name_of(carpeta.resolve(), max_age=0.0) == "borrado"
+
+
+# project_for ------------------------------------------------------------------
+
+
+def test_project_for_por_cwd_gana_el_mas_largo(tmp_path):
+    hijo = tmp_path / "Portfolio"
+    hijo.mkdir()
+    assert registry.project_for(str(hijo / "src"), None, [tmp_path, hijo], name="node.exe") == hijo
+
+
+def test_project_for_por_cmdline_si_no_hay_cwd(tmp_path):
+    p = tmp_path / "Portfolio"
+    p.mkdir()
+    cmd = f'"C:\Program Files\nodejs\node.exe" {p / "node_modules" / "astro" / "astro.js"} dev'
+    assert registry.project_for(None, cmd, [p]) == p
+
+
+def test_project_for_node_global_no_se_atribuye(tmp_path):
+    p = tmp_path / "Portfolio"
+    p.mkdir()
+    assert registry.project_for(str(tmp_path / "otro"), "node.exe server.js", [p]) is None
+
+
+def test_project_for_prefijo_que_no_es_carpeta(tmp_path):
+    p = tmp_path / "app"
+    p.mkdir()
+    assert registry.project_for(str(tmp_path / "app2"), f"{tmp_path / 'app2' / 'x.js'}", [p]) is None
+
+
+def test_project_for_herramienta_con_cwd_en_el_proyecto_no_se_atribuye(tmp_path):
+    """Medido: `claude.exe`, `codebase-memory-mcp.exe` y `StudioMCP.exe`
+    heredaban la carpeta del Portfolio y salian como puertos del proyecto.
+    Un binario propio con ese cwd no corre codigo del proyecto."""
+    p = tmp_path / "Portfolio"
+    p.mkdir()
+    cmd = r"C:\Users\x\.local\bin\claude.exe -r"
+    assert registry.project_for(str(p), cmd, [p], name="claude.exe") is None
+
+
+def test_project_for_interprete_global_con_cwd_en_el_proyecto(tmp_path):
+    # `python -m uvicorn main:app` con el python del sistema: solo el cwd lo delata.
+    p = tmp_path / "api"
+    p.mkdir()
+    cmd = r"C:\Python314\python.exe -m uvicorn main:app"
+    assert registry.project_for(str(p), cmd, [p], name="python.exe") == p

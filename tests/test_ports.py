@@ -261,6 +261,69 @@ def test_system_listeners_incluye_listener_propio(listener):
     assert puertos[port].free is False
 
 
+def test_system_listeners_dos_ip_mismo_pid_una_fila(free_ports):
+    if not getattr(socket, "has_ipv6", False):
+        pytest.skip("Sin soporte IPv6")
+    (port,) = free_ports(1)
+    a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    b = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    try:
+        a.bind(("127.0.0.1", port))
+        a.listen()
+        try:
+            b.bind(("::1", port))
+        except OSError:
+            pytest.skip("Sin loopback IPv6")
+        b.listen()
+        mias = [s for s in ports.system_listeners() if s.port == port]
+        assert len(mias) == 1
+        assert set(mias[0].addrs) == {"127.0.0.1", "::1"}
+        assert mias[0].proto == "tcp"
+        assert os.path.normcase(mias[0].cwd) == os.path.normcase(os.getcwd())
+    finally:
+        a.close()
+        b.close()
+
+
+def test_system_listeners_udp_solo_si_se_pide(free_ports):
+    (port,) = free_ports(1)
+    u = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        u.bind(("127.0.0.1", port))
+        assert not [s for s in ports.system_listeners() if s.port == port]
+        hit = [s for s in ports.system_listeners(udp=True) if s.port == port]
+        assert len(hit) == 1
+        assert hit[0].proto == "udp"
+        assert hit[0].pid == os.getpid()
+    finally:
+        u.close()
+
+
+def test_system_listeners_mismo_puerto_dos_duenos_dos_filas(free_ports):
+    # Mismo numero en TCP y UDP: son dos sockets distintos y no se pisan.
+    (port,) = free_ports(1)
+    t = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    u = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        t.bind(("127.0.0.1", port))
+        t.listen()
+        u.bind(("127.0.0.1", port))
+        filas = [s for s in ports.system_listeners(udp=True) if s.port == port]
+        assert sorted(s.proto for s in filas) == ["tcp", "udp"]
+    finally:
+        t.close()
+        u.close()
+
+
+def test_system_listeners_cwd_denegado_no_rompe(listener):
+    # Los servicios del sistema niegan cwd a un usuario normal: tiene que dar
+    # None y seguir, no cortar el listado. El listener propio garantiza al menos
+    # una fila: en macOS sin root no se ven los procesos ajenos.
+    items = ports.system_listeners()
+    assert items
+    assert all(s.cwd is None or isinstance(s.cwd, str) for s in items)
+
+
 def test_bind_free_detecta_ipv6_wildcard():
     if not getattr(socket, "has_ipv6", False):
         pytest.skip("Sin soporte IPv6")
