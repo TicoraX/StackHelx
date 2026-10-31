@@ -34,6 +34,19 @@
         <button
           class="btn btn--quiet masthead__notify"
           type="button"
+          id="btn-ports-modal"
+          data-ports-open
+          data-en="Ports"
+          data-es="Puertos"
+          data-en-title="Everything listening on this machine"
+          data-es-title="Todo lo que escucha en esta máquina"
+          title="Everything listening on this machine"
+        >
+          Ports
+        </button>
+        <button
+          class="btn btn--quiet masthead__notify"
+          type="button"
           id="btn-mcp-modal"
           data-en-title="MCP tool calls and telemetry"
           data-es-title="Telemetría y llamadas de herramientas MCP"
@@ -48,7 +61,7 @@
     </header>
 
     <main class="sheet">
-      <p class="lede" data-en="Your local stacks. Start, stop, and free ports left occupied." data-es="Tus stacks locales. Arrancá, apagá, liberá los puertos que quedaron tomados.">
+      <p class="lede" data-en="Your local stacks. Start, stop, and free ports left occupied." data-es="Tus stacks locales. Arranca, apaga y libera los puertos que quedaron tomados.">
         Your local stacks. Start, stop, and free ports left occupied.
       </p>
 
@@ -67,7 +80,7 @@
             data-es-placeholder="Buscar por nombre o ruta…"
             placeholder="Search by name or path…"
           />
-          <kbd class="kbd" data-en-title="Press / to search" data-es-title="Presioná / para buscar" title="Press / to search">/</kbd>
+          <kbd class="kbd" data-en-title="Press / to search" data-es-title="Presiona / para buscar" title="Press / to search">/</kbd>
           <span class="find__count" id="count" role="status"></span>
         </div>
         <div
@@ -93,9 +106,6 @@
             <span class="dot" data-tone="bad" aria-hidden="true"></span>
             <span data-en="Failed" data-es="Con error">Failed</span>
           </button>
-          <button class="chip chip--ports" type="button" id="btn-ports-modal">
-            <span data-en="Port map" data-es="Mapa de puertos">Port map</span>
-          </button>
         </div>
       </div>
 
@@ -117,7 +127,7 @@
       </nav>
 
       <p class="empty" id="empty" hidden>
-        <span data-en="No projects registered yet. Run " data-es="Todavía no registraste ningún proyecto. Corré ">No projects registered yet. Run </span><code>stackhelx add</code><span data-en=" inside a folder with " data-es=" dentro de una carpeta con "> inside a folder with </span><code>stack.yaml</code><span data-en=", or paste the path below." data-es=", o pegá la ruta acá abajo.">, or paste the path below.</span>
+        <span data-en="No projects registered yet. Run " data-es="Todavía no registraste ningún proyecto. Corre ">No projects registered yet. Run </span><code>stackhelx add</code><span data-en=" inside a folder with " data-es=" dentro de una carpeta con "> inside a folder with </span><code>stack.yaml</code><span data-en=", or paste the path below." data-es=", o pega la ruta aquí abajo.">, or paste the path below.</span>
       </p>
 
       <section class="orphans tunnels" id="tunnels" hidden>
@@ -139,16 +149,21 @@
       <section class="orphans" id="orphans" hidden>
         <div class="orphans__header">
           <div>
-            <h2 class="orphans__heading" id="orphans-heading" data-en="Stray processes" data-es="Procesos intrusos">Stray processes</h2>
+            <div class="orphans__bar">
+              <h2 class="orphans__heading" id="orphans-heading" data-en="Stray processes" data-es="Procesos intrusos">Stray processes</h2>
+              <div class="orphans__actions">
+                <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden data-en="Free all" data-es="Liberar todos">Free all</button>
+                <button class="btn btn--quiet orphans__map" type="button" data-ports-open data-en="Full port map →" data-es="Mapa completo →">Full port map →</button>
+              </div>
+            </div>
             <p
               class="orphans__desc"
-              data-en="Project ports occupied by processes not started by StackHelx. You can close them from here."
-              data-es="Puertos de tus proyectos ocupados por procesos que no arrancó StackHelx. Podés cerrarlos desde acá."
+              data-en="Your projects' ports held by processes StackHelx did not start. Everything else listening on the machine is in the full map."
+              data-es="Puertos de tus proyectos tomados por procesos que no arrancó StackHelx. Todo lo demás que escucha en la máquina está en el mapa completo."
             >
-              Project ports occupied by processes not started by StackHelx. You can close them from here.
+              Your projects' ports held by processes StackHelx did not start. Everything else listening on the machine is in the full map.
             </p>
           </div>
-          <button class="btn btn--kill-all" type="button" id="orphans-kill-all" hidden data-en="Free all" data-es="Liberar todos">Free all</button>
         </div>
         <ul class="orphans__list" id="orphans-list"></ul>
       </section>
@@ -156,7 +171,7 @@
       <form class="enroll" id="enroll">
         <label class="enroll__label" for="path">
           <span data-en="Register a project" data-es="Registrar un proyecto">Register a project</span>
-          <span class="enroll__hint" data-en="· or drag a folder here" data-es="· o arrastrá una carpeta acá">· or drag a folder here</span>
+          <span class="enroll__hint" data-en="· or drag a folder here" data-es="· o arrastra una carpeta aquí">· or drag a folder here</span>
         </label>
         <div class="enroll__row">
           <input
@@ -168,7 +183,7 @@
             autocomplete="off"
             spellcheck="false"
             data-en-placeholder="A:\Projects\my-app (or drag folder here)"
-            data-es-placeholder="A:\Proyectos\mi-app (o arrastrá la carpeta acá)"
+            data-es-placeholder="A:\Proyectos\mi-app (o arrastra la carpeta aquí)"
             placeholder="A:\Projects\my-app (or drag folder here)"
             required
           />
@@ -194,7 +209,7 @@
         aria-label="Clean Docker"
       >
         <div class="picker__head">
-          <p class="picker__path" data-en="What to clean in Docker" data-es="Qué limpiar de Docker">What to clean in Docker</p>
+          <p class="dialog__title" data-en="What to clean in Docker" data-es="Qué limpiar de Docker">What to clean in Docker</p>
           <button class="btn btn--quiet" type="button" data-clean="close" data-en="Close" data-es="Cerrar">Close</button>
         </div>
         <div class="clean">
@@ -215,12 +230,34 @@
         aria-label="Port map"
       >
         <div class="picker__head">
-          <p class="picker__path" data-en="Port map" data-es="Mapa de puertos">Port map</p>
+          <p class="dialog__title" data-en="Port map" data-es="Mapa de puertos">Port map</p>
           <div class="ports-modal__tabs" role="tablist">
-            <button class="btn btn--quiet is-active" type="button" data-ports-tab="projects" role="tab" aria-selected="true" data-en="Projects" data-es="De proyectos">Projects</button>
-            <button class="btn btn--quiet" type="button" data-ports-tab="system" role="tab" aria-selected="false" data-en="All system" data-es="Todo el sistema">All system</button>
+            <button class="btn btn--quiet is-active" type="button" data-ports-tab="system" role="tab" aria-selected="true" data-en="All system" data-es="Todo el sistema">All system</button>
+            <button class="btn btn--quiet" type="button" data-ports-tab="projects" role="tab" aria-selected="false" data-en="Projects" data-es="De proyectos">Projects</button>
           </div>
           <button class="btn btn--quiet" type="button" data-ports-modal="close" data-en-aria="Close" data-es-aria="Cerrar" aria-label="Close">✕</button>
+        </div>
+        <div class="ports-modal__tools" id="ports-tools">
+          <input
+            class="ports-modal__search"
+            type="search"
+            id="ports-search"
+            data-en-placeholder="Filter by port, process or project"
+            data-es-placeholder="Filtrar por puerto, proceso o proyecto"
+            placeholder="Filter by port, process or project"
+            data-en-aria="Filter ports"
+            data-es-aria="Filtrar puertos"
+            aria-label="Filter ports"
+          />
+          <label class="ports-modal__check">
+            <input type="checkbox" id="ports-hide-os" checked />
+            <span data-en="Hide Windows processes" data-es="Ocultar procesos de Windows">Hide Windows processes</span>
+          </label>
+          <label class="ports-modal__check">
+            <input type="checkbox" id="ports-udp" />
+            <span data-en="Include UDP" data-es="Incluir UDP">Include UDP</span>
+          </label>
+          <button class="btn btn--quiet" type="button" id="ports-refresh" data-en="Refresh" data-es="Refrescar">Refresh</button>
         </div>
         <ul class="orphans__list" id="ports-modal-list"></ul>
       </dialog>
@@ -233,7 +270,7 @@
         aria-label="MCP Agent Telemetry"
       >
         <div class="picker__head">
-          <p class="picker__path" data-en="MCP Server for Agents" data-es="Servidor MCP para Agentes">MCP Server for Agents</p>
+          <p class="dialog__title" data-en="MCP Server for Agents" data-es="Servidor MCP para Agentes">MCP Server for Agents</p>
           <button class="btn btn--quiet" type="button" data-mcp-modal="close" data-en="Close" data-es="Cerrar">Close</button>
         </div>
         <div class="mcp__content">
@@ -321,18 +358,18 @@
         aria-label="Authentication"
       >
         <div class="picker__head">
-          <p class="picker__path" data-en="StackHelx token required" data-es="Token de StackHelx requerido">StackHelx token required</p>
+          <p class="dialog__title" data-en="StackHelx token required" data-es="Token de StackHelx requerido">StackHelx token required</p>
         </div>
         <div class="auth">
           <p class="auth__hint">
-            <span data-en="Paste your access token (found in " data-es="Pegá tu token de acceso (lo encontrás en ">Paste your access token (found in </span><code>~/.stackhelx/token</code><span>).</span>
+            <span data-en="Paste your access token (found in " data-es="Pega tu token de acceso (lo encuentras en ">Paste your access token (found in </span><code>~/.stackhelx/token</code><span>).</span>
           </p>
           <input
             class="enroll__input auth__input"
             id="auth-token-input"
             type="password"
             data-en-placeholder="Paste token here..."
-            data-es-placeholder="Pegá el token acá..."
+            data-es-placeholder="Pega el token aquí..."
             placeholder="Paste token here..."
           />
         </div>
@@ -345,7 +382,7 @@
     <footer class="colophon">
       <span
         data-en="Loopback only. Any tunnel you open here exposes that port to the internet."
-        data-es="Solo loopback. Un túnel que abras acá sí expone ese puerto a internet."
+        data-es="Solo loopback. Un túnel que abras aquí sí expone ese puerto a internet."
       >Loopback only. Any tunnel you open here exposes that port to the internet.</span>
       <span
         class="colophon__build"

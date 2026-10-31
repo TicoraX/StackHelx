@@ -7,6 +7,7 @@ saliendo de `doctor._docker`, que es quien ya lo sabe.
 
 from __future__ import annotations
 
+import re
 import subprocess
 from collections.abc import Sequence
 
@@ -103,6 +104,36 @@ def running() -> list[str]:
     if done.returncode != 0:
         return []
     return [line.strip() for line in (done.stdout or "").splitlines() if line.strip()]
+
+
+def published() -> dict[int, str] | None:
+    """Puerto del host publicado -> carpeta del compose que levanto el contenedor.
+
+    Cadena vacia si el contenedor no es de un compose (un `docker run` suelto).
+    None si docker no contesta: ahi no se sabe de quien es, y no se adivina.
+    """
+    try:
+        done = subprocess.run(
+            ["docker", "ps", "--format", '{{.Ports}}\t{{.Label "com.docker.compose.project.working_dir"}}'],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=TIMEOUT,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if done.returncode != 0:
+        return None
+    return _parse_published(done.stdout or "")
+
+
+def _parse_published(salida: str) -> dict[int, str]:
+    found: dict[int, str] = {}
+    for line in salida.splitlines():
+        puertos, _, carpeta = line.partition("\t")
+        for port in re.findall(r":(\d+)->", puertos):
+            found[int(port)] = carpeta.strip()
+    return found
 
 
 def usage() -> str | None:

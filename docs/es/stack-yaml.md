@@ -2,7 +2,7 @@
 
 [English](../stack-yaml.md) · **Español**
 
-El ejemplo mínimo está en el [README](../../README.es.md#stackyaml). Acá está cada
+El ejemplo mínimo está en el [README](../../README.es.md#stackyaml). Aquí está cada
 campo, con el ejemplo completo y comentado en
 [`stack.example.yaml`](../../stack.example.yaml).
 
@@ -19,8 +19,8 @@ cada nivel en lugar de la suma de todos, a cambio de que los logs de los
 primeros segundos se entreveren. Van prefijados por servicio y con un color
 propio cada uno, así que se siguen leyendo.
 
-`default` es opcional y lista qué arranca cuando no pedís perfil. Sin él,
-arranca todo, que es lo que casi siempre querés. Existe para el caso de abajo.
+`default` es opcional y lista qué arranca cuando no pides perfil. Sin él,
+arranca todo, que es lo que casi siempre quieres. Existe para el caso de abajo.
 
 ## Perfiles de un compose detectado
 
@@ -55,7 +55,7 @@ archivo congelado prendería lo que el compose deja apagado a propósito.
 | `none` | nada (default si no hay `port`) |
 
 `listen` es para servicios que eligen su propio puerto. Es incompatible con
-`port`: si lo conocés, el healthcheck es `port`.
+`port`: si lo conoces, el healthcheck es `port`.
 
 `port` no distingue quién contesta. Si alguien ya escuchaba ahí antes de
 arrancar, el servicio se declara listo en el acto aunque el `listo` sea de otro

@@ -3,7 +3,7 @@
 [English](../interfaz.md) · **Español**
 
 Cómo se arranca y qué muestra está en el
-[README](../../README.es.md#interfaz-web). Acá está el detalle de cada control y por
+[README](../../README.es.md#interfaz-web). Aquí está el detalle de cada control y por
 qué se comporta como se comporta.
 
 ## Selector de idioma (EN / ES)
@@ -16,7 +16,7 @@ La interfaz abre en inglés por defecto y recuerda tu elección en `localStorage
 ## Caídas y avisos
 
 Cuando un servicio se muere solo, el título de la pestaña lleva un contador y
-el encabezado dice cuántos hay caídos. Con `Avisarme` podés además pedir
+el encabezado dice cuántos hay caídos. Con `Avisarme` puedes además pedir
 notificaciones del navegador, que solo avisan de caídas nuevas y nunca de un
 `Apagar` ni de un `Reiniciar`. El permiso se pide con ese click y nunca al
 cargar la página.
@@ -78,6 +78,18 @@ error del propio Docker. Cuando el motor termina de levantar, el botón no
 desaparece: pasa a decir `Reiniciar Docker`. Lo mueve la misma vista de estado
 que ya sondea `docker info`.
 
+## Mapa de puertos
+
+El mapa abre en `Todo el sistema`: cada socket que el sistema reporta en escucha,
+con protocolo, dirección (`0.0.0.0` o `::` sale marcado como expuesto a la red),
+proceso, línea de comandos y, si se puede atribuir, el proyecto registrado al que
+pertenece. Se lee al abrir el mapa o al tocar `Refrescar`, nunca en segundo
+plano. `Ocultar procesos de Windows` (activo por defecto) esconde RPC, SMB y
+parecidos, `Incluir UDP` suma los sockets UDP ligados, y el filtro busca por
+puerto, proceso, proyecto o comando. La pestaña `De proyectos` muestra solo los
+puertos de proyectos registrados, incluidos los servidores arrancados fuera de
+StackHelx.
+
 ## Explorar carpetas
 
 Para registrar un proyecto no hace falta copiar la ruta: `Explorar…` abre un
@@ -93,4 +105,4 @@ El servidor escucha solo en loopback y exige un token que `serve` genera en
 `~/.stackhelx/token` y pasa en la URL de arranque. Ejecuta los comandos de tus
 `stack.yaml`, así que se trata como superficie sensible: rate limit en todas las
 rutas, CSP estricta, y validación del header `Host` contra rebinding de DNS.
-Podés fijar el token vos mismo con `STACKHELX_TOKEN`.
+Puedes fijar el token tú mismo con `STACKHELX_TOKEN`.

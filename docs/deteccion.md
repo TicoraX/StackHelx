@@ -98,5 +98,22 @@ even when Vite sees port 5173 occupied and shifts to 5174. The trade-off is that
 is only known after the process binds it. Compose ports are declared statically
 and freed beforehand.
 
+A server started from another terminal (say, `astro dev` in the project folder)
+is not in StackHelx's process tree, so its port cannot be discovered that way.
+The dashboard attributes it from OS evidence instead: a project path in the
+process command line, or the working directory when the process is an
+interpreter (`node`, `python`, `bun`, `deno`, `java`, `dotnet`, `php`, `ruby`).
+A tool binary that merely inherited the folder as its working directory, such as
+an editor or an MCP server, is not attributed. If the project has exactly one
+service without a declared port, that service shows as ready with the port and
+an `external` mark; with two or more, the ports are listed for the project
+without guessing which service owns them.
+
+StackHelx also drops agent-identifying variables (`CLAUDECODE`, `AI_AGENT`,
+`OPENCODE`, `GEMINI_CLI` and similar) from the environment it passes to services.
+Astro 7 backgrounds `astro dev` as a daemon when it sees them, which would leave
+the server outside the process tree with no port and no way to stop it. A
+variable you set in `env.global` or in the service's `env` still applies.
+
 `stackhelx init` writes the detected stack to `stack.yaml` for manual editing
 and refuses to overwrite an existing file.

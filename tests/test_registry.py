@@ -27,6 +27,28 @@ def test_find_collisions(tmp_path, monkeypatch):
     assert 8080 not in collisions
 
 
+def test_declared_ports_cuenta_los_servicios_fuera_del_default(tmp_path, monkeypatch):
+    """El caso de Decepticon: su `web` en el 3000 vive en un perfil aparte.
+    Mirando solo el default, el choque con otro proyecto en el 3000 no se avisaba
+    y los intrusos decian un dueno que el mapa de puertos no."""
+    monkeypatch.setattr(registry, "HOME", tmp_path)
+    monkeypatch.setattr(registry, "PROJECTS", tmp_path / "projects.json")
+    p1 = tmp_path / "app1"
+    p2 = tmp_path / "app2"
+    p1.mkdir()
+    p2.mkdir()
+    (p1 / "stack.yaml").write_text(
+        "name: a1\nservices:\n  db:\n    command: echo db\n    port: 5432\n"
+        "  web:\n    command: echo web\n    port: 3000\ndefault: [db]\n",
+        encoding="utf-8",
+    )
+    (p2 / "stack.yaml").write_text("name: a2\nservices:\n  web:\n    command: echo 2\n    port: 3000\n", encoding="utf-8")
+    registry.add(p1)
+    registry.add(p2)
+
+    assert set(registry.find_collisions()[3000]) == {p1.resolve(), p2.resolve()}
+
+
 def _proyecto(raiz, nombre, comando):
     root = raiz / nombre
     root.mkdir()
@@ -98,3 +120,49 @@ def test_un_proyecto_que_se_rompio_cae_en_el_nombre_de_la_carpeta(tmp_path, monk
     (carpeta / "stack.yaml").unlink()
     carpeta.rmdir()
     assert registry.name_of(carpeta.resolve(), max_age=0.0) == "borrado"
+
+
+# project_for ------------------------------------------------------------------
+
+
+def test_project_for_por_cwd_gana_el_mas_largo(tmp_path):
+    hijo = tmp_path / "Portfolio"
+    hijo.mkdir()
+    assert registry.project_for(str(hijo / "src"), None, [tmp_path, hijo], name="node.exe") == hijo
+
+
+def test_project_for_por_cmdline_si_no_hay_cwd(tmp_path):
+    p = tmp_path / "Portfolio"
+    p.mkdir()
+    cmd = f'"C:\Program Files\nodejs\node.exe" {p / "node_modules" / "astro" / "astro.js"} dev'
+    assert registry.project_for(None, cmd, [p]) == p
+
+
+def test_project_for_node_global_no_se_atribuye(tmp_path):
+    p = tmp_path / "Portfolio"
+    p.mkdir()
+    assert registry.project_for(str(tmp_path / "otro"), "node.exe server.js", [p]) is None
+
+
+def test_project_for_prefijo_que_no_es_carpeta(tmp_path):
+    p = tmp_path / "app"
+    p.mkdir()
+    assert registry.project_for(str(tmp_path / "app2"), f"{tmp_path / 'app2' / 'x.js'}", [p]) is None
+
+
+def test_project_for_herramienta_con_cwd_en_el_proyecto_no_se_atribuye(tmp_path):
+    """Medido: `claude.exe`, `codebase-memory-mcp.exe` y `StudioMCP.exe`
+    heredaban la carpeta del Portfolio y salian como puertos del proyecto.
+    Un binario propio con ese cwd no corre codigo del proyecto."""
+    p = tmp_path / "Portfolio"
+    p.mkdir()
+    cmd = r"C:\Users\x\.local\bin\claude.exe -r"
+    assert registry.project_for(str(p), cmd, [p], name="claude.exe") is None
+
+
+def test_project_for_interprete_global_con_cwd_en_el_proyecto(tmp_path):
+    # `python -m uvicorn main:app` con el python del sistema: solo el cwd lo delata.
+    p = tmp_path / "api"
+    p.mkdir()
+    cmd = r"C:\Python314\python.exe -m uvicorn main:app"
+    assert registry.project_for(str(p), cmd, [p], name="python.exe") == p

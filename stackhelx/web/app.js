@@ -46,6 +46,11 @@ const ui = {
   btnPortsModal: document.getElementById("btn-ports-modal"),
   portsModal: document.getElementById("ports-modal"),
   portsModalList: document.getElementById("ports-modal-list"),
+  portsTools: document.getElementById("ports-tools"),
+  portsSearch: document.getElementById("ports-search"),
+  portsHideOs: document.getElementById("ports-hide-os"),
+  portsUdp: document.getElementById("ports-udp"),
+  portsRefresh: document.getElementById("ports-refresh"),
   btnLang: document.getElementById("btn-lang"),
   btnMcpModal: document.getElementById("btn-mcp-modal"),
   mcpModal: document.getElementById("mcp-modal"),
@@ -161,6 +166,8 @@ async function api(path, options = {}) {
     sessionStorage.removeItem("stackhelx.token");
     token = "";
     promptAuthModal();
+    // El detalle del servidor viene en espanol fijo; aca se sabe que paso.
+    throw new Error(tr("invalid token", "token inválido"));
   }
 
   if (!response.ok) {
@@ -227,6 +234,7 @@ function getProjectLabel(state) {
     stopped: [tr("stopped", "detenido"), ""],
     starting: [tr("starting", "arrancando"), "starting"],
     running: [tr("running", "corriendo"), "ready"],
+    external: [tr("running · external", "corriendo · externo"), "ready"],
     stopping: [tr("stopping", "apagando"), "starting"],
     error: [tr("failed", "con error"), "bad"],
     invalid: [tr("invalid config", "config invalida"), "bad"],
@@ -459,7 +467,13 @@ function renderService(service, projectId) {
     }
   } else {
     const [label, tone] = getServiceLabel(service.state);
-    text.textContent = label;
+    text.textContent = service.external ? `${label} · ${tr("external", "externo")}` : label;
+    if (service.external) {
+      text.title = tr(
+        "Started outside StackHelx: it is listening, but there is no process here to stop",
+        "Arrancado fuera de StackHelx: escucha, pero no hay un proceso de aca para apagar",
+      );
+    }
     stateCell.dataset.tone = tone;
   }
 
@@ -919,7 +933,7 @@ function refreshCleanButton() {
   ui.cleanRun.disabled = elegidos.length === 0;
   ui.cleanRun.textContent = elegidos.length
     ? tr(`Clean ${elegidos.length}`, `Limpiar ${elegidos.length}`)
-    : tr("Select at least one", "Elegí algo");
+    : tr("Select at least one", "Elige al menos uno");
   ui.cleanWarn.textContent = elegidos.includes("volumes")
     ? tr("Volumes cannot be recovered.", "Los volúmenes no se pueden recuperar.")
     : "";
@@ -1052,7 +1066,11 @@ function updateCard(entry, project) {
   root.querySelector(".project__path").textContent = project.path;
 
   if (!entry.userToggled) {
-    entry.expanded = project.state === "running" || project.state === "starting" || Boolean(project.error);
+    entry.expanded =
+      project.state === "running" ||
+      project.state === "starting" ||
+      project.state === "external" ||
+      Boolean(project.error);
     root.setAttribute("data-expanded", String(entry.expanded));
     const toggleBtn = root.querySelector(".project__toggle");
     if (toggleBtn) toggleBtn.setAttribute("aria-expanded", String(entry.expanded));
@@ -1096,7 +1114,7 @@ function updateCard(entry, project) {
   const fingerprint = JSON.stringify([
     currentLang,
     ...project.services.map((s) => [s.name, s.state, s.port, s.openable, s.managed,
-      s.port_taken, s.shared_with, s.occupant, tunnelPorts.has(s.port)]),
+      s.port_taken, s.shared_with, s.occupant, tunnelPorts.has(s.port), s.external]),
   ]);
   if (services.dataset.fingerprint !== fingerprint) {
     services.dataset.fingerprint = fingerprint;
@@ -1197,7 +1215,8 @@ function updateCard(entry, project) {
   const stopping = project.state === "stopping";
   // Hay algo que apagar aunque no lo hayamos arrancado nosotros: un contenedor
   // levantado desde la terminal publica su puerto y se ve "listo".
-  const algoVivo = live || project.services.some((s) => s.state !== "stopped");
+  // Lo arrancado por fuera no cuenta: no hay proceso nuestro que apagar.
+  const algoVivo = live || project.services.some((s) => s.state !== "stopped" && !s.external);
   root.querySelector('[data-act="up"]').disabled =
     live || stopping || project.state === "invalid";
   root.querySelector('[data-act="down"]').disabled = !algoVivo || stopping;
@@ -1296,7 +1315,7 @@ function renderGraph(project, entry) {
 
   nodeMap.forEach((node) => {
     let dotColor = "var(--color-ink-4)";
-    if (node.state === "ready") dotColor = "var(--color-good)";
+    if (node.state === "ready") dotColor = "var(--color-ok)";
     else if (node.state === "starting") dotColor = "var(--color-warn)";
     else if (node.state === "error") dotColor = "var(--color-bad)";
 
@@ -1308,13 +1327,13 @@ function renderGraph(project, entry) {
         <rect width="${nodeWidth}" height="${nodeHeight}" rx="6"
               fill="var(--color-paper)" stroke="var(--color-rule-strong)" stroke-width="1" />
         <circle cx="12" cy="${nodeHeight / 2}" r="4" fill="${dotColor}" />
-        <text x="24" y="${nodeHeight / 2 + (portText ? -2 : 4)}"
-              fill="var(--color-ink)" font-family="var(--font-mono)" font-size="11" font-weight="600">
+        <text x="24" y="${nodeHeight / 2 + (portText ? -3 : 5)}"
+              fill="var(--color-ink)" font-family="var(--font-body)" font-size="13" font-weight="600">
           ${escapeXml(label)}
         </text>
         ${
           portText
-            ? `<text x="24" y="${nodeHeight / 2 + 10}" fill="var(--color-ink-3)" font-family="var(--font-mono)" font-size="9">${escapeXml(portText)}</text>`
+            ? `<text x="24" y="${nodeHeight / 2 + 12}" fill="var(--color-ink-3)" font-family="var(--font-mono)" font-size="11">${escapeXml(portText)}</text>`
             : ""
         }
       </g>
@@ -1405,7 +1424,7 @@ function renderLogsText(entry) {
   if (!raw) {
     logsEl.textContent = tr(
       "No logs yet. Only logs from a stack started from here are recorded.",
-      "Todavía no hay logs. Solo se registran los de un stack arrancado desde acá.",
+      "Todavía no hay logs. Solo se registran los de un stack arrancado desde aquí.",
     );
   } else if (!filter) {
     logsEl.textContent = raw;
@@ -1487,7 +1506,7 @@ function renderHistoryTable(entry, runs) {
       }
       tdRes.textContent = resText;
       if (r.result === "running") {
-        tdRes.style.color = "var(--color-good)";
+        tdRes.style.color = "var(--color-ok)";
       } else if (r.result === "error") {
         tdRes.style.color = "var(--color-bad)";
       }
@@ -1668,7 +1687,7 @@ function updateFavicon(projects, data) {
   if (!link) return;
   const fallenCount = data && data.fallen ? data.fallen.length : 0;
   const hasError = projects.some((p) => p.state === "error" || p.state === "invalid");
-  const hasRunning = projects.some((p) => p.state === "running" || p.state === "starting");
+  const hasRunning = projects.some((p) => ["running", "starting", "external"].includes(p.state));
 
   let color = "%2364748b";
   if (fallenCount > 0 || hasError) {
@@ -1994,7 +2013,7 @@ async function browseTo(path, isHistoryAction = false) {
 
   here = data;
   ui.pickerPath.textContent =
-    data.path || tr("Choose where to start", "Elegí dónde empezar");
+    data.path || tr("Choose where to start", "Elige dónde empezar");
   ui.pickerNote.hidden = !data.truncated;
   if (data.truncated) {
     ui.pickerNote.textContent = tr(
@@ -2330,13 +2349,55 @@ ui.enroll.addEventListener("submit", (event) => {
 
 /* mapa de puertos modal --------------------------------------------------- */
 
-let currentPortsTab = "projects";
+let currentPortsTab = "system";
+// Lo ultimo que devolvio /api/ports/system: filtrar mientras se escribe no
+// vuelve a leer la tabla de sockets.
+let systemPorts = [];
+
+// Procesos del sistema operativo que no levanta nadie desde un proyecto: RPC,
+// SMB, LSASS. Sin ocultarlos son la mitad de la lista en Windows.
+const OS_PROCESSES = new Set([
+  "system",
+  "svchost.exe",
+  "lsass.exe",
+  "wininit.exe",
+  "services.exe",
+  "spoolsv.exe",
+]);
+const PORTS_PREFS_KEY = "stackhelx.portsModal";
+
+function readPortsPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem(PORTS_PREFS_KEY) || "{}");
+  } catch {
+    // Almacenamiento bloqueado o JSON corrupto: los defaults del HTML valen.
+    return {};
+  }
+}
+
+function savePortsPrefs() {
+  try {
+    localStorage.setItem(
+      PORTS_PREFS_KEY,
+      JSON.stringify({ hideOs: ui.portsHideOs.checked, udp: ui.portsUdp.checked }),
+    );
+  } catch {
+    // Sin almacenamiento la preferencia dura lo que dure la pestana.
+  }
+}
 
 if (ui.btnPortsModal && ui.portsModal) {
-  ui.btnPortsModal.addEventListener("click", () => {
-    ui.portsModal.showModal();
-    refreshPortsModal();
-  });
+  const prefs = readPortsPrefs();
+  if (typeof prefs.hideOs === "boolean") ui.portsHideOs.checked = prefs.hideOs;
+  if (typeof prefs.udp === "boolean") ui.portsUdp.checked = prefs.udp;
+
+  // Arriba en el encabezado y abajo en la seccion de intrusos: el mismo modal.
+  for (const btn of document.querySelectorAll("[data-ports-open]")) {
+    btn.addEventListener("click", () => {
+      ui.portsModal.showModal();
+      refreshPortsModal();
+    });
+  }
   const closeBtn = ui.portsModal.querySelector('[data-ports-modal="close"]');
   if (closeBtn) {
     closeBtn.addEventListener("click", () => {
@@ -2351,87 +2412,131 @@ if (ui.btnPortsModal && ui.portsModal) {
         b.classList.toggle("is-active", b === btn);
         b.setAttribute("aria-selected", b === btn ? "true" : "false");
       });
-      currentPortsTab = btn.dataset.portsTab || "projects";
+      currentPortsTab = btn.dataset.portsTab || "system";
       refreshPortsModal();
     });
   });
+
+  ui.portsSearch.addEventListener("input", renderSystemPorts);
+  ui.portsHideOs.addEventListener("change", () => {
+    savePortsPrefs();
+    renderSystemPorts();
+  });
+  ui.portsUdp.addEventListener("change", () => {
+    savePortsPrefs();
+    refreshPortsModal();
+  });
+  ui.portsRefresh.addEventListener("click", () => refreshPortsModal());
+}
+
+function portsEmpty(text) {
+  const empty = document.createElement("li");
+  empty.className = "orphan orphan--empty";
+  empty.textContent = text;
+  return empty;
+}
+
+function systemPortLabel(item) {
+  const pid = item.pid ?? tr("unknown", "desconocido");
+  const name = item.name || tr("unknown process", "proceso desconocido");
+  if (item.is_self) {
+    return tr(`StackHelx (this dashboard · pid ${pid})`, `StackHelx (este panel · pid ${pid})`);
+  }
+  if (item.project) return `${item.project} · ${name} (pid ${pid})`;
+  if (item.projects && item.projects.length) {
+    return `${name} · ${item.projects.join(tr(" and ", " y "))} (pid ${pid})`;
+  }
+  return `${name} (pid ${pid})`;
+}
+
+function renderSystemPorts() {
+  if (currentPortsTab !== "system") return;
+  const query = ui.portsSearch.value.trim().toLowerCase();
+  const hideOs = ui.portsHideOs.checked;
+  const list = systemPorts.filter((item) => {
+    if (hideOs && (item.pid === 0 || item.pid === 4 || OS_PROCESSES.has((item.name || "").toLowerCase()))) {
+      return false;
+    }
+    if (!query) return true;
+    const haystack = [item.port, item.name, item.project, item.cmd, ...(item.projects || [])]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(query);
+  });
+
+  if (list.length === 0) {
+    ui.portsModalList.replaceChildren(
+      portsEmpty(
+        systemPorts.length
+          ? tr("No port matches the filter", "Ningun puerto coincide con el filtro")
+          : tr("No ports listening on the system", "No hay puertos en escucha en el sistema"),
+      ),
+    );
+    return;
+  }
+
+  ui.portsModalList.replaceChildren(
+    ...list.map((item) => {
+      const li = document.createElement("li");
+      li.className = "orphan";
+
+      const portTag = document.createElement("span");
+      portTag.className = "orphan__port";
+      portTag.textContent = `:${item.port}`;
+
+      const info = document.createElement("div");
+      info.className = "orphan__info";
+
+      const name = document.createElement("div");
+      name.className = "orphan__name";
+      name.textContent = systemPortLabel(item);
+
+      // Protocolo e IP antes que el comando: 0.0.0.0 o :: es lo que dice si el
+      // puerto se ve desde la red y no solo desde esta maquina.
+      const addrs = item.addrs || [];
+      const exposed = addrs.some((a) => a === "0.0.0.0" || a === "::");
+      const where = document.createElement("div");
+      where.className = "orphan__meta";
+      where.textContent = `${item.proto || "tcp"} ${addrs.join(", ")}${
+        exposed ? ` · ${tr("exposed to the network", "expuesto a la red")}` : ""
+      }`;
+      if (exposed) where.dataset.tone = "warn";
+
+      const meta = document.createElement("div");
+      meta.className = "orphan__meta";
+      meta.textContent = item.cmd ? item.cmd : tr("System process", "Proceso del sistema");
+
+      info.append(name, where, meta);
+
+      if (item.can_kill) {
+        const killBtn = document.createElement("button");
+        killBtn.className = "orphan__kill";
+        killBtn.textContent = tr("Close", "Cerrar");
+        killBtn.type = "button";
+        killBtn.addEventListener("click", () => {
+          act(killBtn, async () => {
+            await api(`/api/ports/${item.port}/kill`, { method: "POST" });
+            await refreshPortsModal();
+          });
+        });
+        li.append(portTag, info, killBtn);
+      } else {
+        li.append(portTag, info);
+      }
+      return li;
+    }),
+  );
 }
 
 async function refreshPortsModal() {
   if (!ui.portsModalList) return;
+  ui.portsTools.hidden = currentPortsTab !== "system";
   try {
     if (currentPortsTab === "system") {
-      const data = await api("/api/ports/system");
-      const list = data.ports || [];
-      if (list.length === 0) {
-        const empty = document.createElement("li");
-        empty.className = "orphan orphan--empty";
-        empty.textContent = tr(
-          "No TCP ports listening on the system",
-          "No hay puertos TCP en escucha en el sistema",
-        );
-        ui.portsModalList.replaceChildren(empty);
-        return;
-      }
-
-      ui.portsModalList.replaceChildren(
-        ...list.map((item) => {
-          const li = document.createElement("li");
-          li.className = "orphan";
-
-          const portTag = document.createElement("span");
-          portTag.className = "orphan__port";
-          portTag.textContent = `:${item.port}`;
-
-          const info = document.createElement("div");
-          info.className = "orphan__info";
-
-          const name = document.createElement("div");
-          name.className = "orphan__name";
-          if (item.is_self) {
-            name.textContent = tr(
-              `StackHelx (this dashboard · pid ${item.pid})`,
-              `StackHelx (este panel · pid ${item.pid})`,
-            );
-          } else if (item.projects && item.projects.length) {
-            name.textContent = `${item.name} · ${item.projects.join(tr(" and ", " y "))} (pid ${item.pid})`;
-          } else if (
-            (item.name || "").toLowerCase().includes("python") &&
-            (item.cmd || "").toLowerCase().includes("stackhelx")
-          ) {
-            name.textContent = tr(
-              `StackHelx (another instance · pid ${item.pid})`,
-              `StackHelx (otra instancia · pid ${item.pid})`,
-            );
-          } else {
-            name.textContent = `${item.name} (pid ${item.pid || tr("unknown", "desconocido")})`;
-          }
-
-          const meta = document.createElement("div");
-          meta.className = "orphan__meta";
-          meta.textContent = item.cmd ? item.cmd : tr("System process", "Proceso del sistema");
-
-          info.append(name, meta);
-
-          if (item.can_kill) {
-            const killBtn = document.createElement("button");
-            killBtn.className = "orphan__kill";
-            killBtn.textContent = tr("Close", "Cerrar");
-            killBtn.type = "button";
-            killBtn.addEventListener("click", () => {
-              act(killBtn, async () => {
-                await api(`/api/ports/${item.port}/kill`, { method: "POST" });
-                await refreshPortsModal();
-              });
-            });
-            li.append(portTag, info, killBtn);
-          } else {
-            li.append(portTag, info);
-          }
-
-          return li;
-        }),
-      );
+      const data = await api(`/api/ports/system?udp=${ui.portsUdp.checked ? 1 : 0}`);
+      systemPorts = data.ports || [];
+      renderSystemPorts();
       return;
     }
 
@@ -2440,21 +2545,25 @@ async function refreshPortsModal() {
       api("/api/ports/orphans"),
     ]);
 
+    const externo = tr("running (started outside StackHelx)", "corriendo (arrancado fuera de StackHelx)");
     const items = [];
     for (const project of stateData.projects || []) {
       for (const service of project.services || []) {
         if (service.port) {
+          let kind = service.state === "ready" ? tr("running", "corriendo") : tr("stopped", "detenido");
+          if (service.external) kind = externo;
           items.push({
             port: service.port,
             label: `${project.name} · ${service.name}`,
-            kind:
-              service.state === "ready"
-                ? tr("running", "corriendo")
-                : tr("stopped", "detenido"),
+            kind,
             openable: service.openable,
             url: service.url,
           });
         }
+      }
+      // Levantados por fuera que no se pudieron asignar a un servicio.
+      for (const port of project.external_ports || []) {
+        items.push({ port, label: project.name, kind: externo });
       }
     }
 
@@ -2536,8 +2645,18 @@ async function refreshPortsModal() {
         return li;
       }),
     );
-  } catch {
-    // Silencioso
+  } catch (error) {
+    // Sin esto el modal se quedaba con la lista vieja, o vacia, y sin decir nada.
+    const li = portsEmpty(
+      tr(`Could not read the ports: ${error.message}`, `No se pudieron leer los puertos: ${error.message}`),
+    );
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "btn btn--quiet";
+    retry.textContent = tr("Retry", "Reintentar");
+    retry.addEventListener("click", () => refreshPortsModal());
+    li.append(" ", retry);
+    ui.portsModalList.replaceChildren(li);
   }
 }
 
