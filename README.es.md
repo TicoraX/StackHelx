@@ -73,7 +73,7 @@ shx up --env-file .env.qa   # carga ese .env antes de arrancar
 archivo en el entorno del proceso antes de resolver el stack, así que lo ven
 todos los servicios. Es para la corrida puntual contra otro entorno, sin editar
 el archivo. A diferencia de `env_file:`, acepta rutas fuera de la raíz del
-proyecto, porque acá la ruta la escribiste vos en la terminal y no viene de un
+proyecto, porque aquí la ruta la escribiste tú en la terminal y no viene de un
 archivo de un repo ajeno.
 
 Antes de arrancar libera los puertos declarados que tenga otro proceso, y
@@ -129,7 +129,7 @@ Dónde busca cada lenguaje y por qué reconoce eso y no otra cosa, en
 
 ## stack.yaml
 
-En la raíz del proyecto. StackHelx lo busca hacia arriba, así que podés correr
+En la raíz del proyecto. StackHelx lo busca hacia arriba, así que puedes correr
 los comandos desde cualquier subdirectorio.
 
 ```yaml
@@ -165,7 +165,7 @@ healthchecks de `ready` y los perfiles heredados de un compose están en
 
 ## Interfaz web
 
-Cuando tenés varios proyectos, el CLI se queda corto: trabaja sobre el
+Cuando tienes varios proyectos, el CLI se queda corto: trabaja sobre el
 directorio actual. La interfaz los muestra todos a la vez.
 
 ```bash
@@ -174,7 +174,7 @@ stackhelx serve        # abre http://127.0.0.1:7666
 
 Viene con la instalación, no hace falta nada más. Registrar proyectos se puede
 desde la propia interfaz con `Explorar…` (`Browse…`), o desde la terminal con
-`stackhelx add .`. En el encabezado podés conmutar el idioma de toda la interfaz
+`stackhelx add .`. En el encabezado puedes conmutar el idioma de toda la interfaz
 en vivo con el selector `EN / ES`.
 
 Estado de cada servicio, arrancar y apagar stacks, liberar puertos tomados por
@@ -205,7 +205,7 @@ Liberar un puerto tomado por un proceso zombie:
 stackhelx free 3000
 ```
 
-Muestra qué proceso lo ocupa y pide confirmación antes de cerrarlo. Si decís
+Muestra qué proceso lo ocupa y pide confirmación antes de cerrarlo. Si dices
 que no, sugiere el siguiente puerto disponible.
 
 Opciones: `--yes` salta la confirmación (para scripts), `--force` aplica
@@ -221,7 +221,7 @@ Recorre los puertos declarados por todos los proyectos registrados, lista lo
 que encuentre ocupado y pide una sola confirmación. Sale con código 1 si no
 pudo cerrar alguno.
 
-El CLI no sabe qué arrancaste vos: si tenés un stack levantado en otra
+El CLI no sabe qué arrancaste tú: si tienes un stack levantado en otra
 terminal, sus servicios aparecen en esa lista y también se cierran. Por eso la
 muestra entera antes de tocar nada, y por eso la confirmación viene con "no"
 por defecto. La interfaz web sí lo sabe, y ahí el botón "Liberar todos"
@@ -234,7 +234,7 @@ Estas reglas están en el código, no en la documentación:
 - Nunca cierra PID 0, PID 4, el propio StackHelx ni un proceso padre suyo.
   Matar tu propia terminal no es una función.
 - Revalida la hora de creación del proceso entre el escaneo y el cierre. Los
-  PID se reciclan; sin ese chequeo terminás matando algo al azar.
+  PID se reciclan; sin ese chequeo terminas matando algo al azar.
 - Manda `terminate()` y espera 5 segundos. `kill()` solo con `--force`
   explícito, porque un `npm run dev` matado a lo bruto deja hijos huérfanos.
 - Sin permisos, lo dice y corta. No reintenta escalando privilegios.
@@ -251,7 +251,7 @@ Estas reglas están en el código, no en la documentación:
 ## Modelo de confianza
 
 `stack.yaml` ejecuta comandos arbitrarios, igual que `package.json` o un
-`Makefile`. StackHelx no lo sandboxea: sería teatro. Tratá un `stack.yaml`
+`Makefile`. StackHelx no lo sandboxea: sería teatro. Trata un `stack.yaml`
 de un repo ajeno con el mismo cuidado que sus scripts de build.
 
 Sin `stack.yaml`, los comandos salen de la detección, y `scripts.dev` de un

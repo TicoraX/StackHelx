@@ -271,7 +271,9 @@ def _stack_of(path: Path) -> tuple[str, set[int]]:
     """
     try:
         stack = detect.stack_for(path)
-        return stack.name, {s.port for s in stack.resolve() if s.port}
+        # Todos los servicios, no solo el default: un perfil aparte tambien
+        # reclama su puerto, igual que en find_orphans.
+        return stack.name, {s.port for s in stack.services.values() if s.port}
     except (config.ConfigError, OSError):
         return path.name, set()
 

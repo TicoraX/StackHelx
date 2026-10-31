@@ -4,7 +4,7 @@
 
 Cuando un proyecto no tiene `stack.yaml`, StackHelx infiere los servicios de
 lo que encuentra en el disco. La tabla de qué reconoce está en el
-[README](../../README.es.md#sin-stackyaml). Acá está por qué reconoce eso y no otra
+[README](../../README.es.md#sin-stackyaml). Aquí está por qué reconoce eso y no otra
 cosa, que es lo que hay que leer antes de agregar un detector.
 
 La regla que ordena todo lo de abajo: solo se detecta lo que sirve en un
@@ -130,7 +130,7 @@ puertos se listan en el proyecto sin adivinar de cuál son.
 StackHelx además saca del entorno de los servicios las variables que delatan a un
 agente (`CLAUDECODE`, `AI_AGENT`, `OPENCODE`, `GEMINI_CLI` y parecidas). Astro 7
 manda `astro dev` a segundo plano cuando las ve, y el servidor queda fuera del
-árbol, sin puerto y sin forma de apagarlo. Si la declarás en `env.global` o en
+árbol, sin puerto y sin forma de apagarlo. Si la declaras en `env.global` o en
 el `env` del servicio, vale.
 
 `stackhelx init` escribe lo detectado como `stack.yaml` para editarlo a mano.
