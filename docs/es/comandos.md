@@ -5,7 +5,7 @@
 > **Nota:** Todos los comandos del sistema pueden ejecutarse indistintamente con `stackhelx <cmd>` o mediante el alias corto oficial **`shx <cmd>`** (por ejemplo: `shx down`, `shx doctor`, `shx switch`, `shx run`, `shx share`).
 
 `up`, `serve`, `ports` y `free` están en el [README](../../README.es.md#comandos).
-Acá están los cuatro que quedan, con qué revisa cada uno y por qué.
+Aquí están los cuatro que quedan, con qué revisa cada uno y por qué.
 
 ## Bajar lo que sobrevive a la terminal
 
@@ -49,7 +49,7 @@ contesta, y qué puertos declarados están ocupados y por quién. Cada chequeo e
 rojo trae la línea para arreglarlo.
 
 ```
-ok    token                  C:\Users\vos\.stackhelx\token
+ok    token                  C:\Users\tu-usuario\.stackhelx\token
 ok    stack                  detectado (3 servicios)
 ok    comando docker         C:\Program Files\Docker\...\docker.EXE
 FALLA daemon de docker       no esta en ejecucion
@@ -102,7 +102,7 @@ stackhelx share --provider ngrok  # fuerza el proveedor (cloudflared, ngrok, lt,
 ```
 
 Genera un túnel HTTPS seguro y efímero hacia el puerto local, ideal para probar webhooks,
-compartir vistas previas con clientes o probar en dispositivos móviles. Presioná `Ctrl-C` para
+compartir vistas previas con clientes o probar en dispositivos móviles. Presiona `Ctrl-C` para
 cerrar el túnel de inmediato.
 
 **No se puede compartir el puerto de `stackhelx serve`.** Detrás de ese puerto está la API
@@ -149,7 +149,7 @@ stackhelx test-stack ../otro-proyecto
 
 Carga el `stack.yaml`, resuelve el orden topológico y mira si los puertos
 declarados están libres. No arranca nada, así que es lo más barato para saber si
-un archivo que acabás de editar carga bien.
+un archivo que acabas de editar carga bien.
 
 ```
 Validando stack demo en C:\...\demo...
@@ -262,7 +262,7 @@ cosas están cortadas a propósito y no son las mismas que en el CLI:
 - **`stackhelx_share` solo publica puertos que el proyecto declara.** Pedir uno
   ajeno responde `El puerto 5432 no pertenece a los puertos declarados`, y el
   puerto de la propia interfaz está vetado aparte. El CLI no tiene esta
-  restricción: ahí el puerto lo escribís vos.
+  restricción: ahí el puerto lo escribes tú.
 - **`stackhelx_clean` no borra volúmenes.** El flag existe en el CLI y no en el
   esquema de la herramienta.
 - **Hay un tope de 30 llamadas por minuto.** Pasado eso contesta `Límite de
