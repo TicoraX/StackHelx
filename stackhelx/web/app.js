@@ -931,7 +931,7 @@ function refreshCleanButton() {
   ui.cleanRun.disabled = elegidos.length === 0;
   ui.cleanRun.textContent = elegidos.length
     ? tr(`Clean ${elegidos.length}`, `Limpiar ${elegidos.length}`)
-    : tr("Select at least one", "Elegí algo");
+    : tr("Select at least one", "Elige al menos uno");
   ui.cleanWarn.textContent = elegidos.includes("volumes")
     ? tr("Volumes cannot be recovered.", "Los volúmenes no se pueden recuperar.")
     : "";
@@ -1422,7 +1422,7 @@ function renderLogsText(entry) {
   if (!raw) {
     logsEl.textContent = tr(
       "No logs yet. Only logs from a stack started from here are recorded.",
-      "Todavía no hay logs. Solo se registran los de un stack arrancado desde acá.",
+      "Todavía no hay logs. Solo se registran los de un stack arrancado desde aquí.",
     );
   } else if (!filter) {
     logsEl.textContent = raw;
@@ -1685,7 +1685,7 @@ function updateFavicon(projects, data) {
   if (!link) return;
   const fallenCount = data && data.fallen ? data.fallen.length : 0;
   const hasError = projects.some((p) => p.state === "error" || p.state === "invalid");
-  const hasRunning = projects.some((p) => p.state === "running" || p.state === "starting");
+  const hasRunning = projects.some((p) => ["running", "starting", "external"].includes(p.state));
 
   let color = "%2364748b";
   if (fallenCount > 0 || hasError) {
@@ -2011,7 +2011,7 @@ async function browseTo(path, isHistoryAction = false) {
 
   here = data;
   ui.pickerPath.textContent =
-    data.path || tr("Choose where to start", "Elegí dónde empezar");
+    data.path || tr("Choose where to start", "Elige dónde empezar");
   ui.pickerNote.hidden = !data.truncated;
   if (data.truncated) {
     ui.pickerNote.textContent = tr(

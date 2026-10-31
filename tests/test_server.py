@@ -2453,7 +2453,7 @@ def test_web_language_selector_en_es():
     assert 'data-lang-opt="en"' in html
     assert 'data-lang-opt="es"' in html
     assert 'data-en="Your local stacks. Start, stop, and free ports left occupied."' in html
-    assert 'data-es="Tus stacks locales. Arrancá, apagá, liberá los puertos que quedaron tomados."' in html
+    assert 'data-es="Tus stacks locales. Arranca, apaga y libera los puertos que quedaron tomados."' in html
 
     js = (server.WEB / "app.js").read_text(encoding="utf-8")
     assert 'LANG_STORAGE_KEY = "stackhelx.lang"' in js
