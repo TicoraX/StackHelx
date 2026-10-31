@@ -166,6 +166,8 @@ async function api(path, options = {}) {
     sessionStorage.removeItem("stackhelx.token");
     token = "";
     promptAuthModal();
+    // El detalle del servidor viene en espanol fijo; aca se sabe que paso.
+    throw new Error(tr("invalid token", "token inválido"));
   }
 
   if (!response.ok) {
