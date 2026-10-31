@@ -4,17 +4,26 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
-## [1.1.4] - 2026-10-29
+## [1.1.4] - 2026-10-31
 
 ### Corregido
 
 - **Servidores arrancados fuera de StackHelx (`registry.py`, `server.py`):** un `astro dev` corriendo desde otra terminal no aparecía en la tarjeta ni en la pestaña "De proyectos", porque `detect` no adivina puertos y `ready: listen` solo los descubre en el árbol propio. Ahora se atribuyen al proyecto por la ruta en la línea de comandos, o por la carpeta de trabajo si el proceso es un intérprete. Un proyecto con un solo servicio sin puerto lo muestra listo y `externo`; con más, lista los puertos sin adivinar el servicio (`external_ports`).
+- **Un contenedor ajeno ponía listo al servicio (`docker.py`, `server.py`):** el `postgres` de un proyecto salía listo y Apagar no hacía nada porque el 5432 lo publicaba un contenedor suelto de otro proyecto. Un servicio con contenedor solo sale listo si `docker ps` dice que el contenedor es de su compose.
+- **Puertos declarados (`registry.py`):** `declared_ports` miraba solo el perfil por defecto y los intrusos todos los servicios, así que un puerto salía declarado en un lado y no en el otro. Ahora cuentan todos los servicios.
+- El aviso de token inválido sale en el idioma de la interfaz; el favicon se pone verde con proyectos externos; la pastilla live de los logs y el punto listo del grafo vuelven a tener color.
 - **Astro 7 se desacoplaba bajo un agente (`runner.py`):** `astro dev` detecta agentes por variables de entorno (`am-i-vibing`) y se va a segundo plano: `up` terminaba con 0 y el servidor quedaba fuera del árbol. `build_env` ya no pasa esas variables a los servicios, salvo que las declare `env.global` o el `env` del servicio.
 
 ### Añadido
 
 - **Vista global de puertos real (`ports.py`, `/api/ports/system`, `web/`):** un registro por protocolo, puerto y proceso (antes uno por puerto), con dirección de escucha, carpeta del proceso y proyecto atribuido. UDP opcional con `?udp=1`. El mapa abre en "Todo el sistema" con filtro, "Ocultar procesos de Windows", "Incluir UDP" y "Refrescar"; sigue siendo a pedido, sin sondeo.
 - El mapa muestra el error y un botón Reintentar en vez de quedar en silencio cuando falla la lectura.
+- **Acceso al mapa de puertos:** botón "Puertos" en el encabezado y "Mapa completo →" en la sección de procesos intrusos.
+
+### Cambiado
+
+- **Tipografía por roles (`web/`):** serif para nombrar, sans para leer (estados y controles incluidos) y monoespaciada solo para datos que se copian o comparan. Dos pesos y seis tamaños.
+- Español neutro (tuteo) en la interfaz, `README.es.md` y `docs/es/`.
 
 ## [1.1.3] - 2026-10-09
 
