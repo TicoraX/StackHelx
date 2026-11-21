@@ -68,7 +68,7 @@ textarea {
   justify-content: space-between;
   gap: var(--space-sm) var(--space-lg);
   padding: var(--space-lg) var(--space-gutter) var(--space-md);
-  border-bottom: var(--rule) solid var(--color-rule-strong);
+  border-bottom: var(--rule) solid var(--color-rule);
 }
 
 .wordmark {
@@ -189,9 +189,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   margin-bottom: var(--space-lg);
   padding: var(--space-sm);
   background: var(--color-paper-2);
-  border: var(--rule) solid var(--color-rule-strong);
+  border: var(--rule) solid var(--color-rule);
   border-radius: var(--radius);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .find__bar {
@@ -202,12 +201,13 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   background: var(--color-paper);
   border: var(--rule) solid var(--color-rule-strong);
   border-radius: var(--radius);
-  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
 .find__bar:focus-within {
-  border-color: var(--color-ink-2);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
 }
 
 .find__icon {
@@ -293,7 +293,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   background: var(--color-ink);
   color: var(--color-paper);
   border-color: var(--color-ink);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chip--active:hover:not(:disabled) {
@@ -354,7 +353,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .project {
-  border: var(--rule) solid var(--color-rule-strong);
+  border: var(--rule) solid var(--color-rule);
   border-radius: var(--radius);
   padding: var(--space-md) var(--space-lg);
   background: var(--color-paper-2);
@@ -499,10 +498,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   border-color: var(--color-ink-3);
 }
 
-.editor__select:focus-visible {
-  outline: none;
-  border-color: var(--color-accent);
-}
 
 
 .project__error {
@@ -920,7 +915,6 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   height: 6px;
   border-radius: 50%;
   background: var(--color-ok);
-  box-shadow: 0 0 4px var(--color-ok);
 }
 
 .logs {
@@ -949,7 +943,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .history__table th,
 .history__table td {
   padding: var(--space-xs) var(--space-sm);
-  border-bottom: var(--rule) solid var(--color-rule-strong);
+  border-bottom: var(--rule) solid var(--color-rule);
 }
 
 .history__table th {
@@ -1093,7 +1087,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .enroll {
   margin-top: var(--space-xl);
   padding-top: var(--space-lg);
-  border-top: var(--rule) solid var(--color-rule-strong);
+  border-top: var(--rule) solid var(--color-rule);
 }
 
 .enroll__label {
@@ -1145,9 +1139,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 
 .project__docker-warning {
   font-size: var(--text-xs);
-  color: oklch(50% 0.12 27);
-  background: oklch(58% 0.19 27 / 0.1);
-  border: 1px solid oklch(55% 0.12 27 / 0.3);
+  color: var(--color-bad-ink);
+  background: var(--color-bad-soft);
+  border: 1px solid var(--color-bad-rule);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius);
   margin-top: var(--space-xs);
@@ -1177,7 +1171,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   padding: 0;
   color: var(--color-ink);
   background: var(--color-paper-2);
-  border: var(--rule) solid var(--color-rule-strong);
+  border: var(--rule) solid var(--color-rule);
   border-radius: var(--radius);
 }
 
@@ -1187,7 +1181,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .picker::backdrop {
-  background: oklch(20% 0.01 70 / 0.45);
+  background: var(--color-scrim);
 }
 
 .picker__head {
@@ -1482,14 +1476,13 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .orphans {
   margin-top: var(--space-xl);
   background: var(--color-paper);
-  border: var(--rule) solid var(--color-rule-strong);
+  border: var(--rule) solid var(--color-rule);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
 }
 
 .orphans[data-tone="bad"] {
-  border-color: oklch(55% 0.18 27 / 0.4);
+  border-color: var(--color-bad-rule);
 }
 
 .orphans__heading {
@@ -1507,9 +1500,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .orphans[data-tone="bad"] .orphans__heading {
-  color: oklch(65% 0.2 27);
-  background: oklch(55% 0.18 27 / 0.1);
-  border-bottom-color: oklch(55% 0.18 27 / 0.25);
+  color: var(--color-bad-ink);
+  background: var(--color-bad-soft);
+  border-bottom-color: var(--color-bad-rule);
 }
 
 .orphans__heading::before {
@@ -1522,14 +1515,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .orphans[data-tone="bad"] .orphans__heading::before {
-  background: oklch(65% 0.2 27);
-  box-shadow: 0 0 0 2px oklch(65% 0.2 27 / 0.25);
-  animation: orphan-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes orphan-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
+  background: var(--color-bad);
 }
 
 .orphans__header {
@@ -1567,8 +1553,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .orphans[data-tone="bad"] .orphans__bar {
-  background: oklch(55% 0.18 27 / 0.1);
-  border-bottom-color: oklch(55% 0.18 27 / 0.25);
+  background: var(--color-bad-soft);
+  border-bottom-color: var(--color-bad-rule);
 }
 
 .orphans__actions {
@@ -1627,7 +1613,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .orphans[data-tone="bad"] .orphan:hover {
-  background: oklch(55% 0.12 27 / 0.07);
+  background: var(--color-bad-soft);
 }
 
 /* Elegir cuales cerrar. Sale solo con dos o mas filas, porque con una sola el
@@ -1652,8 +1638,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   font-weight: 600;
-  color: oklch(65% 0.2 27);
-  background: oklch(55% 0.18 27 / 0.15);
+  color: var(--color-cifra);
+  background: var(--color-paper-3);
   padding: 0.15rem 0.4rem;
   border-radius: var(--radius);
   white-space: nowrap;
@@ -1694,9 +1680,9 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .orphan__kill {
   font-size: var(--text-xs);
   padding: 0.3rem 0.6rem;
-  background: oklch(55% 0.18 27 / 0.15);
-  border: var(--rule) solid oklch(55% 0.18 27 / 0.4);
-  color: oklch(70% 0.2 27);
+  background: transparent;
+  border: var(--rule) solid var(--color-bad-rule);
+  color: var(--color-bad-ink);
   border-radius: var(--radius);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
@@ -1704,8 +1690,8 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 }
 
 .orphan__kill:hover {
-  background: oklch(55% 0.18 27 / 0.3);
-  border-color: oklch(55% 0.18 27 / 0.7);
+  background: var(--color-bad-soft);
+  border-color: var(--color-bad);
 }
 
 /* mobile ------------------------------------------------------------------ */
@@ -1745,29 +1731,20 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
  * El ambar lo separa del rojo de intrusos sin gritar como un error, porque
  * abrirlo fue una decision deliberada y no una falla. */
 .tunnels {
-  border-color: oklch(70% 0.15 75 / 0.55);
+  border-color: var(--color-warn-rule);
 }
 
 /* Con la caja de intrusos ya neutra en reposo, el encabezado heredado quedaba
  * gris. Esta seccion solo existe cuando hay puertos abiertos a internet, asi
  * que siempre lleva su acento: no tiene estado de reposo. */
 .tunnels .orphans__heading {
-  color: oklch(58% 0.14 75);
-  background: oklch(70% 0.15 75 / 0.12);
-  border-bottom-color: oklch(70% 0.15 75 / 0.3);
+  color: var(--color-warn-ink);
+  background: var(--color-warn-soft);
+  border-bottom-color: var(--color-warn-rule);
 }
 
 .tunnels .orphans__heading::before {
-  background: oklch(65% 0.16 75);
-  box-shadow: 0 0 0 2px oklch(65% 0.16 75 / 0.25);
-}
-
-.tunnels .orphan__port {
-  /* El fondo tambien: `.orphan__port` trae texto Y fondo rojos, asi que cambiar
-     solo el color dejaba un puerto ambar sobre un chip rojo dentro de una
-     seccion ambar. Un tunel abierto y un intruso no significan lo mismo. */
-  color: oklch(52% 0.13 75);
-  background: oklch(70% 0.15 75 / 0.15);
+  background: var(--color-warn);
 }
 
 /* `.orphan__name` viene con `white-space: nowrap` y elipsis, que para un nombre
@@ -1982,7 +1959,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   font-size: var(--text-xs);
   padding: 0.2rem 0.5rem;
   background: var(--color-paper-2);
-  border: var(--rule) solid var(--color-rule-strong);
+  border: var(--rule) solid var(--color-rule);
   border-radius: 9999px;
   color: var(--color-ink-2);
 }
