@@ -1679,6 +1679,11 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   outline-offset: -1px;
 }
 
+.orphan__status {
+  font-size: var(--text-xs);
+  color: var(--color-ink-3);
+}
+
 .orphan__claim {
   font-size: var(--text-xs);
   color: var(--color-warn-ink);
@@ -2023,3 +2028,18 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   color: var(--color-bad-ink);
 }
 
+
+/* Mono es para lo que se copia o se compara. Una instruccion o un titulo son
+   palabras: el placeholder y el titulo del selector van en el rol Leer. */
+.enroll__input::placeholder,
+.auth__input::placeholder {
+  font-family: var(--font-body);
+}
+
+.picker__path[data-title="true"] {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  color: var(--color-ink);
+}

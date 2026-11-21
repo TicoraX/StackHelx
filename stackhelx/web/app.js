@@ -485,7 +485,7 @@ function renderService(service, projectId) {
     if (service.external) {
       text.title = tr(
         "Started outside StackHelx: it is listening, but there is no process here to stop",
-        "Arrancado fuera de StackHelx: escucha, pero no hay un proceso de aca para apagar",
+        "Arrancado fuera de StackHelx: escucha, pero no hay un proceso de aquí para apagar",
       );
     }
     stateCell.dataset.tone = tone;
@@ -1122,7 +1122,7 @@ function updateCard(entry, project) {
     dockerWarn.textContent = project.docker_down
       ? tr(
           "Docker Desktop is closed — open it to start containers",
-          "Docker Desktop está cerrado — abrilo para arrancar los contenedores",
+          "Docker Desktop está cerrado — ábrelo para arrancar los contenedores",
         )
       : "";
     dockerWarn.hidden = !project.docker_down;
@@ -1817,7 +1817,7 @@ async function refreshOrphans() {
       limpio.className = "orphan orphan--empty";
       limpio.textContent = tr(
         "None. Anything holding your ports was started by you or is a Docker container.",
-        "Ninguno. Lo que ocupa tus puertos lo arrancaste vos o es un contenedor de Docker.",
+        "Ninguno. Lo que ocupa tus puertos lo arrancaste tú o es un contenedor de Docker.",
       );
       ui.orphansList.replaceChildren(limpio);
       return;
@@ -2068,6 +2068,7 @@ async function browseTo(path, isHistoryAction = false) {
   here = data;
   ui.pickerPath.textContent =
     data.path || tr("Choose where to start", "Elige dónde empezar");
+  ui.pickerPath.dataset.title = data.path ? "false" : "true";
   ui.pickerNote.hidden = !data.truncated;
   if (data.truncated) {
     ui.pickerNote.textContent = tr(
@@ -2101,7 +2102,7 @@ function entryRow(entry) {
 
   const name = document.createElement("span");
   name.className = "picker__name";
-  name.textContent = entry.name;
+  name.textContent = entry.home ? tr("Home", "Inicio") : entry.name;
   row.append(name);
 
   if (entry.markers.length) {
@@ -2681,7 +2682,7 @@ async function refreshPortsModal() {
         name.textContent = item.label;
 
         const meta = document.createElement("div");
-        meta.className = "orphan__meta";
+        meta.className = "orphan__status";
         meta.textContent = `${tr("Status", "Estado")}: ${item.kind}`;
 
         info.append(name, meta);

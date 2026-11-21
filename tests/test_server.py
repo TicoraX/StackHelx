@@ -694,7 +694,8 @@ def test_browse_sin_ruta_con_oserror_en_particiones_no_falla(client, monkeypatch
     cuerpo = client.get("/api/browse").json()
     assert cuerpo["path"] == ""
     assert len(cuerpo["entries"]) >= 1
-    assert cuerpo["entries"][0]["name"] == "Inicio"
+    # El nombre es neutro; la interfaz lo traduce al idioma elegido.
+    assert cuerpo["entries"][0]["home"] is True
 
 
 def test_browse_lista_solo_carpetas(client, tmp_path):
