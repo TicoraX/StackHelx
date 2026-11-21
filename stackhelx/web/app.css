@@ -396,6 +396,18 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   margin-left: auto;
 }
 
+.project__outside {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+}
+
+.project__outside[hidden] {
+  display: none;
+}
+
 .project__toggle {
   display: inline-flex;
   align-items: center;

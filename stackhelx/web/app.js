@@ -522,6 +522,10 @@ function buildCard(project) {
     });
   }
 
+  root.querySelector('[data-act="ports"]').addEventListener("click", () => {
+    ui.portsModal.showModal();
+    refreshPortsModal();
+  });
   root.querySelector('[data-act="up"]').addEventListener("click", (event) => {
     const profile = root.querySelector(".profile__select").value || null;
     act(event.currentTarget, () =>
@@ -1221,9 +1225,17 @@ function updateCard(entry, project) {
   // levantado desde la terminal publica su puerto y se ve "listo".
   // Lo arrancado por fuera no cuenta: no hay proceso nuestro que apagar.
   const algoVivo = live || project.services.some((s) => s.state !== "stopped" && !s.external);
-  root.querySelector('[data-act="up"]').disabled =
-    live || stopping || project.state === "invalid";
-  root.querySelector('[data-act="down"]').disabled = !algoVivo || stopping;
+  // La accion primaria sigue al estado: Start solo con el proyecto detenido,
+  // Stop solo si hay algo nuestro que apagar. Lo arrancado por fuera se detiene
+  // desde el mapa de puertos, que nombra el proceso y pide confirmacion.
+  const outside = project.state === "external";
+  const up = root.querySelector('[data-act="up"]');
+  const down = root.querySelector('[data-act="down"]');
+  up.hidden = live || stopping || outside;
+  up.disabled = project.state === "invalid";
+  down.hidden = outside || !(algoVivo || stopping);
+  down.disabled = stopping;
+  root.querySelector(".project__outside").hidden = !outside;
 
   if (entry.logsOpen) {
     if (live && !entry.eventSource) {
