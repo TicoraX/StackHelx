@@ -4,7 +4,9 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
-## [1.2.0] - 2026-11-21
+## [1.6.0] - 2026-11-21
+
+Salta de 1.1.4 a 1.6.0 porque los tags v1.2.0 a v1.5.2 ya existen en el repo, de la etapa en que se llamaba PortMaster; en PyPI, `stackhelx` pasa de 1.1.4 a 1.6.0.
 
 ### Corregido
 
