@@ -18,10 +18,14 @@
      estetica: por debajo de 54% de luminosidad el texto chico deja de leerse. */
   --color-ink-3: oklch(54% 0.010 60);
   --color-rule: oklch(89% 0.009 82);
-  --color-rule-strong: oklch(82% 0.011 82);
+  /* rule-strong es el borde de los CONTROLES (botones, campos, chips): 3:1 sobre
+     el papel, que es lo que WCAG 1.4.11 pide para ubicarlos. Medido: 3.77 sobre
+     paper-2 y 3.23 sobre paper-3. Los filetes decorativos usan --color-rule. */
+  --color-rule-strong: oklch(60% 0.011 82);
 
   /* un solo acento, arcilla, usado en menos del 5% de la pantalla */
   --color-accent: oklch(52% 0.13 42);
+  --color-focus: var(--color-accent);
   --color-accent-soft: oklch(92% 0.035 42);
 
   /* estados. Verde apagado y no neon: esto es un panel, no un semaforo.
@@ -38,6 +42,11 @@
   --color-warn-ink: oklch(50% 0.115 75);
   --color-bad-ink: oklch(48% 0.155 28);
   --color-bad-rule: oklch(78% 0.07 28);
+  --color-warn-soft: oklch(94% 0.04 75);
+  --color-warn-rule: oklch(78% 0.09 75);
+  /* Valores medidos, no estados: puertos, pid, cifras. Latón, nunca rojo. */
+  --color-cifra: oklch(50% 0.10 75);
+  --color-scrim: oklch(20% 0.01 70 / 0.45);
 
   /* tipografia: tres roles, cero descargas. Ver la nota en app.css. */
   --font-display: ui-serif, Georgia, "Times New Roman", serif;
@@ -86,7 +95,7 @@
     --color-ink-2: oklch(74% 0.009 85);
     --color-ink-3: oklch(63% 0.009 85);
     --color-rule: oklch(31% 0.009 70);
-    --color-rule-strong: oklch(39% 0.010 70);
+    --color-rule-strong: oklch(56% 0.010 70);
 
     --color-accent: oklch(72% 0.12 45);
     --color-accent-soft: oklch(34% 0.05 45);
@@ -99,5 +108,8 @@
     --color-warn-ink: var(--color-warn);
     --color-bad-ink: var(--color-bad);
     --color-bad-rule: oklch(44% 0.09 28);
+    --color-warn-soft: oklch(30% 0.05 78);
+    --color-warn-rule: oklch(46% 0.08 78);
+    --color-cifra: oklch(80% 0.11 78);
   }
 }

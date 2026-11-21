@@ -1212,7 +1212,7 @@ def create_app(token: str | None = None) -> FastAPI:
         with sessions_lock:
             session = sessions.get(pid)
         if session is None:
-            raise HTTPException(404, "ese stack no fue arrancado desde aca")
+            raise HTTPException(404, "ese stack no fue arrancado desde aquí")
         if session.state != "running":
             raise HTTPException(409, "el stack no esta corriendo")
         if session.engine is None:

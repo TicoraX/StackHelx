@@ -167,7 +167,9 @@ async function api(path, options = {}) {
     token = "";
     promptAuthModal();
     // El detalle del servidor viene en espanol fijo; aca se sabe que paso.
-    throw new Error(tr("invalid token", "token inválido"));
+    const rejected = new Error(tr("invalid token", "token inválido"));
+    rejected.status = 401;
+    throw rejected;
   }
 
   if (!response.ok) {
@@ -178,7 +180,9 @@ async function api(path, options = {}) {
     } catch {
       /* respuesta sin cuerpo JSON */
     }
-    throw new Error(detail);
+    const failed = new Error(detail);
+    failed.status = response.status;
+    throw failed;
   }
   return response.json();
 }
@@ -210,6 +214,16 @@ function flash(message, tone) {
   flashTimer = setTimeout(() => {
     ui.flash.hidden = true;
   }, 4500);
+}
+
+/* Matar un proceso ajeno nunca es un clic suelto: se confirma nombrando proceso
+ * y puerto. `after` refresca la lista que lo mostraba. */
+function killPort(button, target, after) {
+  if (!window.confirm(killConfirmText(target, currentLang))) return;
+  act(button, async () => {
+    await api(`/api/ports/${target.port}/kill`, { method: "POST" });
+    if (after) await after();
+  });
 }
 
 async function act(button, work) {
@@ -458,7 +472,7 @@ function renderService(service, projectId) {
     kill.className = "btn btn--kill";
     kill.textContent = tr("Free", "Liberar");
     kill.addEventListener("click", () =>
-      act(kill, () => api(`/api/ports/${service.port}/kill`, { method: "POST" })),
+      killPort(kill, { name: who.name, pid: who.pid, port: service.port }),
     );
     node.querySelector(".service__act").append(kill);
 
@@ -471,7 +485,7 @@ function renderService(service, projectId) {
     if (service.external) {
       text.title = tr(
         "Started outside StackHelx: it is listening, but there is no process here to stop",
-        "Arrancado fuera de StackHelx: escucha, pero no hay un proceso de aca para apagar",
+        "Arrancado fuera de StackHelx: escucha, pero no hay un proceso de aquí para apagar",
       );
     }
     stateCell.dataset.tone = tone;
@@ -518,6 +532,10 @@ function buildCard(project) {
     });
   }
 
+  root.querySelector('[data-act="ports"]').addEventListener("click", () => {
+    ui.portsModal.showModal();
+    refreshPortsModal();
+  });
   root.querySelector('[data-act="up"]').addEventListener("click", (event) => {
     const profile = root.querySelector(".profile__select").value || null;
     act(event.currentTarget, () =>
@@ -995,7 +1013,7 @@ function refreshKillAllLabel() {
   if (ui.orphansKillAll.dataset.armed === "true") return;
   const elegidos = orphanPicks.size;
   ui.orphansKillAll.textContent = elegidos
-    ? tr(`Close ${elegidos}`, `Cerrar ${elegidos}`)
+    ? tr(`Stop ${elegidos}`, `Detener ${elegidos}`)
     : tr("Free all", "Liberar todos");
 }
 
@@ -1020,8 +1038,8 @@ ui.orphansKillAll.addEventListener("click", (event) => {
     button.dataset.armed = "true";
     const detalle = killAllSnapshot.map((o) => `:${o.port} (${o.name})`).join(", ");
     button.textContent = tr(
-      `Close ${killAllSnapshot.length}: ${detalle}?`,
-      `Cerrar ${killAllSnapshot.length}: ${detalle}?`,
+      `Stop ${killAllSnapshot.length}: ${detalle}?`,
+      `Detener ${killAllSnapshot.length}: ${detalle}?`,
     );
 
     if (killAllTimer !== null) clearTimeout(killAllTimer);
@@ -1104,7 +1122,7 @@ function updateCard(entry, project) {
     dockerWarn.textContent = project.docker_down
       ? tr(
           "Docker Desktop is closed — open it to start containers",
-          "Docker Desktop está cerrado — abrilo para arrancar los contenedores",
+          "Docker Desktop está cerrado — ábrelo para arrancar los contenedores",
         )
       : "";
     dockerWarn.hidden = !project.docker_down;
@@ -1217,9 +1235,17 @@ function updateCard(entry, project) {
   // levantado desde la terminal publica su puerto y se ve "listo".
   // Lo arrancado por fuera no cuenta: no hay proceso nuestro que apagar.
   const algoVivo = live || project.services.some((s) => s.state !== "stopped" && !s.external);
-  root.querySelector('[data-act="up"]').disabled =
-    live || stopping || project.state === "invalid";
-  root.querySelector('[data-act="down"]').disabled = !algoVivo || stopping;
+  // La accion primaria sigue al estado: Start solo con el proyecto detenido,
+  // Stop solo si hay algo nuestro que apagar. Lo arrancado por fuera se detiene
+  // desde el mapa de puertos, que nombra el proceso y pide confirmacion.
+  const outside = project.state === "external";
+  const up = root.querySelector('[data-act="up"]');
+  const down = root.querySelector('[data-act="down"]');
+  up.hidden = live || stopping || outside;
+  up.disabled = project.state === "invalid";
+  down.hidden = outside || !(algoVivo || stopping);
+  down.disabled = stopping;
+  root.querySelector(".project__outside").hidden = !outside;
 
   if (entry.logsOpen) {
     if (live && !entry.eventSource) {
@@ -1791,7 +1817,7 @@ async function refreshOrphans() {
       limpio.className = "orphan orphan--empty";
       limpio.textContent = tr(
         "None. Anything holding your ports was started by you or is a Docker container.",
-        "Ninguno. Lo que ocupa tus puertos lo arrancaste vos o es un contenedor de Docker.",
+        "Ninguno. Lo que ocupa tus puertos lo arrancaste tú o es un contenedor de Docker.",
       );
       ui.orphansList.replaceChildren(limpio);
       return;
@@ -1862,11 +1888,10 @@ async function refreshOrphans() {
 
         const kill = document.createElement("button");
         kill.className = "orphan__kill";
-        kill.textContent = tr("Close", "Cerrar");
+        kill.textContent = tr("Stop process", "Detener proceso");
         kill.type = "button";
         kill.addEventListener("click", () => {
-          act(kill, async () => {
-            await api(`/api/ports/${orphan.port}/kill`, { method: "POST" });
+          killPort(kill, orphan, async () => {
             delete ui.orphansList.dataset.ids;
             await refreshOrphans();
           });
@@ -1961,6 +1986,28 @@ const ORPHAN_EVERY = 4;
 let orphanTick = 0;
 let refreshAbortController = null;
 
+function renderLoadError(message) {
+  // El sondeo repite el fallo cada 2.5 s: si el bloque ya esta, solo se cambia
+  // el texto, o el boton Reintentar perderia el foco en cada vuelta.
+  const existing = ui.projects.querySelector(".index__error");
+  if (existing) {
+    existing.querySelector("p").textContent = message;
+    return;
+  }
+  const box = document.createElement("div");
+  box.className = "index__error";
+  box.setAttribute("role", "alert");
+  const text = document.createElement("p");
+  text.textContent = message;
+  const retry = document.createElement("button");
+  retry.type = "button";
+  retry.className = "btn";
+  retry.textContent = tr("Retry", "Reintentar");
+  retry.addEventListener("click", () => act(retry, async () => {}));
+  box.append(text, retry);
+  ui.projects.replaceChildren(box);
+}
+
 async function refresh() {
   if (refreshAbortController) {
     refreshAbortController.abort();
@@ -1981,8 +2028,15 @@ async function refresh() {
     ui.connection.dataset.down = "false";
   } catch (error) {
     if (error.name === "AbortError") return;
-    ui.connection.textContent = `${tr("offline", "sin conexión")} · ${error.message}`;
+    const kind = classifyLoadError(error);
+    const text = loadErrorText(kind, error.message, currentLang);
+    ui.connection.textContent =
+      kind === "offline" ? text.head : `${text.head} · ${error.message}`;
     ui.connection.dataset.down = "true";
+    ui.projects.setAttribute("aria-busy", "false");
+    // Con tarjetas ya pintadas se conservan (datos viejos, y el encabezado avisa).
+    // Sin ellas el cuerpo se quedaba en "Cargando" para siempre.
+    if (cards.size === 0) renderLoadError(text.body);
   }
   await refreshHealth();
   orphanTick++;
@@ -2014,6 +2068,7 @@ async function browseTo(path, isHistoryAction = false) {
   here = data;
   ui.pickerPath.textContent =
     data.path || tr("Choose where to start", "Elige dónde empezar");
+  ui.pickerPath.dataset.title = data.path ? "false" : "true";
   ui.pickerNote.hidden = !data.truncated;
   if (data.truncated) {
     ui.pickerNote.textContent = tr(
@@ -2047,7 +2102,7 @@ function entryRow(entry) {
 
   const name = document.createElement("span");
   name.className = "picker__name";
-  name.textContent = entry.name;
+  name.textContent = entry.home ? tr("Home", "Inicio") : entry.name;
   row.append(name);
 
   if (entry.markers.length) {
@@ -2512,13 +2567,10 @@ function renderSystemPorts() {
       if (item.can_kill) {
         const killBtn = document.createElement("button");
         killBtn.className = "orphan__kill";
-        killBtn.textContent = tr("Close", "Cerrar");
+        killBtn.textContent = tr("Stop process", "Detener proceso");
         killBtn.type = "button";
         killBtn.addEventListener("click", () => {
-          act(killBtn, async () => {
-            await api(`/api/ports/${item.port}/kill`, { method: "POST" });
-            await refreshPortsModal();
-          });
+          killPort(killBtn, item, refreshPortsModal);
         });
         li.append(portTag, info, killBtn);
       } else {
@@ -2555,6 +2607,7 @@ async function refreshPortsModal() {
           items.push({
             port: service.port,
             label: `${project.name} · ${service.name}`,
+            project: project.name,
             kind,
             openable: service.openable,
             url: service.url,
@@ -2565,6 +2618,19 @@ async function refreshPortsModal() {
       for (const port of project.external_ports || []) {
         items.push({ port, label: project.name, kind: externo });
       }
+    }
+
+    // Rojo solo para un choque real: el mismo puerto declarado por dos proyectos.
+    const conflicts = portConflicts(items);
+    for (const item of items) {
+      if (!conflicts.has(item.port)) continue;
+      item.conflictWith = [
+        ...new Set(
+          items
+            .filter((o) => o.port === item.port && o.project && o.project !== item.project)
+            .map((o) => o.project),
+        ),
+      ];
     }
 
     for (const orphan of orphansData.orphans || []) {
@@ -2579,6 +2645,8 @@ async function refreshPortsModal() {
           }`,
         ),
         kind: tr("stray", "intruso"),
+        name: orphan.name,
+        pid: orphan.pid,
         isOrphan: true,
       });
     }
@@ -2604,6 +2672,7 @@ async function refreshPortsModal() {
         const portTag = document.createElement("span");
         portTag.className = "orphan__port";
         portTag.textContent = `:${item.port}`;
+        if (item.conflictWith) portTag.dataset.conflict = "true";
 
         const info = document.createElement("div");
         info.className = "orphan__info";
@@ -2613,10 +2682,19 @@ async function refreshPortsModal() {
         name.textContent = item.label;
 
         const meta = document.createElement("div");
-        meta.className = "orphan__meta";
+        meta.className = "orphan__status";
         meta.textContent = `${tr("Status", "Estado")}: ${item.kind}`;
 
         info.append(name, meta);
+        if (item.conflictWith) {
+          const clash = document.createElement("div");
+          clash.className = "orphan__claim";
+          clash.textContent = tr(
+            `Conflict: also declared by ${item.conflictWith.join(" and ")}`,
+            `Conflicto: también lo declara ${item.conflictWith.join(" y ")}`,
+          );
+          info.append(clash);
+        }
 
         if (item.openable) {
           const actLink = document.createElement("a");
@@ -2629,13 +2707,10 @@ async function refreshPortsModal() {
         } else if (item.isOrphan) {
           const killBtn = document.createElement("button");
           killBtn.className = "orphan__kill";
-          killBtn.textContent = tr("Close", "Cerrar");
+          killBtn.textContent = tr("Stop process", "Detener proceso");
           killBtn.type = "button";
           killBtn.addEventListener("click", () => {
-            act(killBtn, async () => {
-              await api(`/api/ports/${item.port}/kill`, { method: "POST" });
-              await refreshPortsModal();
-            });
+            killPort(killBtn, item, refreshPortsModal);
           });
           li.append(portTag, info, killBtn);
         } else {
