@@ -125,7 +125,7 @@ def markers(path: Path) -> list[str]:
 def roots() -> dict:
     """Punto de partida: la home del usuario y las unidades montadas."""
     seen = {str(Path.home())}
-    entries = [{"name": "Inicio", "path": str(Path.home()), "markers": []}]
+    entries = [{"name": "Home", "home": True, "path": str(Path.home()), "markers": []}]
     try:
         partitions = psutil.disk_partitions(all=False)
     except OSError:

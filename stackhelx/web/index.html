@@ -368,6 +368,10 @@
             class="enroll__input auth__input"
             id="auth-token-input"
             type="password"
+            autocomplete="off"
+            data-en-aria="Access token"
+            data-es-aria="Token de acceso"
+            aria-label="Access token"
             data-en-placeholder="Paste token here..."
             data-es-placeholder="Pega el token aquí..."
             placeholder="Paste token here..."
@@ -406,6 +410,10 @@
             <a class="btn btn--open project__open" target="_blank" rel="noopener noreferrer" hidden data-en="Open ↗" data-es="Abrir ↗">
               Open ↗
             </a>
+            <span class="project__outside" hidden>
+              <span data-en="Started outside StackHelx" data-es="Iniciado fuera de StackHelx">Started outside StackHelx</span>
+              <button class="btn btn--quiet" type="button" data-act="ports" data-en="Stop it in the port map →" data-es="Deténlo en el mapa de puertos →">Stop it in the port map →</button>
+            </span>
             <button class="btn btn--primary" type="button" data-act="up" data-en="Start" data-es="Arrancar">Start</button>
             <button class="btn" type="button" data-act="down" data-en="Stop" data-es="Apagar">Stop</button>
             <button
@@ -574,6 +582,7 @@
       </li>
     </template>
 
+    <script src="/static/logic.js"></script>
     <script src="/static/app.js"></script>
   </body>
 </html>
