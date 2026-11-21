@@ -2588,6 +2588,7 @@ async function refreshPortsModal() {
           items.push({
             port: service.port,
             label: `${project.name} · ${service.name}`,
+            project: project.name,
             kind,
             openable: service.openable,
             url: service.url,
@@ -2598,6 +2599,19 @@ async function refreshPortsModal() {
       for (const port of project.external_ports || []) {
         items.push({ port, label: project.name, kind: externo });
       }
+    }
+
+    // Rojo solo para un choque real: el mismo puerto declarado por dos proyectos.
+    const conflicts = portConflicts(items);
+    for (const item of items) {
+      if (!conflicts.has(item.port)) continue;
+      item.conflictWith = [
+        ...new Set(
+          items
+            .filter((o) => o.port === item.port && o.project && o.project !== item.project)
+            .map((o) => o.project),
+        ),
+      ];
     }
 
     for (const orphan of orphansData.orphans || []) {
@@ -2637,6 +2651,7 @@ async function refreshPortsModal() {
         const portTag = document.createElement("span");
         portTag.className = "orphan__port";
         portTag.textContent = `:${item.port}`;
+        if (item.conflictWith) portTag.dataset.conflict = "true";
 
         const info = document.createElement("div");
         info.className = "orphan__info";
@@ -2650,6 +2665,15 @@ async function refreshPortsModal() {
         meta.textContent = `${tr("Status", "Estado")}: ${item.kind}`;
 
         info.append(name, meta);
+        if (item.conflictWith) {
+          const clash = document.createElement("div");
+          clash.className = "orphan__claim";
+          clash.textContent = tr(
+            `Conflict: also declared by ${item.conflictWith.join(" and ")}`,
+            `Conflicto: también lo declara ${item.conflictWith.join(" y ")}`,
+          );
+          info.append(clash);
+        }
 
         if (item.openable) {
           const actLink = document.createElement("a");
