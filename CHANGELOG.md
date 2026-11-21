@@ -4,6 +4,26 @@ Formato de [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado semántico: la superficie pública son los comandos del CLI, el
 esquema de `stack.yaml` y las rutas de la API local.
 
+## [1.2.0] - 2026-11-21
+
+### Corregido
+
+- **Error al cargar la lista (`web/`):** si `/api/state` falla, el cuerpo ya no se queda en "Cargando proyectos…": muestra la causa (error del servidor, sin conexión, token o petición) con un botón Reintentar, y `aria-busy` vuelve a falso. Si ya había tarjetas, se conservan y el encabezado avisa que los datos son viejos.
+- **Foco y contraste (`web/`):** el resumen del modal MCP tenía el foco invisible (`--color-focus` no existía). Los bordes de botones, búsqueda, inputs y selects suben a 3:1 o más en los dos temas (antes ~1.7:1).
+- Tuteo en todos los textos de la interfaz y en `server.py`; la entrada "Inicio" del selector de carpetas se traduce; el campo del token tiene nombre accesible.
+
+### Añadido
+
+- **Conflictos de puerto (`web/`):** un puerto sale en rojo solo si dos proyectos lo declaran, con una nota que nombra al otro proyecto. Los demás puertos se muestran como dato, en latón.
+- **Confirmación antes de detener un proceso (`web/`):** los cuatro puntos que matan un proceso piden confirmación nombrando proceso, pid y puerto. El botón se llama "Detener proceso", distinto de la ✕ que cierra el diálogo.
+- `browse.py` marca la carpeta de inicio con `home: true` para que la interfaz la traduzca.
+
+### Cambiado
+
+- **Acción principal según el estado (`web/`):** Start solo aparece en proyectos detenidos y Stop solo cuando hay algo propio que apagar. Un proyecto iniciado fuera de StackHelx dice "Iniciado fuera de StackHelx" y lleva al mapa de puertos, desde donde se detiene.
+- **Interfaz sobria (`web/`):** sin sombras difusas, brillos ni el pulso infinito de "Procesos intrusos"; colores sueltos movidos a tokens. Las palabras salen de la monoespaciada, que queda para datos.
+- En móvil, cada servicio ocupa una línea.
+
 ## [1.1.4] - 2026-10-31
 
 ### Corregido
