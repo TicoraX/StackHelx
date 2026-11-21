@@ -235,7 +235,7 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 .kbd {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--color-ink-3);
+  color: var(--color-ink-2);
   background: var(--color-paper-3);
   border: var(--rule) solid var(--color-rule);
   border-radius: 4px;
@@ -1721,12 +1721,10 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
 /* mobile ------------------------------------------------------------------ */
 
 @media (max-width: 34rem) {
+  /* Nombre, puerto y estado en una sola linea: con el estado en una fila propia
+     cada servicio ocupaba dos y 13 servicios eran ~800 px de scroll. */
   .service {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .service__state {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
   .service__metrics {
