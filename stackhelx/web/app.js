@@ -167,7 +167,9 @@ async function api(path, options = {}) {
     token = "";
     promptAuthModal();
     // El detalle del servidor viene en espanol fijo; aca se sabe que paso.
-    throw new Error(tr("invalid token", "token inválido"));
+    const rejected = new Error(tr("invalid token", "token inválido"));
+    rejected.status = 401;
+    throw rejected;
   }
 
   if (!response.ok) {
@@ -178,7 +180,9 @@ async function api(path, options = {}) {
     } catch {
       /* respuesta sin cuerpo JSON */
     }
-    throw new Error(detail);
+    const failed = new Error(detail);
+    failed.status = response.status;
+    throw failed;
   }
   return response.json();
 }
@@ -1961,6 +1965,28 @@ const ORPHAN_EVERY = 4;
 let orphanTick = 0;
 let refreshAbortController = null;
 
+function renderLoadError(message) {
+  // El sondeo repite el fallo cada 2.5 s: si el bloque ya esta, solo se cambia
+  // el texto, o el boton Reintentar perderia el foco en cada vuelta.
+  const existing = ui.projects.querySelector(".index__error");
+  if (existing) {
+    existing.querySelector("p").textContent = message;
+    return;
+  }
+  const box = document.createElement("div");
+  box.className = "index__error";
+  box.setAttribute("role", "alert");
+  const text = document.createElement("p");
+  text.textContent = message;
+  const retry = document.createElement("button");
+  retry.type = "button";
+  retry.className = "btn";
+  retry.textContent = tr("Retry", "Reintentar");
+  retry.addEventListener("click", () => act(retry, async () => {}));
+  box.append(text, retry);
+  ui.projects.replaceChildren(box);
+}
+
 async function refresh() {
   if (refreshAbortController) {
     refreshAbortController.abort();
@@ -1981,8 +2007,15 @@ async function refresh() {
     ui.connection.dataset.down = "false";
   } catch (error) {
     if (error.name === "AbortError") return;
-    ui.connection.textContent = `${tr("offline", "sin conexión")} · ${error.message}`;
+    const kind = classifyLoadError(error);
+    const text = loadErrorText(kind, error.message, currentLang);
+    ui.connection.textContent =
+      kind === "offline" ? text.head : `${text.head} · ${error.message}`;
     ui.connection.dataset.down = "true";
+    ui.projects.setAttribute("aria-busy", "false");
+    // Con tarjetas ya pintadas se conservan (datos viejos, y el encabezado avisa).
+    // Sin ellas el cuerpo se quedaba en "Cargando" para siempre.
+    if (cards.size === 0) renderLoadError(text.body);
   }
   await refreshHealth();
   orphanTick++;

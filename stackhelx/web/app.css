@@ -334,6 +334,25 @@ html[lang="es"] .masthead__lang-opt[data-lang-opt="es"] {
   font-style: italic;
 }
 
+.index__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-bad-soft);
+  border: var(--rule) solid var(--color-bad-rule);
+  border-left: 3px solid var(--color-bad);
+  border-radius: var(--radius);
+}
+
+.index__error p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+}
+
 .project {
   border: var(--rule) solid var(--color-rule-strong);
   border-radius: var(--radius);
