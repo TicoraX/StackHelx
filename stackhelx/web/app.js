@@ -216,6 +216,16 @@ function flash(message, tone) {
   }, 4500);
 }
 
+/* Matar un proceso ajeno nunca es un clic suelto: se confirma nombrando proceso
+ * y puerto. `after` refresca la lista que lo mostraba. */
+function killPort(button, target, after) {
+  if (!window.confirm(killConfirmText(target, currentLang))) return;
+  act(button, async () => {
+    await api(`/api/ports/${target.port}/kill`, { method: "POST" });
+    if (after) await after();
+  });
+}
+
 async function act(button, work) {
   if (button.dataset.busy === "true") return;
   button.setAttribute("aria-disabled", "true");
@@ -462,7 +472,7 @@ function renderService(service, projectId) {
     kill.className = "btn btn--kill";
     kill.textContent = tr("Free", "Liberar");
     kill.addEventListener("click", () =>
-      act(kill, () => api(`/api/ports/${service.port}/kill`, { method: "POST" })),
+      killPort(kill, { name: who.name, pid: who.pid, port: service.port }),
     );
     node.querySelector(".service__act").append(kill);
 
@@ -1003,7 +1013,7 @@ function refreshKillAllLabel() {
   if (ui.orphansKillAll.dataset.armed === "true") return;
   const elegidos = orphanPicks.size;
   ui.orphansKillAll.textContent = elegidos
-    ? tr(`Close ${elegidos}`, `Cerrar ${elegidos}`)
+    ? tr(`Stop ${elegidos}`, `Detener ${elegidos}`)
     : tr("Free all", "Liberar todos");
 }
 
@@ -1028,8 +1038,8 @@ ui.orphansKillAll.addEventListener("click", (event) => {
     button.dataset.armed = "true";
     const detalle = killAllSnapshot.map((o) => `:${o.port} (${o.name})`).join(", ");
     button.textContent = tr(
-      `Close ${killAllSnapshot.length}: ${detalle}?`,
-      `Cerrar ${killAllSnapshot.length}: ${detalle}?`,
+      `Stop ${killAllSnapshot.length}: ${detalle}?`,
+      `Detener ${killAllSnapshot.length}: ${detalle}?`,
     );
 
     if (killAllTimer !== null) clearTimeout(killAllTimer);
@@ -1878,11 +1888,10 @@ async function refreshOrphans() {
 
         const kill = document.createElement("button");
         kill.className = "orphan__kill";
-        kill.textContent = tr("Close", "Cerrar");
+        kill.textContent = tr("Stop process", "Detener proceso");
         kill.type = "button";
         kill.addEventListener("click", () => {
-          act(kill, async () => {
-            await api(`/api/ports/${orphan.port}/kill`, { method: "POST" });
+          killPort(kill, orphan, async () => {
             delete ui.orphansList.dataset.ids;
             await refreshOrphans();
           });
@@ -2557,13 +2566,10 @@ function renderSystemPorts() {
       if (item.can_kill) {
         const killBtn = document.createElement("button");
         killBtn.className = "orphan__kill";
-        killBtn.textContent = tr("Close", "Cerrar");
+        killBtn.textContent = tr("Stop process", "Detener proceso");
         killBtn.type = "button";
         killBtn.addEventListener("click", () => {
-          act(killBtn, async () => {
-            await api(`/api/ports/${item.port}/kill`, { method: "POST" });
-            await refreshPortsModal();
-          });
+          killPort(killBtn, item, refreshPortsModal);
         });
         li.append(portTag, info, killBtn);
       } else {
@@ -2638,6 +2644,8 @@ async function refreshPortsModal() {
           }`,
         ),
         kind: tr("stray", "intruso"),
+        name: orphan.name,
+        pid: orphan.pid,
         isOrphan: true,
       });
     }
@@ -2698,13 +2706,10 @@ async function refreshPortsModal() {
         } else if (item.isOrphan) {
           const killBtn = document.createElement("button");
           killBtn.className = "orphan__kill";
-          killBtn.textContent = tr("Close", "Cerrar");
+          killBtn.textContent = tr("Stop process", "Detener proceso");
           killBtn.type = "button";
           killBtn.addEventListener("click", () => {
-            act(killBtn, async () => {
-              await api(`/api/ports/${item.port}/kill`, { method: "POST" });
-              await refreshPortsModal();
-            });
+            killPort(killBtn, item, refreshPortsModal);
           });
           li.append(portTag, info, killBtn);
         } else {
