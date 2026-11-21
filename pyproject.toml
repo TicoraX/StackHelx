@@ -53,9 +53,9 @@ dependencies = [
 dev = ["pytest>=8", "pytest-xdist>=3", "httpx>=0.27", "ruff>=0.6"]
 
 [project.urls]
-Homepage = "https://github.com/TicoraX/StackHelx"
-Repository = "https://github.com/TicoraX/StackHelx"
-Issues = "https://github.com/TicoraX/StackHelx/issues"
+Homepage = "https://github.com/helx-systems/StackHelx"
+Repository = "https://github.com/helx-systems/StackHelx"
+Issues = "https://github.com/helx-systems/StackHelx/issues"
 
 [project.scripts]
 stackhelx = "stackhelx.cli:app"
