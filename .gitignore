@@ -12,3 +12,6 @@ venv/
 graphify-out/
 scratch/
 .archive/
+
+# cosmic-ray (docs/mutation-testing.md)
+*.sqlite

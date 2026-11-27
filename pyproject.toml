@@ -75,6 +75,11 @@ select = ["E4", "E7", "E9", "F", "I"]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "cosmic-ray>=8.9.0",
+]
+
 [tool.hatch.version]
 path = "stackhelx/__init__.py"
 

@@ -1,3 +1,4 @@
+import pytest
 
 from stackhelx import registry
 
@@ -166,3 +167,76 @@ def test_project_for_interprete_global_con_cwd_en_el_proyecto(tmp_path):
     p.mkdir()
     cmd = r"C:\Python314\python.exe -m uvicorn main:app"
     assert registry.project_for(str(p), cmd, [p], name="python.exe") == p
+
+
+# --- token y remove: sobrevivientes de mutation testing (docs/mutation-testing.md) ---
+
+
+@pytest.fixture
+def home_limpio(tmp_path, monkeypatch):
+    monkeypatch.setattr(registry, "HOME", tmp_path)
+    monkeypatch.setattr(registry, "PROJECTS", tmp_path / "projects.json")
+    for var in ("STACKHELX_TOKEN", "PORTMASTER_TOKEN"):
+        monkeypatch.delenv(var, raising=False)
+    return tmp_path
+
+
+def test_token_generado_lleva_32_bytes_de_entropia(home_limpio):
+    """32 bytes en base64 url-safe sin relleno son 43 caracteres; con 31 serian 42."""
+    generado = registry.token()
+    assert len(generado) == 43
+    assert (home_limpio / "token").read_text(encoding="utf-8") == generado
+
+
+def test_token_guardado_se_reutiliza_desde_16_caracteres(home_limpio):
+    (home_limpio / "token").write_text("a" * 16, encoding="utf-8")
+    assert registry.token() == "a" * 16
+
+
+def test_token_guardado_de_15_caracteres_se_regenera(home_limpio):
+    (home_limpio / "token").write_text("a" * 15, encoding="utf-8")
+    nuevo = registry.token()
+    assert nuevo != "a" * 15
+    assert len(nuevo) == 43
+
+
+def test_token_de_entorno_acepta_16_y_rechaza_15(home_limpio, monkeypatch):
+    monkeypatch.setenv("STACKHELX_TOKEN", "b" * 16)
+    assert registry.token() == "b" * 16
+    monkeypatch.setenv("STACKHELX_TOKEN", "b" * 15)
+    with pytest.raises(registry.RegistryError):
+        registry.token()
+
+
+def test_token_de_entorno_nuevo_gana_al_legacy(home_limpio, monkeypatch):
+    monkeypatch.setenv("STACKHELX_TOKEN", "n" * 20)
+    monkeypatch.setenv("PORTMASTER_TOKEN", "v" * 20)
+    assert registry.token() == "n" * 20
+
+
+def test_token_de_entorno_legacy_solo_si_no_hay_nuevo(home_limpio, monkeypatch):
+    monkeypatch.setenv("PORTMASTER_TOKEN", "v" * 20)
+    assert registry.token() == "v" * 20
+
+
+def test_project_id_son_12_hex(tmp_path):
+    pid = registry.project_id(tmp_path)
+    assert len(pid) == 12
+    int(pid, 16)
+
+
+def test_remove_distingue_registrado_de_desconocido(home_limpio):
+    a = home_limpio / "a"
+    b = home_limpio / "b"
+    for d in (a, b):
+        d.mkdir()
+        (d / "stack.yaml").write_text(
+            "name: x\nservices:\n  web:\n    command: echo 1\n", encoding="utf-8"
+        )
+        registry.add(d)
+
+    assert registry.remove("no-existe") is False
+    assert len(registry.paths()) == 2
+
+    assert registry.remove(registry.project_id(a.resolve())) is True
+    assert registry.paths() == [b.resolve()]

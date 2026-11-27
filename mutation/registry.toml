@@ -1,0 +1,8 @@
+[cosmic-ray]
+module-path = "stackhelx/registry.py"
+timeout = 60.0
+excluded-modules = []
+test-command = "uv run --no-sync python -m pytest -x -q -p no:cacheprovider tests/test_registry.py tests/test_guardrails.py"
+
+[cosmic-ray.distributor]
+name = "local"
