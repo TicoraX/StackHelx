@@ -115,6 +115,15 @@ def test_puerto_fuera_de_rango():
             ports.scan(value)
 
 
+def test_check_port_limites_y_bool():
+    """1 y 65535 son validos; `True` es un int para Python pero no un puerto."""
+    assert ports.check_port(1) == 1
+    assert ports.check_port(65535) == 65535
+    for value in (0, 65536, True, False, "80", 80.0):
+        with pytest.raises(ValueError):
+            ports.check_port(value)
+
+
 def test_kill_rechaza_el_proceso_propio():
     with pytest.raises(ports.KillRefused):
         ports.kill(os.getpid())
